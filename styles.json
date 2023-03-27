@@ -1,0 +1,21 @@
+{
+    "container": {
+        "flex": 1,
+        "backgroundColor": "#fff",
+        "alignItems": "stretch"
+      },
+      "main": {
+        "backgroundColor": "#fff",
+        "flex": 10
+      },
+      "menuinferior": {
+        "flex": 1,
+        "backgroundColor": "#d9d9d9",
+        "justifyContent": "center",
+        "opacity": 0.5
+      },
+      "textInput":{
+        "borderColor":"#fad3cc",
+        "borderStyle":"solid"
+      }
+}

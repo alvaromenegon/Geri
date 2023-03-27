@@ -1,20 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { View, Text } from 'react-native';
+import { useWindowDimensions } from 'react-native';
+import BottomBar from './components/BottomBar';
+import TopBar from './components/TopBar';
+import Main from './pages/Main';
+//import styles from './styles.json';
+
 
 export default function App() {
+  const {height, width} = useWindowDimensions();
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={{flex:1}}>
+      <TopBar/>
+      <Main/>
+      <BottomBar/>
+      <StatusBar/>
     </View>
+    
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+//const {height, width} = useWindowDimensions();
