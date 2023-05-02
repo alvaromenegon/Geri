@@ -1,0 +1,87 @@
+{
+    "colors":{
+        "primary": "#edc4b5",
+        "primaryDark": "#be9d91",
+        "primaryLight": "#fbf4f1",
+        "primaryBackground": "#fdf9f8",
+        "secondary":"#1f3829",
+        "secondaryLight":"#627469",
+        "secondaryDark":"#16271d"
+    },
+    "container": {
+        "backgroundColor": "#fdf9f8",
+        "padding":15,
+        "paddingTop":30,
+        "paddingBottom":50,
+        "flex": 1
+    },
+    "text":{
+        "fontSize": 24
+    },
+    "mainText":{
+        "fontSize": 24,
+        "fontWeight": "bold",
+        "color":"black"
+    },
+    "input": {
+        "borderWidth": 1,
+        "margin": 5,
+        "padding": 5,
+        "borderRadius": 5,
+        "backgroundColor": "white",
+        "height": 60,
+        "fontSize": 20
+    },
+    "button":{
+        "margin": 10,
+        "padding": 5,
+        "paddingLeft": 15,
+        "paddingRight": 15,
+        "borderRadius": 25,
+        "backgroundColor":"#2b725a",
+        "justifyContent": "center",
+        "alignItems": "center",
+        "maxWidth": "50%"
+    },
+    "textButton": {
+        "color": "#fbf4f1",
+        "fontSize": 24
+    },
+    "textInput": {
+        "height": 40,
+        "backgroundColor": "white",
+        "borderColor": "gray",
+        "borderWidth": 1,
+        "borderRadius": 5,
+        "padding": 5
+    },
+    "modal": {
+        "width": "80%",
+        "height": "80%",
+        "backgroundColor": "white",
+        "borderRadius": 10,
+        "padding": 15  
+    },
+    "modalShade":{
+        "backgroundColor": "rgba(0,0,0,0.5)",
+        "flex": 1,
+        "justifyContent": "center",
+        "alignItems": "center"
+    
+    },
+    "modalHeader":{
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "alignItems": "center",
+        "marginBottom": 10,
+        "paddingBottom": 10,
+        "borderBottomWidth": 1,
+        "borderBottomColor": "#ccc"
+
+    },
+    "rowSpaceBetween":{
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "alignItems": "center"
+    }
+}
