@@ -4,32 +4,13 @@ import { VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import style from '../assets/style.json';
 import BottomBar from '../components/BottomBar';
+import Padding from '../components/Padding';
 
-const Relatorio = () => {
+const Faturamento = () => {
     const [data, setData] = useState([]);
     const [response, setResponse] = useState({})
     const [isLoading, setIsLoading] = useState(true);
-    const entradas = 60;
-    const saidas = 50;
-    const lucro = entradas - saidas;
-    const lucroUm = 37;
-    const lucroPm = 57;
-    const datta = [
-        {
-            x: `Entradas: \nR$${entradas}`,
-            y: entradas,
-            symbol: { fill: "green", type: "square" },
-            name: "Entradas"
-        },
-        {
-            x: `Saidas: \nR$ ${saidas}`,
-            y: saidas,
-            symbol: { fill: "red", type: "square" },
-            name: "Saidas"
-        }];
-
-
-
+    
     useEffect(() => {
         setIsLoading(true);
         api('http://192.168.0.104:8080/newApi/faturamento').then(response => {
@@ -37,13 +18,13 @@ const Relatorio = () => {
             setData([
                 {
                     x: `Entradas: \nR$${response.atual}`,
-                    y: response.atual,
+                    y: response.atual || 1,
                     symbol: { fill: "green", type: "square" },
                     name: "Entradas"
                 },
                 {
                     x: `Saidas: \nR$ ${response.gastos}`,
-                    y: response.gastos,
+                    y: response.gastos || 1,
                     symbol: { fill: "red", type: "square" },
                     name: "Saidas"
                 }])
@@ -55,7 +36,7 @@ const Relatorio = () => {
     }, []);
 
     return (<>
-        <ScrollView contentContainerStyle={{ justifyContent: "center", alignItems: 'center' }}>
+        <ScrollView contentContainerStyle={{ justifyContent: "center", alignItems: 'center' }} style={style.container}>
             <Text style={style.text}>Faturamento Mensal</Text>
             {isLoading ?
                 <ActivityIndicator size={24} color={'black'} /> :
@@ -105,12 +86,9 @@ const Relatorio = () => {
                                 />
                             </VictoryChart>
                         </View>
-
-
                     </>
                 )}
-
-
+                <Padding />
         </ScrollView>
         <BottomBar />
     </>
@@ -138,4 +116,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default Relatorio;
+export default Faturamento;

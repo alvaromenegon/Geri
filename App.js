@@ -5,16 +5,14 @@ import Login from './src/pages/Login';
 import Main from './src/pages/Main';
 import { MateriasPrimas, Formulacoes, Produtos, Saidas } from './src/pages/Listagens';
 import Profile from './src/pages/Profile';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import TopBar from './src/components/TopBar';
 import { CadFormulacoes, CadMateriasPrimas, CadProdutos, CadSaidas } from './src/pages/Cadastros';
-import Relatorio from './src/pages/Relatorio';
-import { View, ActivityIndicator } from 'react-native';
+import Faturamento from './src/pages/Faturamento';
 import { Cadastro } from './src/pages/Cadastro';
-import colors from './src/assets/colors';
 
 const Stack = createNativeStackNavigator();
 
@@ -50,7 +48,7 @@ export default function App() {
         <Stack.Screen name="Cadastrar Formulação" component={CadFormulacoes} />
         <Stack.Screen name="Saídas" component={Saidas} />
         <Stack.Screen name="Cadastrar Saída" component={CadSaidas} />
-        <Stack.Screen name="Relatório" component={Relatorio} />
+        <Stack.Screen name="Faturamento" component={Faturamento} />
         <Stack.Screen name="Gerenciar Matéria-Prima" component={CadMateriasPrimas} />
       </Stack.Navigator>
     </NavigationContainer>

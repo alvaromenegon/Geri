@@ -4,14 +4,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from "react";
 import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
+import firebase from "firebase";
+import firebaseConfig from "../services/firebaseConfig";
 
 /*const encrypt = (senha) => {
     var crypto = require('expo-crypto');
     não implementado
     return hash;
 }*/
-
-
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -27,15 +27,15 @@ export default function Login() {
                 JSON.stringify({
                     login: login,
                     email: email,
-                    senha: senha
                 })
             )
         } catch (e) {
             setErr(true);
             console.error(e);
         } finally {
-            !err ? navigation.replace('Controle') :
-                alert('Erro ao salvar dados');
+            !err?
+            navigation.replace('Controle'):
+            alert('Erro ao salvar dados');
         }
     }
 

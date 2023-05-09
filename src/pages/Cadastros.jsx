@@ -27,9 +27,6 @@ const CadMateriasPrimas = ({ route }) => {
         const data = props.data
         const content = props.content || 'Verificar';
 
-
-
-
         return (
             <Modal
                 animationType="slide"
@@ -196,7 +193,7 @@ const CadMateriasPrimas = ({ route }) => {
                 ]}
             />
 
-            <InputWithLabel value={preco} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
+            <InputWithLabel value={preco.toString()} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
             <Text style={{ fontSize: 20, margin: 5 }}>Preço Unitário: R${precoUn.toFixed(2)}/{unMedida}</Text>
 
 
@@ -213,7 +210,7 @@ const CadMateriasPrimas = ({ route }) => {
             >
                 <Text style={style.buttonText}>Verificar</Text>
             </TouchableOpacity>
-            <Padding value={40} />
+            <Padding />
         </ScrollView>
     )
 
@@ -398,15 +395,15 @@ const CadFormulacoes = (props) => {
             <Text style={style.text}>Matérias-primas:</Text>
             {isLoading ? <ActivityIndicator size={24} color='black' /> :
                 renderItens()
-}
-                <TouchableOpacity
-                    style={style.button}
-                    onPress={() => {
-                        setModalVisible(true);
-                    }}
-                >
-                    <Text style={style.text}>Verificar</Text>
-                </TouchableOpacity>
+            }
+            <TouchableOpacity
+                style={style.button}
+                onPress={() => {
+                    setModalVisible(true);
+                }}
+            >
+                <Text style={style.text}>Verificar</Text>
+            </TouchableOpacity>
             {modalVisible ? <Verificar /> : null}
             <Padding value={40} />
         </ScrollView>

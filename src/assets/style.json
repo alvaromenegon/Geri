@@ -45,7 +45,8 @@
     },
     "textButton": {
         "color": "#fbf4f1",
-        "fontSize": 24
+        "fontSize": 24,
+        "textAlign":"center"
     },
     "textInput": {
         "height": 40,

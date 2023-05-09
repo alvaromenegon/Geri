@@ -3,11 +3,12 @@ import { Feather } from '@expo/vector-icons';
 import example from '../../assets/icon.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 //import { storeData } from '../pages/Listagens';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
@@ -142,11 +143,11 @@ const TopBar = () => {
                             </TouchableOpacity>
                         </View>
                         <TouchableOpacity onPress={() => {
-                            goTo('Relatório');
+                            goTo('Faturamento');
                         }}
                             style={styles.navs}
                         >
-                            <Text style={style.text}>Relatório</Text>
+                            <Text style={style.text}>Faturamento</Text>
                         </TouchableOpacity>
 
                     </View>
@@ -165,6 +166,13 @@ const TopBar = () => {
             </View>
         )
     }
+    const [image, setImage] = useState(null);
+    useEffect(() => {
+        AsyncStorage.getItem('profile').then((value) => {
+            setImage(value);
+        })
+    }, [modalVisible])
+    
 
     return (<>
         <View style={styles.menusuperior}>
@@ -173,7 +181,7 @@ const TopBar = () => {
                     <TouchableOpacity onPress={() => {
                         goTo('Perfil');
                     }}>
-                        <Image source={example} borderRadius={50} style={styles.pfp}></Image>
+                        <Image source={ image ? {uri:image} : example} borderRadius={50} style={styles.pfp}></Image>
                     </TouchableOpacity> :
                     <TouchableOpacity onPress={() => {
                         navigator.goBack();

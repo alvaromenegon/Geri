@@ -1,14 +1,17 @@
 import { Image, View, Text, TouchableOpacity, Modal, ActivityIndicator, Alert } from "react-native";
 import style from '../assets/style.json';
-import example from '../../assets/icon.png';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { InputWithLabel } from "../components/InputWithLabel";
 import { api } from "../services/api";
+import * as ImagePicker from 'expo-image-picker';
+
+
 
 const Profile = () => {
     const navigation = useNavigation();
+    const [image, setImage] = useState(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
@@ -76,8 +79,6 @@ const Profile = () => {
 
 
         }
-
-
         return (
             <Modal
                 animationType="slide"
@@ -179,8 +180,30 @@ const Profile = () => {
     }
 
     useEffect(() => {
-        getUser();
+        AsyncStorage.getItem('profile').then((value) => {
+            setImage(value);
+        }).then(() => {
+            getUser();
+        })
     }, [])
+
+    const pickImage = async () => {
+        // No permissions request is necessary for launching the image library
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1]
+        });
+        if (!result.canceled) {
+            setImage(result.assets[0].uri);
+            AsyncStorage.setItem('profile', image).then(() => {
+                Alert.alert('Imagem Alterada', 'Imagem alterada com sucesso');
+            }).catch((error) => {
+                console.error(error);
+            }
+            )
+        }
+    };
 
     return (
         <View style={style.container}>
@@ -193,7 +216,7 @@ const Profile = () => {
                         width: 100,
                     }}
                 >
-                    <Image source={example}
+                    <Image source={image ? { uri: image } : require('../../assets/icon.png')}
                         borderRadius={50}
                         style={
                             {
@@ -204,8 +227,8 @@ const Profile = () => {
                         }
                     ></Image>
                     <TouchableOpacity
-                        onPress={() => { alert('Não implementado') }}
-                        style={{ ...style.button,maxWidth:100, width: 100 }}
+                        onPress={() => { pickImage() }}
+                        style={{ ...style.button, maxWidth: 100, width: 100 }}
                     >
                         <Text style={{ color: '#fff' }}>Alterar</Text>
                     </TouchableOpacity>

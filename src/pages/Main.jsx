@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { storeData } from './Listagens';
 import { ScrollView } from 'react-native';
 import BottomBar from '../components/BottomBar';
+import Padding from '../components/Padding';
 
 
 
@@ -61,11 +62,10 @@ function Main() {
 
     const getRecentes = async () => {
         let arr = [];
-        let recent = '';
         var i = 1
-        for (i; i < 5; i++) {
+        for (i=0; i < 5; i++) {
             try {
-                recent = await AsyncStorage.getItem('recent' + i);
+                const recent = await AsyncStorage.getItem('recent' + i);
                 if (recent !== null) {
                     arr.push(
                         <TouchableOpacity
@@ -105,9 +105,11 @@ function Main() {
 
     useEffect(() => {
         setLoading(true);
+        navigation.addListener('focus', () => {
+            getRecentes();
+        });
         getUser();
         getAvisos();
-        getRecentes();
         setLoading(false);
     }, []);
 
@@ -154,6 +156,7 @@ function Main() {
                     </View>
                 </View>
             }
+            <Padding/>
         </ScrollView>
     )
 }
