@@ -6,7 +6,8 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import { InputWithLabel } from "../components/InputWithLabel";
 import { api } from "../services/api";
 import * as ImagePicker from 'expo-image-picker';
-
+import {getAuth} from 'firebase/auth';
+ 
 
 
 const Profile = () => {
@@ -204,6 +205,18 @@ const Profile = () => {
             )
         }
     };
+
+    const sair = () => {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+            AsyncStorage.removeItem('user').then(() => {
+                navigation.navigate('Login');
+            })
+        }).catch((error) => {
+            console.error(error);
+        }
+        )
+    }
 
     return (
         <View style={style.container}>

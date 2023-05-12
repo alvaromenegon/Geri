@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import { InputWithLabel } from '../components/InputWithLabel';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 /*const encrypt = (senha) => {
     implementar
 }*/
+//Login com Google= https://firebase.google.com/docs/auth/web/google-signin?hl=pt-br
+
 
 export const Cadastro = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +42,38 @@ export const Cadastro = () => {
             setIsLoading(false);
             return;
         }
-        const data = {
+        const auth = getAuth();
+        createUserWithEmailAndPassword(auth, email, senha)
+            .then((userCredential) => {
+                // Signed in
+                const user = userCredential.user;
+                user.updateProfile({
+                    displayName: nome,
+                }).then(() => {
+                    
+                }).catch((error) => {
+                    Alert.alert(
+                        'Erro ao atualizar nome',
+                        'Não foi possível atualizar o nome do usuário, entre em contato com o suporte'
+                    )
+                });
+                alert('Cadastro realizado com sucesso');
+                //navigation.replace('Login');
+                // ...
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                if (errorCode === 'auth/email-already-in-use') {
+                    Alert.alert('Não foi possível cadastrar', 'Esse E-mail já foi cadastrado');
+                    return;
+                }
+                const errorMessage = error.message;
+                alert(errorMessage);
+                // ..
+            });
+
+
+        /*const data = {
             nome: nome,
             email: email,
             senha: senha,
@@ -60,7 +94,7 @@ export const Cadastro = () => {
         }
         else if (json.res === 'false')
             alert('Erro ao cadastrar');
-        else alert('E-mail já cadastrado');
+        else alert('E-mail já cadastrado');*/
         setIsLoading(false);
     }
 
