@@ -32,11 +32,11 @@ export default function App() {
       <StatusBar style='auto' backgroundColor='#edc4b5' translucent={false} />
       <Stack.Navigator
         screenOptions={{
-          header: () => <TopBar />,
+          header: () => null,
         }}
       >
-        <Stack.Screen name='Login' component={Login} />
-        <Stack.Screen name="Cadastro" component={Cadastro} />
+        <Stack.Screen name='Login' component={Login}/>
+        <Stack.Screen name="Cadastro" component={Cadastro}/>
 
         <Stack.Screen name="Controle" component={Main} />
         <Stack.Screen name="Perfil" component={Profile} />

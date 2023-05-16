@@ -11,10 +11,6 @@ import { storeData } from '../assets/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-
-
-
-
 const TopBar = () => {
     const [modalVisible, setModalVisible] = useState(false);
 

@@ -3,11 +3,12 @@ import { Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 're
 import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import { InputWithLabel } from '../components/InputWithLabel';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { getDatabase, ref, set } from "firebase/database";
 
-/*const encrypt = (senha) => {
-    implementar
-}*/
+const db = getDatabase();
+
+
 //Login com Google= https://firebase.google.com/docs/auth/web/google-signin?hl=pt-br
 
 
@@ -45,20 +46,25 @@ export const Cadastro = () => {
         const auth = getAuth();
         createUserWithEmailAndPassword(auth, email, senha)
             .then((userCredential) => {
-                // Signed in
                 const user = userCredential.user;
-                user.updateProfile({
+                updateProfile(auth.currentUser, {
                     displayName: nome,
                 }).then(() => {
-                    
-                }).catch((error) => {
-                    Alert.alert(
-                        'Erro ao atualizar nome',
-                        'Não foi possível atualizar o nome do usuário, entre em contato com o suporte'
-                    )
-                });
-                alert('Cadastro realizado com sucesso');
-                //navigation.replace('Login');
+                    sendEmailVerification(auth.currentUser)
+                    .then(() => {
+                        // Email verification sent!
+                        Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para ' + email);
+                    })
+                })
+                    .then(() => {
+                        set(ref(db, 'usuarios/' + user.uid), {
+                            nome: nome,
+                            email: email,
+                        });
+                    })
+                    .then(() => {
+                        navigation.replace('Login');
+                    })
                 // ...
             })
             .catch((error) => {
@@ -72,29 +78,6 @@ export const Cadastro = () => {
                 // ..
             });
 
-
-        /*const data = {
-            nome: nome,
-            email: email,
-            senha: senha,
-        }
-        const response = await fetch('http://192.168.0.104:8080/newApi/cadastro',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            }
-        );
-        const json = await response.json();
-        if (json.res) {
-            alert('Cadastro realizado com sucesso');
-            navigation.replace('Login');
-        }
-        else if (json.res === 'false')
-            alert('Erro ao cadastrar');
-        else alert('E-mail já cadastrado');*/
         setIsLoading(false);
     }
 
@@ -109,7 +92,7 @@ export const Cadastro = () => {
             <TouchableOpacity
                 style={{ ...style.button, marginBottom: 60, alignSelf: 'center' }}
                 onPress={() => { cadastrar() }}
-                
+
             >
                 {isLoading ? <ActivityIndicator size="small" color="#fff" /> :
                     <Text style={style.textButton}>Cadastrar</Text>}
