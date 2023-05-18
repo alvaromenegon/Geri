@@ -4,22 +4,52 @@ import { InputWithLabel } from '../components/InputWithLabel';
 import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useRef, useEffect } from 'react';
-import { api, getItens } from '../services/api';
+import { getItens } from '../services/api';
 import CheckBox from 'expo-checkbox'
 import { useNavigation } from '@react-navigation/native';
 import BottomBar from '../components/BottomBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Padding from '../components/Padding';
+import { getDatabase, update, ref, set } from 'firebase/database';
+import firebase from '../services/firebaseConfig';
+
+function change(props) {
+    console.log(props)
+    const data = props.data;
+    const db = getDatabase(firebase);
+    var erro = false;
+    
+    AsyncStorage.getItem('user').then((value) => {
+        const user = JSON.parse(value);
+        const uid = user.uid;
+        const id = props.id || Date.now() + Math.random().toString(36).substring(7);
+        const url = ref(db, `data/${uid}/${props.url}/${id}`)
+        console.log(url)
+        props.set === 'set' ?
+            set(url, data).then((ret) => {
+                console.log(ret)
+            }).catch((err) => {
+                console.log(err)
+                erro = true;
+            })
+                :
+            update(url, data).then((ret) => {
+                console.log(ret)
+            }
+            ).catch((err) => {
+                console.log(err);
+                erro = true;
+            })
+        if (erro) {
+            throw new Error('Erro ao salvar os dados')
+        }
+        return true;
+
+    })
 
 
 
-//const basicUrl = 'https://controle-produtos.up.railway.app/newApi/';
-const basicUrl = 'http://192.168.0.104:8080/newApi/';
-
-
-
-
-
+}
 
 const CadMateriasPrimas = ({ route }) => {
     const Verificar = (props) => {
@@ -50,41 +80,9 @@ const CadMateriasPrimas = ({ route }) => {
                         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-around' }}>
                             <TouchableOpacity style={style.button}
                                 onPress={() => {
-                                    Alert.alert('Cadastro Concluídos', 'Text');
-                                    api({
-                                        method: 'post',
-                                        url: 'mp',
-                                        data: {
-                                            nome: nome,
-                                            dataCompra: dataCompra,
-                                            validade: validade,
-                                            qtd: qtd,
-                                            unMedida: unMedida,
-                                            preco: preco,
-                                            precoUn: precoUn
-                                        }
-                                    }).then((response) => {
-                                        if (response.status == 200) {
-                                            navigation.navigate('Matérias-Primas', { refresh: true });
-                                            AsyncStorage.removeItem('failed');
-                                        }
-                                        else {
-                                            AsyncStorage.setItem('failed', JSON.stringify(
-                                                {
-                                                    nome: nome,
-                                                    dataCompra: dataCompra,
-                                                    validade: validade,
-                                                    qtd: qtd,
-                                                    unMedida: unMedida,
-                                                    preco: preco,
-                                                    precoUn: precoUn
-                                                }
-                                            ))
-                                            Alert.alert('Erro', 'Erro ao conectar com o servidor');
-                                        }
-                                    }).catch((error) => {
-                                        console.log(error);
-                                    });
+                                    change({ data: data, url: 'mps/123', set: 'set' })
+                                    navigation.replace('Matérias-Primas');
+                                    
                                     setModalVisible(!modalVisible);
                                 }}
                             >
@@ -95,6 +93,7 @@ const CadMateriasPrimas = ({ route }) => {
                                 backgroundColor: 'gray'
                             }}
                                 onPress={() => {
+
                                     setModalVisible(!modalVisible);
                                 }}
                             >
@@ -122,9 +121,6 @@ const CadMateriasPrimas = ({ route }) => {
     } else {
         id = false;
     }
-
-
-
     useEffect(() => {
         try {
             if (preco / qtd == Infinity || isNaN(preco / qtd)) {

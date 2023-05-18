@@ -6,8 +6,10 @@ import { StackActions, useNavigation } from "@react-navigation/native";
 import { InputWithLabel } from "../components/InputWithLabel";
 import { api } from "../services/api";
 import * as ImagePicker from 'expo-image-picker';
-import {getAuth} from 'firebase/auth';
- 
+import { getAuth, signOut } from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database';
+import { updateEmail, signInWithEmailAndPassword } from "firebase/auth";
+
 
 
 const Profile = () => {
@@ -21,10 +23,10 @@ const Profile = () => {
     const getUser = async () => {
         try {
             const user = await AsyncStorage.getItem('user');
-            const login = JSON.parse(user).login;
+            const nome = JSON.parse(user).nome;
             const email = JSON.parse(user).email;
-            if (login !== null && email !== null) {
-                setUsername(login);
+            if (nome !== null && email !== null) {
+                setUsername(nome);
                 setEmail(email)
             }
             else {
@@ -46,39 +48,61 @@ const Profile = () => {
         const [confirmarSenha, setConfirmarSenha] = useState('');
         const [isLoading, setIsLoading] = useState(false);
 
-        const alterarEmail = async (newemail, senha) => {
-            var status = 0;
-            try {
-                api({
-                    method: 'post',
-                    url: 'alterarEmail',
-                    data: {
-                        email: newemail,
-                        senha: senha,
-                    }
-                }).then((response) => {
-                    console.log(response);
-                    status = response.status;
-                }).catch((error) => {
-                    console.error(error);
-                })
-            } catch (error) {
+        const alterarEmail = (newemail, password) => {
+            setIsLoading(true);
+            updateEmail(getAuth().currentUser, newemail).then(() => {
+                Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para o novo endereço de e-mail. Por favor, verifique sua caixa de entrada e clique no link para confirmar a alteração.')
+                // Update successful.
+            }).catch((error) => {
                 console.error(error);
-            } finally {
-                if (status === 200) {
-                    Alert.alert('Sucesso', 'E-mail alterado com sucesso');
-                    setEmail(newemail);
-                    setIsLoading(false);
-                    setModalVisible(false);
+                if (error.code === 'auth/requires-recent-login') {
+                    setIsLoading(true);
+                    signInWithEmailAndPassword(getAuth(), email, password).then(() => {
+                        updateEmail(getAuth().currentUser, newemail).then(() => {
+                            Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para o novo endereço de e-mail. Por favor, verifique sua caixa de entrada e clique no link para confirmar a alteração.')
+                            // Update successful.
+                        }).catch((error) => {
+                            console.error(error);
+                        });
+                    }).catch((error) => {
+                        console.error(error);
+                        Alert.alert('Erro', 'Senha incorreta');
+                    });
+                }
+                else if (error.code === 'auth/email-already-in-use') {
+                    Alert.alert('Erro', 'O e-mail informado já está em uso');
+                }
+                else if (error.code === 'auth/invalid-email') {
+                    Alert.alert('Erro', 'O e-mail informado é inválido');
+                }
+                else if (error.code === 'auth/invalid-password') {
+                    Alert.alert('Erro', 'A senha informada é inválida');
+                }
+                else if (error.code === 'auth/user-token-expired') {
+                    Alert.prompt('Erro', 'Por favor, faça login novamente para continuar',
+                        [
+                            {
+                                text: 'OK',
+                                onPress: () => {
+                                    signOut(getAuth()).then(() => {
+                                        AsyncStorage.removeItem('user');
+                                        navigation.dispatch(StackActions.replace('Login'));
+                                    }).catch((error) => {
+                                        console.error(error);
+                                    });
+                                },
+                            }, {
+                                text: 'Cancelar', style: 'cancel', onPress: () => { }
+                            }
+                        ],);
                 }
                 else {
-                    setIsLoading(false);
-                    Alert.alert('Erro', 'Erro ao alterar e-mail');
+                    Alert.alert('Erro', 'Ocorreu um erro ao alterar o e-mail');
+
                 }
-                setIsLoading(false);
-            }
+            });
 
-
+            setIsLoading(false);
         }
         return (
             <Modal
@@ -110,7 +134,7 @@ const Profile = () => {
                                             flex: 1
                                         }}>
                                             <InputWithLabel label="E-mail" value={newEmail} type='email-address' onChangeText={text => setNewEmail(text)} />
-                                            <InputWithLabel label="Confirme a senha" value={confirmarSenha} secure={true} onChangeText={text => setConfirmarSenha(text)} />
+                                            <InputWithLabel label="Senha" value={confirmarSenha} secure={true} onChangeText={text => setConfirmarSenha(text)} />
                                         </View>
                                     </> :
                                     <>
@@ -156,6 +180,7 @@ const Profile = () => {
                                                 setIsLoading(false);
                                                 return;
                                             }
+
 
                                             alterarEmail(newEmail, confirmarSenha);
                                             setConfirmarSenha('');
@@ -209,13 +234,16 @@ const Profile = () => {
     const sair = () => {
         const auth = getAuth();
         signOut(auth).then(() => {
-            AsyncStorage.removeItem('user').then(() => {
-                navigation.navigate('Login');
+            AsyncStorage.setItem('prevUser', email).then(() => {
+                AsyncStorage.removeItem('user').then(() => {
+                    navigation.dispatch(StackActions.popToTop())
+                    navigation.navigate('Login');
+                })
             })
-        }).catch((error) => {
-            console.error(error);
-        }
-        )
+        })
+            .catch((error) => {
+                console.error(error);
+            })
     }
 
     return (
@@ -281,18 +309,7 @@ const Profile = () => {
                 alignSelf: 'center',
                 marginTop: 20,
             }}
-                onPress={async () => {
-                    await AsyncStorage.removeItem('user');
-                    await AsyncStorage.setItem('prevUser',
-                        JSON.stringify({
-                            login: username,
-                            email: email,
-                        })
-                    );
-                    navigation.dispatch(StackActions.popToTop())
-                    navigation.replace('Login');
-                }}
-            >
+                onPress={() => sair()}    >
                 <Text>Sair</Text>
             </TouchableOpacity>
             <Alterar />

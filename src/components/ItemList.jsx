@@ -43,13 +43,13 @@ export default function ItemList(props) {
 
                 :
                 props.format === 'mp' ?
-                    <Text>Validade: {data.validade}</Text>
+                    <Text>Validade: {new Date(data.validade).toLocaleDateString('pt-BR')}</Text>
                     :
                     props.format === 'form' ?
                         <Text>{data.tipo} - R$ {data.custo}</Text>
                         :
                         props.format === 'prod' ?
-                            <Text>{data.validade}</Text>
+                            <Text>{new Date(data.validade).toLocaleDateString('pt-BR')}</Text>
                             :
                             props.format === 'saida' ?
                                 <Text>Data: {
@@ -107,14 +107,14 @@ const TableMP = (props) => {
     const precoUn = `R$ ${data.precoUn}/${data.unMedida}`
     const comprado = `${data.comprado} ${data.unMedida}`
     const quantidade = `${data.quantidade} ${data.unMedida}`
-    //const comprado = new Date(data.dataCompra).toLocaleDateString('pt-BR');
-    //const validade = new Date(data.validade).toLocaleDateString('pt-BR');
+    const dataCompra = new Date(data.dataCompra).toLocaleDateString('pt-BR');
+    const validade = new Date(data.validade).toLocaleDateString('pt-BR');
     return (
         <>
             <TableCell title='Nome' value={data.nome}></TableCell>
             <TableCell title='Preço' value={preco}></TableCell>
-            <TableCell title='Data da Compra' value={data.dataCompra}></TableCell>
-            <TableCell title='Validade' value={data.validade}></TableCell>
+            <TableCell title='Data da Compra' value={dataCompra}></TableCell>
+            <TableCell title='Validade' value={validade}></TableCell>
             <TableCell title='Preço Unitário'
                 value={precoUn}
             ></TableCell>

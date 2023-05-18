@@ -32,7 +32,7 @@ export default function App() {
       <StatusBar style='auto' backgroundColor='#edc4b5' translucent={false} />
       <Stack.Navigator
         screenOptions={{
-          header: () => null,
+          header: () => <TopBar/>,
         }}
       >
         <Stack.Screen name='Login' component={Login}/>

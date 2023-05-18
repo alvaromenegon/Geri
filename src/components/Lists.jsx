@@ -3,6 +3,9 @@ import style from "../assets/style";
 import { useEffect, useState } from "react";
 import ItemList from "./ItemList";
 import BottomBar from "./BottomBar";
+import { getDatabase, ref, get } from "firebase/database";
+import firebase from "../services/firebaseConfig";
+import { getAuth } from "firebase/auth";
 
 export default function Lists(props) {
     if (props.format !== 'mp' &&
@@ -16,6 +19,8 @@ export default function Lists(props) {
     const [data, setData] = useState([]);
     const [active, setActive] = useState(1);
     const [numberPages, setNumberPages] = useState(1);
+    const db = getDatabase(firebase);
+    const uid = getAuth().currentUser.uid;
 
     const PaginationButton = (props) => {
         if (props.active) {
@@ -43,21 +48,30 @@ export default function Lists(props) {
     const getItens = async (page) => {
         const p = page ?? 1;
         setLoading(true);
-        try {
-            const response = await fetch(props.url + '?p=' + p);
-            const json = await response.json();
-            setData(json.res);
-            setNumberPages(json.n)
-        } catch (error) {
+        get(ref(db, `data/${uid}/${props.url}/`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                setData(snapshot.val());
+            } else {
+                console.warn('No data available');
+                setData([null]);
+            }
+        })
+        .catch((error) => {
             console.error(error);
-        } finally {
+        }
+        )
+        .finally(() => {
             setLoading(false);
         }
+        );        
     };
 
     const renderList = () => {
         let arr = [];
         let i = 0;
+        if (data[0] == null){
+            return <Text style={{textAlign:'center'}}>Nenhum item cadastrado</Text>
+        }
         for (i; i < data.length; i++) {
             arr.push(<ItemList
                 key={i}
@@ -95,6 +109,7 @@ export default function Lists(props) {
     return (
         <View style={{ flex: 1 }}>
             <View style={style.container}>
+            
                 {loading ?
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :

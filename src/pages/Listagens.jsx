@@ -1,38 +1,44 @@
 import Lists from '../components/Lists';
 import { storeData} from '../assets/utils';
-
-//const basicUrl = 'https://controle-produtos.up.railway.app/newApi/';
-const basicUrl = 'http://192.168.0.104:8080/newApi/';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 
 const Listagens = () => {
+    const [uid, setUid] = useState('');
+    useEffect(() => {
+        AsyncStorage.getItem('user').then((user) => {
+            setUid(JSON.parse(user).uid);
+        })
+    }, [])
+
     return (
-        <Lists format="erro" url={basicUrl + "mp"} />
+        <Lists format="erro" url={"mp"} uid={uid} />
     )
 }
 
 const MateriasPrimas = () => {
     return (
-        <Lists format="mp" url={basicUrl + "mps"} />
+        <Lists format="mp" url={"mps"} />
     )
 
 }
 
 const Formulacoes = () => {
     return (
-        <Lists format="form" url={basicUrl + "forms"} />
+        <Lists format="form" url={"forms"} />
     )
 }
 
 const Produtos = () => {
     return (
-        <Lists format="prod" url={basicUrl + "produtos"} />
+        <Lists format="prod" url={"produtos"} />
     )
 }
 
 const Saidas = () => {
     return (
-        <Lists format="saida" url={basicUrl + "saidas"} />
+        <Lists format="saida" url={"saidas"} />
     )
 }
 

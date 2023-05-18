@@ -6,71 +6,88 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { storeData } from './Listagens';
 import { ScrollView } from 'react-native';
-import BottomBar from '../components/BottomBar';
 import Padding from '../components/Padding';
-
+import { getAuth, signOut } from 'firebase/auth';
+import { getDatabase, ref, get } from 'firebase/database';
+import { Alert } from 'react-native';
+import firebase from '../services/firebaseConfig';
 
 
 function Main() {
     const navigation = useNavigation();
+    const db = getDatabase(firebase);
     const [loading, setLoading] = useState(true);
     const [username, setUsername] = useState('');
+    const [uid, setUid] = useState('');
     const [avisos, setAvisos] = useState({});
     const [recentes, setRecentes] = useState([]);
 
     const getUser = async () => {
         setLoading(true);
         try {
-            const value = await AsyncStorage.getItem('login')
-            if (value !== null) {
-                setUsername(value);
+            const value = await AsyncStorage.getItem('user')
+            if (value ===null ) {
+                Alert.alert('Erro', 'Houve um erro ao fazer login - Por favor contate o suporte');
+                signOut(getAuth());
+                navigation.replace('Login');
             }
-            else {
-                console.error('erro ao pegar login');
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
+            setUsername(JSON.parse(value).nome);
+            setUid(JSON.parse(value).uid);
 
-    const getAvisos = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch('http://192.168.0.104:8080/newApi/start');
-            const json = await response.json();
-            setAvisos(json.res);
         } catch (error) {
-            console.error(error);
+            console.error('Erro foi' +error);
+            Alert.alert('Erro', 'Houve um erro ao recuperar os dados - Por favor contate o suporte');
+            signOut(getAuth());
+            navigation.replace('Login');
         } finally {
             setLoading(false);
         }
     }
 
+    const getAvisos = async () => {
+        setLoading(true);
+        get(ref(db, `data/${uid}/avisos/`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                setAvisos(snapshot.val());
+            } else {
+                Alert.alert('Erro','Não foi possível conectar ao banco de dados');
+                console.warn('No data available');
+                setAvisos({});
+            }
+        })
+            .catch((error) => {
+                console.error(error);
+                Alert.alert('Erro','Houve um erro na autenticação com o banco de dados - Por favor contate o suporte')
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }
+
     const renderAvisos = () => {
-        if (avisos.length === 0) {
+        if (!avisos.mp && !avisos.prod) {
             return (
-                <Text>Não há avisos</Text>
+                <Text>Está tudo em dia</Text>
             )
         }
         let arr = [];
-        if (avisos.mp) arr.push(<Text style={styles.text} key={0}>Há matérias-primas sem estoque.</Text>);
-        if (avisos.prod) arr.push(<Text style={styles.text} key={1}>Há produtos sem estoque.</Text>);
-
+        if (avisos.noMp) arr.push(<Text style={styles.text} key={0}>Há matérias-primas sem estoque.</Text>);
+        if (avisos.noProd) arr.push(<Text style={styles.text} key={1}>Há produtos sem estoque.</Text>);
+        
         return arr;
     }
-
 
     const getRecentes = async () => {
         let arr = [];
         var i = 1
-        for (i=0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             try {
                 const recent = await AsyncStorage.getItem('recent' + i);
                 if (recent !== null) {
                     arr.push(
                         <TouchableOpacity
                             key={'bt' + i}
-                            style={{...style.button,maxWidth:'80%'}}
+                            style={{ ...style.button, maxWidth: '80%' }}
                             onPress={
                                 () => {
                                     storeData(recent).then(() => {
@@ -139,7 +156,7 @@ function Main() {
         <ScrollView style={style.container}>
             {loading ?
                 <ActivityIndicator size="large" color={colors.primary} /> :
-                <View style={{ flex: 1, marginBottom:25 }}>
+                <View style={{ flex: 1, marginBottom: 25 }}>
                     <Text style={styles.mainText}>Bem-vindo {username}</Text>
                     <Avisos />
                     <View style={styles.recentes}>
@@ -156,7 +173,7 @@ function Main() {
                     </View>
                 </View>
             }
-            <Padding/>
+            <Padding />
         </ScrollView>
     )
 }

@@ -5,29 +5,54 @@ import { useEffect, useState } from "react";
 import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
 import firebase from '../services/firebaseConfig';
-import { signInWithEmailAndPassword, getAuth ,signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signOut, updateProfile } from "firebase/auth";
+import { get, getDatabase, ref } from "firebase/database";
 
 function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [err, setErr] = useState(false);
     const navigation = useNavigation();
+    const db = getDatabase(firebase);
+
 
     const logar = () => {
         const auth = getAuth();
         if (email !== '' && senha !== '') {
-
             signInWithEmailAndPassword(auth, email, senha)
                 .then((userCredential) => {
-                    console.log(userCredential)
                     if (userCredential.user.emailVerified !== true) {
                         Alert.alert('Erro', 'Email não verificado\n' +
                             'Verifique sua caixa de entrada e spam');
-                            signOut(auth);
+                        signOut(auth);
                         return false;
                     }
                     // Signed in
                     var user = userCredential.user;
+                    if (user.displayName === null && user.uid !== null) {
+                        get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
+                            if (snapshot.exists()) {
+                                const data = snapshot.val();
+                                user.displayName = data.nome;
+                                updateProfile(user, {
+                                    displayName: data.nome,
+                                }).then(() => {
+                                }).catch((error) => {
+                                    Alert.alert('Erro', 'Houve um erro ao cadastrar o nome do usuário');
+                                    console.log('error update profile');
+                                    console.log(error);
+                                });
+                            } else {
+                                console.warn('No data available');
+                                setUsername('');
+                            }
+                        })
+                            .catch((error) => {
+                                console.error('Error getting data')
+                                console.error(error);
+                            })
+                    }
+
                     AsyncStorage.setItem('user', JSON.stringify(
                         {
                             email: user.email,
@@ -40,10 +65,13 @@ function Login() {
                 })
                 .catch((error) => {
                     var errorCode = error.code;
-                    var errorMessage = error.message;
-                    console.log(errorCode);
-                    console.log(errorMessage);
-                    Alert.alert('Erro ao fazer login', 'Usuário ou senha incorreta');
+                    if (errorCode === 'auth/wrong-password')
+                        Alert.alert('Erro ao fazer login', 'Usuário ou senha incorreta')
+                    else {
+                        Alert.alert('Erro ao fazer login', 'O email não foi cadastrado');
+                        setEmail('');
+                        setSenha('');
+                    }
                 });
         }
         else {
@@ -53,22 +81,30 @@ function Login() {
     }
 
     useEffect(() => {
-        const getData = async () => {
-            try {
-                const value = await AsyncStorage.getItem('user')
-                const prevUser = await AsyncStorage.getItem('prevUser');
-                if (value !== null && value !== undefined) {
-                    // Usuario Logado
-                    navigation.replace('Controle');
-                }
-                if (prevUser !== null) {
-                    setEmail(JSON.parse(prevUser).email);
-                }
-            } catch (e) {
-                console.error(e);
+        try {
+            const currentUser = getAuth().currentUser;
+            console.log(currentUser);
+            if (currentUser !== null) {
+                AsyncStorage.getItem('user').then((value) => {
+                    console.log(value);
+                    if (value !== null) {
+                        const user = JSON.parse(value);
+                        if (user.uid === currentUser.uid && currentUser.uid !== null) {
+                            navigation.replace('Controle');
+                            return currentUser.uid;
+                        }
+                    }
+                });
             }
+            //Alert.alert('Erro na autenticação', 'Faça login novamente')
+            AsyncStorage.getItem('prevUser').then((value) => {
+                if (value !== null) {
+                    setEmail(value);
+                }
+            });
+        } catch (e) {
+            console.error(e);
         }
-        getData();
     }, []);
 
 

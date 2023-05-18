@@ -10,10 +10,8 @@ import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 const TopBar = () => {
     const [modalVisible, setModalVisible] = useState(false);
-
     const navigator = useNavigation();
     const history = navigator.getState().routes.length;
     const screenName = navigator.getState().routes[navigator.getState().routes.length - 1].name;
@@ -168,7 +166,6 @@ const TopBar = () => {
             setImage(value);
         })
     }, [modalVisible])
-    
 
     return (<>
         <View style={styles.menusuperior}>
