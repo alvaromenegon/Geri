@@ -61,6 +61,32 @@ function change(props) {
                     console.log(err)
                     erro = true;
                 })
+            /*if (props.url === 'mps'){
+                //implementar
+                //adicionar a saida no banco de dados
+                //para ser utilizado no Faturamento
+                const ano = props.data.dataCompra.getFullYear();
+                const mes = props.data.dataCompra.getMonth() + 1;
+                const id = new Date().getTime();
+                set(ref(db, `data/${uid}/saidas/${ano}/${mes}/${id}`),{
+                    _id: id,
+                    valor: props.data.preco,
+                })
+                //não testado
+            } else if (props.url === 'vendas'){
+                //implementar
+                //adicionar a entrada no banco de dados
+                //para ser utilizado no Faturamento
+                const ano = props.data.data.getFullYear();
+                const mes = props.data.data.getMonth() + 1;
+                const id = new Date().getTime();
+                set(ref(db, `data/${uid}/entradas/${ano}/${mes}/${id}`),{
+                    _id: id,
+                    valor: props.data.preco,
+                })
+                //não testado
+
+            /*/
         } else {
             update(url, data).then((ret) => {
                 console.log(ret)
@@ -185,7 +211,6 @@ const CadMateriasPrimas = ({ route }) => {
     }*/
 
     return (
-
         <ScrollView style={style.container}>
             {modalVisible ?
                 <Verificar
@@ -230,7 +255,6 @@ const CadMateriasPrimas = ({ route }) => {
                 ]}
             />
             <InputWithLabel value={fornecedor} onChangeText={text => setFornecedor(text)} label="Fornecedor" />
-
             <InputWithLabel value={preco.toString()} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
             <Text style={{ fontSize: 20, margin: 5 }}>Preço Unitário: R${precoUn.toFixed(2)}/{unMedida}</Text>
             <TouchableOpacity
@@ -248,7 +272,6 @@ const CadMateriasPrimas = ({ route }) => {
             <Padding />
         </ScrollView>
     )
-
 }
 
 const CadFormulacoes = () => {

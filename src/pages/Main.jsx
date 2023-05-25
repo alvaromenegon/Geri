@@ -121,7 +121,6 @@ function Main() {
                 </View>
             )
         setRecentes(arr);
-
         return true;
     }
 
@@ -140,7 +139,6 @@ function Main() {
             setLoading(false);
         });
     }, []);
-
 
     const Avisos = () => {
         return (
@@ -179,7 +177,6 @@ function Main() {
                             justifyContent: 'space-between',
                         }}>
                             {renderRecentes()}
-
                         </View>
                     </View>
                 </View>

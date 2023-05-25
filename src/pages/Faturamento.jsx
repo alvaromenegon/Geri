@@ -11,12 +11,26 @@ import { getAuth } from 'firebase/auth';
 const Faturamento = () => {
     const [data, setData] = useState([]);
     const [response, setResponse] = useState({})
+    const [entradas, setEntradas] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const db = getDatabase(firebase);
 
     useEffect(() => {
         setIsLoading(true);
-        get(ref(db, `data/${getAuth().currentUser.uid}/vendas`))
+        /*get(ref(db, `data/${getAuth().currentUser.uid}/entradas`)).then((snapshot) => {
+            if (snapshot.exists()) { //Pegar as entradas do BD
+                setResponse(snapshot.val()) //Não testado
+            }
+            else {
+                console.warn('No data');
+                setResponse({});
+                return false;
+            }
+        }
+        ).catch(error => {
+            console.log(error);
+        })*/
+        get(ref(db, `data/${getAuth().currentUser.uid}/saidas`))
             .then((snapshot) => {
                 if (snapshot.exists()) {
                     setResponse(snapshot.val())
