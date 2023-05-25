@@ -6,7 +6,6 @@ import style from '../assets/style.json';
 import { Picker } from "@react-native-picker/picker";
 
 function DatePicker(props) {
-    //const [date, setDate] = props.date;
     const [changed, setChanged] = useState(false);
     const date = props.date || new Date();
     const onChange = props.onChange || (() => { });

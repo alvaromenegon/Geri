@@ -84,7 +84,6 @@ function Login() {
             const currentUser = getAuth().currentUser;
            
             AsyncStorage.getItem('user').then((value) => {
-                console.log(value);
                 if (value !== null) {
                     const user = JSON.parse(value);
                     if (currentUser !== null && currentUser.uid !== null && currentUser.uid === user.uid) {

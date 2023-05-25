@@ -4,14 +4,10 @@ import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import { InputWithLabel } from '../components/InputWithLabel';
 import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
-import { getDatabase, onChildAdded, ref, set } from "firebase/database";
+import { getDatabase, ref, set } from "firebase/database";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const db = getDatabase();
-
-
 //Login com Google= https://firebase.google.com/docs/auth/web/google-signin?hl=pt-br
-
 
 export const Cadastro = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -81,7 +77,6 @@ export const Cadastro = () => {
                             .catch((error) => {
                                 console.error(error);
                             });
-                        console.log('novo usuario=' + getAuth().currentUser);
                     }).then(() => {
                         AsyncStorage.removeItem('user')
                     })

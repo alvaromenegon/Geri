@@ -3,6 +3,9 @@ import { ref } from "firebase/database";
 import { useState } from "react";
 import { Text, View } from "react-native";
 
+//Será utilizado na tela de cadastro de receita para mostrar as matérias primas selecionadas
+
+
 export default function MateriasPrimasSelecionadas({materiasPrimas,db,uid,formId}){
     console.log(materiasPrimas)
     /*const [data,setData] = useState([])

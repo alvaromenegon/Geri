@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+//Não vai mais ser utilizado
 
 const baseUrl = 'http://192.168.0.104:8080/newApi/';
 
@@ -14,6 +15,7 @@ const getItens = async (url, page) => {
         console.error(error);
     }
 };
+
 
 const api = async (url) => {
     const email = await AsyncStorage.getItem('email');

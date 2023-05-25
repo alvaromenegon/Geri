@@ -47,7 +47,6 @@ function Main() {
         setLoading(true);
         const dbRef = ref(db, `data/${uid}/avisos`)
         get(dbRef).then((snapshot) => {
-            console.log(snapshot.val())
             if (snapshot.exists()) {
                 setAvisos(snapshot.val());
             } else {

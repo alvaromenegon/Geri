@@ -272,7 +272,6 @@ const CadFormulacoes = () => {
         useEffect(() => {     
             Object.values(materiasPrimas).forEach((item) => {
                 preco += item.custo;
-                console.log(item.custo)
             });
             setCusto(preco);
         }, []);
@@ -635,7 +634,6 @@ const CadProdutos = () => {
                                 Alert.alert('Preencha todos os campos');
                                 return;
                             }
-                            console.log(validade)
                             change({
                                 data: {
                                     nome: nome,
@@ -672,7 +670,6 @@ const CadSaidas = () => {
         setIsLoading(true);
         setActualPage(p);
         get(ref(db, `data/${getAuth().currentUser.uid}/produtos`)).then((snapshot) => {
-            console.log(snapshot)
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 const keys = Object.keys(data);
@@ -737,30 +734,27 @@ const CadSaidas = () => {
                                     Alert.alert('Quantidade maior que o estoque');
                                     return;
                                 }
-                                Alert.alert('Não implementado')
+
+                                //Alert.alert('Não implementado')
                                 /*change({
                                     data: {
                                         quantidade: item.quantidade - qtd
                                     },
                                     url: `produtos/${item.id}`,
-                                    set: 'update'
+                                    set: 'set'
                                 })*/
-                                /*change({
+                                change({
                                     data: {
-                                        nome: item.nome,
-                                        descricao: item.descricao,
-                                        custo: item.custo,
+                                        produto: item.nome,
                                         preco: item.preco,
                                         quantidade: qtd,
                                         data: new Date(),
-                                        validade: item.validade,
-                                        formulacao: item.formulacao,
-                                        nomeFormulacao: item.nomeFormulacao
+                                        
                                     },
                                     url: 'saidas',
-                                    set: 'push'
+                                    set: 'set'
                                 })
-                                getItens(actualPage)*/
+                                getItens(actualPage)
                             }}
                         >
                             <Text style={style.textButton}>Salvar</Text>

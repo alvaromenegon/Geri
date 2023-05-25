@@ -257,7 +257,7 @@ const Profile = () => {
                         width: 100,
                     }}
                 >
-                    <Image source={/*image ? { uri: image } :*/ require('../../assets/icon.png')}
+                    <Image source={require('../../assets/icon.png')}
                         borderRadius={50}
                         style={
                             {

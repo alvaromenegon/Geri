@@ -171,7 +171,6 @@ const TableForm = (props) => {
     const data = props.data;
     const custo = `R$ ${data.custo}`
     let mps=[];
-    console.log(data)
     Object.values(data.materiasprimas).forEach(element => {
         mps.push(`${element.nome} - ${element.quantidade} ${element.unMedida}`)
     });
@@ -206,7 +205,6 @@ const TableProd = (props) => {
 
 const TableSaida = (props) => {
     const data = props.data;
-
     const date = new Date(data.data).toLocaleDateString('pt-BR', 'dd/MM/yyyy');
     const preco = `R$ ${data.preco}`
 
