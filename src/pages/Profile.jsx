@@ -4,7 +4,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { InputWithLabel } from "../components/InputWithLabel";
-import { api } from "../services/api";
 import * as ImagePicker from 'expo-image-picker';
 import { getAuth, signOut } from 'firebase/auth';
 import { getDatabase, ref, get } from 'firebase/database';
@@ -180,8 +179,6 @@ const Profile = () => {
                                                 setIsLoading(false);
                                                 return;
                                             }
-
-
                                             alterarEmail(newEmail, confirmarSenha);
                                             setConfirmarSenha('');
                                         }}
@@ -213,7 +210,7 @@ const Profile = () => {
         })
     }, [])
 
-    const pickImage = async () => {
+    /*const pickImage = async () => {
         // No permissions request is necessary for launching the image library
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -226,14 +223,13 @@ const Profile = () => {
                 Alert.alert('Imagem Alterada', 'Imagem alterada com sucesso');
             }).catch((error) => {
                 console.error(error);
-            }
-            )
+            })
         }
-    };
+    };*/
 
     const sair = () => {
         const auth = getAuth();
-        signOut(auth).then(() => {
+        signOut(auth).then(() => { //Desloga o usuário, remove seus dados e salva o e-mail para facilitar a próxima entrada
             AsyncStorage.setItem('prevUser', email).then(() => {
                 AsyncStorage.removeItem('user').then(() => {
                     navigation.dispatch(StackActions.popToTop())

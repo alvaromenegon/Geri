@@ -43,7 +43,7 @@ function Main() {
         }
     }
 
-    const getAvisos = () => {
+    const getAvisos = () => { //buscar os avisos no BD
         setLoading(true);
         const dbRef = ref(db, `data/${uid}/avisos`)
         get(dbRef).then((snapshot) => {
@@ -74,7 +74,7 @@ function Main() {
             });
     }
 
-    const renderAvisos = () => {
+    const renderAvisos = () => { //renderizar os avisos
         if (!avisos.mp && !avisos.prod) {
             return (
                 <Text>Está tudo em dia</Text>
@@ -83,12 +83,11 @@ function Main() {
         let arr = [];
         if (avisos.noMp) arr.push(<Text style={styles.text} key={0}>Há matérias-primas sem estoque.</Text>);
         if (avisos.noProd) arr.push(<Text style={styles.text} key={1}>Há produtos sem estoque.</Text>);
-
         return arr;
     }
 
-    const getRecentes = async () => {
-        let arr = [];
+    const getRecentes = async () => {//responsável por buscar os itens recentes localmente
+        let arr = [];               //Será alterado para buscar no firebase
         var i = 1
         for (i = 0; i < 5; i++) {
             try {

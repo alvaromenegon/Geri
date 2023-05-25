@@ -8,7 +8,6 @@ const BottomBar = function () {
     const navigation = useNavigation();
     const history = navigation.getState().routes.length
     const goTo = (page) => {
-
         if (history < 2) {
             storeData(page).then(() => {
                 navigation.navigate(page)

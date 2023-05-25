@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 
-const storeData = async (page) => {
-    let recent = '';
+const storeData = async (page) => { //Função responsável por salvar as páginas recentes no AsyncStorage 
+    let recent = '';                //será alterado para que salve os dados de forma mais eficiente
+                                    //no realtime db
     try {
         for (let i = 1; i < 5; i++) {
             recent = await AsyncStorage.getItem(`recent${i}`);

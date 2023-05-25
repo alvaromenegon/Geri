@@ -17,7 +17,6 @@ export const Cadastro = () => {
     const [nome, setNome] = useState('');
     const navigation = useNavigation();
 
-
     const cadastrar = async () => {
         setIsLoading(true);
         if (nome === '' || email === '' || senha === '' || confirmarSenha === '') {
@@ -53,12 +52,12 @@ export const Cadastro = () => {
                         Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para ' + email);
                     })
                 })*/
-                    .then(() => {
+                    .then(() => { //cria uma entrada no BD apenas com o nome e o e-mail do usuário
                         set(ref(db, 'usuarios/' + user.uid), {
                             nome: nome,
                             email: email,
-                        }).then(() => {
-                            set(ref(db, `data/${user.uid}`), {
+                        }).then(() => { //e cria as demais informações como filho do nó /data/ 
+                            set(ref(db, `data/${user.uid}`), { //onde o acesso é restrito a usuários autenticados
                                 avisos: {
                                     noMp: false,
                                     noProd: false,
@@ -69,7 +68,6 @@ export const Cadastro = () => {
                                 vendas: "",
                                 temp: ""
                             })
-                            
                         })
                             .then(() => {
                                 console.log(ref(db, 'usuarios/' + user.uid));
@@ -78,7 +76,7 @@ export const Cadastro = () => {
                                 console.error(error);
                             });
                     }).then(() => {
-                        AsyncStorage.removeItem('user')
+                        AsyncStorage.removeItem('user') //remove os dados locais do outro usuário, caso houver
                     })
                     .then(() => {
                         navigation.replace('Login');
@@ -98,8 +96,6 @@ export const Cadastro = () => {
 
         setIsLoading(false);
     }
-
-
     return (
         <ScrollView style={{ ...style.container }}>
             <InputWithLabel value={nome} label="Nome" onChangeText={text => setNome(text)} placeholder="Nome" />

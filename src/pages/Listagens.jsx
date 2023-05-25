@@ -3,8 +3,9 @@ import { storeData} from '../assets/utils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 
-
 const Listagens = () => {
+    //Remover
+    //não é utilizado
     const [uid, setUid] = useState('');
     useEffect(() => {
         AsyncStorage.getItem('user').then((user) => {
@@ -21,8 +22,9 @@ const MateriasPrimas = () => {
     return (
         <Lists format="mp" url={"mps"} />
     )
-
 }
+
+//Renderiza as listagens passando o formato e a url para o componente Lists
 
 const Formulacoes = () => {
     return (

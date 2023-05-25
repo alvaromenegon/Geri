@@ -9,9 +9,9 @@ import { getAuth } from "firebase/auth";
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
 
-export default function Lists(props) {
-    const [loading, setLoading] = useState(true);
-    const [data, setData] = useState({});
+export default function Lists(props) { //Componente que renderiza uma lista de itens, com base nos parâmetros passados por props
+    const [loading, setLoading] = useState(true); // a fim de reutilizar o componente para diferentes listas
+    const [data, setData] = useState({});         // e manter um padrão de estilo  
     const [dataLength, setDataLength] = useState(0);
     const [active, setActive] = useState(1);
     const [numberPages, setNumberPages] = useState(1);
@@ -19,6 +19,7 @@ export default function Lists(props) {
     const uid = getAuth().currentUser.uid;
 
     const PaginationButton = (props) => {
+        //Renderizar o botão de paginação
         if (props.active) {
             return (
                 <View style={styles.actButton}>
@@ -33,15 +34,14 @@ export default function Lists(props) {
                         setActive(props.i)
                         getItens(props.i)
                     }}
-                    style={styles.button}
-                >
+                    style={styles.button}>
                     <Text style={{ fontSize: 20, marginBottom: 5 }}>{props.i}</Text>
                 </TouchableOpacity>
             )
         }
     };
 
-    const getItens = (page) => {
+    const getItens = (page) => { //função que busca os itens no BD com base na url passada como props
         setLoading(true);
         //const p = page ?? 1;
         const dbRef = ref(db, `data/${uid}/${props.url}`);
@@ -64,7 +64,7 @@ export default function Lists(props) {
         return true;
     };
 
-    const renderList = () => {
+    const renderList = () => { //renderiza os itens na tela
         let arr = [];
         let i = 0;
         if (dataLength == 0) {
@@ -110,7 +110,6 @@ export default function Lists(props) {
     return (
         <View style={{ flex: 1 }}>
             <View style={style.container}>
-
                 {loading ?
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :

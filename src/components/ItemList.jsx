@@ -20,15 +20,14 @@ export default function ItemList(props) {
                     style={styles.btn}
                     onPress={() => {
                         setOpen(!open)
-                    }
-                    }>
+                    }}>
                     {open ?
                         <AntDesign name="caretup" size={20} color={colors.primaryDark} />
                         :
                         <AntDesign name="caretdown" size={20} color={colors.primaryDark} />}
                 </TouchableOpacity>
             </View>
-            {open ?
+            {open ? //série de ifs encadeados para renderizar a tabela correta
                 props.format === 'mp' ?
                     <TableMP data={data}></TableMP>
                     :
@@ -68,7 +67,6 @@ const TableCell = (props) => {
     if (props.buttons) {
         return (
             <View style={stylesTable.table}>
-
                 <Text style={stylesTable.text}>{props.title}</Text>
                 <View>
                 <TouchableOpacity style={{
@@ -108,10 +106,7 @@ const TableCell = (props) => {
                                 { text: "Sim", onPress: () => {
                                     remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/mps/${props.id}`)) }}
                             ]
-                        );
-                    }
-                    }
-                >
+                        );}}>
                     <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
                 </TouchableOpacity>
                 </View>
@@ -132,7 +127,6 @@ const TableCell = (props) => {
         )
     }
 
-
     return (
         <View style={stylesTable.table}>
             <Text style={stylesTable.text}>{props.title}</Text>
@@ -140,6 +134,8 @@ const TableCell = (props) => {
         </View>
     )
 }
+
+//Componentes específicos para cada tipo de Tabela
 
 const TableMP = (props) => {
     const data = props.data;
@@ -188,7 +184,7 @@ const TableProd = (props) => {
     const data = props.data;
     const preco = `R$ ${data.preco.toFixed(2)}`
     const custo = `R$ ${data.custo.toFixed(3)}`
-    const validade = new Date(data.validade).toLocaleDateString('pt-BR');
+    //const validade = new Date(data.validade).toLocaleDateString('pt-BR');
     const dataFabricacao = new Date(data.data).toLocaleDateString('pt-BR');
     return (
         <>
@@ -201,7 +197,6 @@ const TableProd = (props) => {
         </>
     )
 }
-
 
 const TableSaida = (props) => {
     const data = props.data;

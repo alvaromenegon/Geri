@@ -81,16 +81,14 @@ function Login() {
 
     useEffect(() => {
         try {
-            const currentUser = getAuth().currentUser;
-           
+            const currentUser = getAuth().currentUser;    
             AsyncStorage.getItem('user').then((value) => {
                 if (value !== null) {
                     const user = JSON.parse(value);
                     if (currentUser !== null && currentUser.uid !== null && currentUser.uid === user.uid) {
                         navigation.replace('Controle');
                         return currentUser.uid;
-                    }
-                    
+                    }   
                 }
             });
             
@@ -130,7 +128,6 @@ function Login() {
                     >
                         <Text style={style.textButton} >Entrar</Text>
                     </TouchableOpacity>
-
                     {
                         err ?
                             <Text>Erro ao salvar dados</Text>
