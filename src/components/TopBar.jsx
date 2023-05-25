@@ -5,10 +5,9 @@ import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-//import { storeData } from '../pages/Listagens';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+//import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TopBar = () => {
     const [modalVisible, setModalVisible] = useState(false);
@@ -19,7 +18,7 @@ const TopBar = () => {
     const goTo = (page) => {
         setModalVisible(false);
         storeData(page).then(() => {
-            if (history < 3)
+            if (history< 2)
                 navigator.navigate(page);
             else {
                 navigator.replace(page);
@@ -65,8 +64,6 @@ const TopBar = () => {
                 onRequestClose={() => {
                     setModalVisible(!modalVisible);
                 }}
-
-
             >
                 <View style={{
                     backgroundColor: "#00000040",
@@ -160,12 +157,12 @@ const TopBar = () => {
             </View>
         )
     }
-    const [image, setImage] = useState(null);
-    useEffect(() => {
+    /*const [image, setImage] = useState(null); // causando RenderError
+    useEffect(() => {                           //Não utilizar useEffect/useState condiocionalmente
         AsyncStorage.getItem('profile').then((value) => {
             setImage(value);
         })
-    }, [modalVisible])
+    }, [modalVisible])*/
 
     return (<>
         <View style={styles.menusuperior}>
@@ -174,7 +171,9 @@ const TopBar = () => {
                     <TouchableOpacity onPress={() => {
                         goTo('Perfil');
                     }}>
-                        <Image source={ image ? {uri:image} : example} borderRadius={50} style={styles.pfp}></Image>
+                        <Image source={/* 
+                        //Fonte da foto será trocada para o Firebase Storage
+                        image ? {uri:image} :*/ example} borderRadius={50} style={styles.pfp}></Image>
                     </TouchableOpacity> :
                     <TouchableOpacity onPress={() => {
                         navigator.goBack();
@@ -183,7 +182,7 @@ const TopBar = () => {
                     </TouchableOpacity>
             }{screenName != 'Cadastro' ? <>
             <Text style={style.mainText}>
-                {navigator.getState().routes[navigator.getState().routes.length - 1].name}
+                {screenName}
             </Text>
             
                 <TouchableOpacity onPress={() => {
@@ -196,6 +195,5 @@ const TopBar = () => {
     </>
     )
 }
-
 
 export default TopBar;

@@ -87,10 +87,10 @@ function InputWithLabel(props) {
     const editable = !props.disabled ?? true;
     const value = props.value;    
     const onChangeText = props.onChangeText || (() => { });
+    const onBlur = props.onBlur || (() => { });
     const secure = props.secure || false;
     const placeholder = props.placeholder || '';
     
-
     return (
         <View style={styles.iwl}>
 
@@ -99,11 +99,11 @@ function InputWithLabel(props) {
                 editable={editable}
                 style={style.textInput}
                 onChangeText={onChangeText}
+                onBlur={onBlur}
                 keyboardType={type}
                 secureTextEntry={secure}
                 value={value}
                 placeholder={placeholder}
-
             />
         </View>
     )

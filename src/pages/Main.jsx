@@ -26,7 +26,7 @@ function Main() {
         setLoading(true);
         try {
             const value = await AsyncStorage.getItem('user')
-            if (value ===null ) {
+            if (value === null) {
                 Alert.alert('Erro', 'Houve um erro ao fazer login - Por favor contate o suporte');
                 signOut(getAuth());
                 navigation.replace('Login');
@@ -35,7 +35,6 @@ function Main() {
             setUid(JSON.parse(value).uid);
 
         } catch (error) {
-            console.error('Erro foi' +error);
             Alert.alert('Erro', 'Houve um erro ao recuperar os dados - Por favor contate o suporte');
             signOut(getAuth());
             navigation.replace('Login');
@@ -44,20 +43,32 @@ function Main() {
         }
     }
 
-    const getAvisos = async () => {
+    const getAvisos = () => {
         setLoading(true);
-        get(ref(db, `data/${uid}/avisos/`)).then((snapshot) => {
+        const dbRef = ref(db, `data/${uid}/avisos`)
+        get(dbRef).then((snapshot) => {
+            console.log(snapshot.val())
             if (snapshot.exists()) {
                 setAvisos(snapshot.val());
             } else {
-                Alert.alert('Erro','Não foi possível conectar ao banco de dados');
+                Alert.alert('Erro', 'Não foi possível conectar ao banco de dados');
                 console.warn('No data available');
                 setAvisos({});
             }
         })
             .catch((error) => {
-                console.error(error);
-                Alert.alert('Erro','Houve um erro na autenticação com o banco de dados - Por favor contate o suporte')
+                get(ref(db, `data/${getAuth().currentUser.uid}/avisos`)).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        setAvisos(snapshot.val());
+                    } else {
+                        Alert.alert('Erro', 'Não foi possível conectar ao banco de dados');
+                        console.warn('No data available');
+                        setAvisos({});
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    Alert.alert('Erro', 'Houve um erro na autenticação com o banco de dados - Por favor contate o suporte')
+                })
             })
             .finally(() => {
                 setLoading(false);
@@ -73,7 +84,7 @@ function Main() {
         let arr = [];
         if (avisos.noMp) arr.push(<Text style={styles.text} key={0}>Há matérias-primas sem estoque.</Text>);
         if (avisos.noProd) arr.push(<Text style={styles.text} key={1}>Há produtos sem estoque.</Text>);
-        
+
         return arr;
     }
 
@@ -125,9 +136,11 @@ function Main() {
         navigation.addListener('focus', () => {
             getRecentes();
         });
-        getUser();
-        getAvisos();
-        setLoading(false);
+        getUser().then(() => {
+            getAvisos()
+        }).finally(() => {
+            setLoading(false);
+        });
     }, []);
 
 

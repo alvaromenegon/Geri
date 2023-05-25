@@ -4,7 +4,8 @@ import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import { InputWithLabel } from '../components/InputWithLabel';
 import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
-import { getDatabase, ref, set } from "firebase/database";
+import { getDatabase, onChildAdded, ref, set } from "firebase/database";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const db = getDatabase();
 
@@ -49,18 +50,40 @@ export const Cadastro = () => {
                 const user = userCredential.user;
                 updateProfile(auth.currentUser, {
                     displayName: nome,
-                }).then(() => {
+                })/*.then(() => {
                     sendEmailVerification(auth.currentUser)
                     .then(() => {
                         // Email verification sent!
                         Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para ' + email);
                     })
-                })
+                })*/
                     .then(() => {
                         set(ref(db, 'usuarios/' + user.uid), {
                             nome: nome,
                             email: email,
-                        });
+                        }).then(() => {
+                            set(ref(db, `data/${user.uid}`), {
+                                avisos: {
+                                    noMp: false,
+                                    noProd: false,
+                                },
+                                mps: "",
+                                forms: "",
+                                produtos: "",
+                                vendas: "",
+                                temp: ""
+                            })
+                            
+                        })
+                            .then(() => {
+                                console.log(ref(db, 'usuarios/' + user.uid));
+                            })
+                            .catch((error) => {
+                                console.error(error);
+                            });
+                        console.log('novo usuario=' + getAuth().currentUser);
+                    }).then(() => {
+                        AsyncStorage.removeItem('user')
                     })
                     .then(() => {
                         navigation.replace('Login');

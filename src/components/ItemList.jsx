@@ -1,13 +1,15 @@
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { AntDesign } from '@expo/vector-icons';
 import colors from "../assets/colors";
-import style from '../assets/style.json';
 import { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { getDatabase, ref, remove } from "firebase/database";
+import firebase from "../services/firebaseConfig";
+import { getAuth } from "firebase/auth";
+//import { useNavigation } from "@react-navigation/native"; 
 
 export default function ItemList(props) {
-
     const data = props.data;
+    //console.log(data)
     const [open, setOpen] = useState(false);
 
     return (
@@ -49,12 +51,12 @@ export default function ItemList(props) {
                         <Text>{data.tipo} - R$ {data.custo}</Text>
                         :
                         props.format === 'prod' ?
-                            <Text>{new Date(data.validade).toLocaleDateString('pt-BR')}</Text>
+                            null
                             :
                             props.format === 'saida' ?
                                 <Text>Data: {
                                     new Date(data.data).toLocaleDateString('pt-BR')
-                                    }</Text>
+                                }</Text>
                                 : null
             }
         </View>
@@ -62,41 +64,79 @@ export default function ItemList(props) {
 }
 
 const TableCell = (props) => {
-    const navigation = useNavigation();
+    //const navigation = useNavigation();
     if (props.buttons) {
         return (
             <View style={stylesTable.table}>
 
                 <Text style={stylesTable.text}>{props.title}</Text>
+                <View>
                 <TouchableOpacity style={{
                     ...stylesTable.btn,
                     borderColor: colors.primaryDark, borderWidth: 1,
                     padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
                 }}
                     onPress={() => {
-                        try {
+                        alert('Não implementado')
+                        /*try {
                             navigation.navigate('Gerenciar Matéria-Prima', { id: props.id })
                         }
                         catch (error) {
                             console.error(error);
                             alert('Houve um erro ao tentar acessar a tela de gerenciamento')
-                        }
+                        }*/
                     }
                     }
                 >
-                    <Text style={stylesTable.text}>Gerenciar  <AntDesign name="edit" size={20} color={colors.primaryDark} /></Text>
-
+                    <Text style={stylesTable.text}>Editar  <AntDesign name="edit" size={20} color={colors.primaryDark} /></Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={{
+                    ...stylesTable.btn,
+                    borderColor: 'red', borderWidth: 1, margin:5,
+                    padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
+                }}
+                    onPress={() => {
+                        Alert.alert(
+                            "Excluir",
+                            "Deseja realmente excluir?",
+                            [
+                                {
+                                    text: "Não",
+                                    onPress: () => console.log("Cancel Pressed"),
+                                    style: "cancel"
+                                },
+                                { text: "Sim", onPress: () => {
+                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/mps/${props.id}`)) }}
+                            ]
+                        );
+                    }
+                    }
+                >
+                    <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
+                </TouchableOpacity>
+                </View>
+            </View>
+        )
+    }
+    if (props.list) {
+        return (
+            <View style={{ ...stylesTable.table, flexDirection: 'column', alignItems: 'flex-start' }}>
+                <Text style={stylesTable.text}>{props.title}</Text>
+                {props.value.map((item, index) => {
+                    return (
+                        <Text key={index} style={{ ...stylesTable.table, width: '100%' }}>{item}</Text>
+                    )
+                })
+                }
             </View>
         )
     }
 
 
-
     return (
         <View style={stylesTable.table}>
             <Text style={stylesTable.text}>{props.title}</Text>
-            <Text style={stylesTable.text}>{props.value}</Text>            
+            <Text style={stylesTable.text}>{props.value}</Text>
         </View>
     )
 }
@@ -130,13 +170,17 @@ const TableMP = (props) => {
 const TableForm = (props) => {
     const data = props.data;
     const custo = `R$ ${data.custo}`
+    let mps=[];
+    console.log(data)
+    Object.values(data.materiasprimas).forEach(element => {
+        mps.push(`${element.nome} - ${element.quantidade} ${element.unMedida}`)
+    });
     return (
         <>
             <TableCell title='Formulação' value={data.nome}></TableCell>
             <TableCell title='Tipo ' value={data.tipo}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
-            <TableCell title='Matérias-Primas' value={data.materiasprimas}></TableCell>
-
+            <TableCell title='Matérias-Primas' list={true} value={mps}></TableCell>
         </>
     )
 }
@@ -144,19 +188,21 @@ const TableForm = (props) => {
 const TableProd = (props) => {
     const data = props.data;
     const preco = `R$ ${data.preco.toFixed(2)}`
-    const custo = `R$ ${data.precoCusto.toFixed(3)}`
-    const validade = typeof data.validade === 'string' ? data.validade : new Date(data.validade).toLocaleDateString('pt-BR');
+    const custo = `R$ ${data.custo.toFixed(3)}`
+    const validade = new Date(data.validade).toLocaleDateString('pt-BR');
+    const dataFabricacao = new Date(data.data).toLocaleDateString('pt-BR');
     return (
         <>
             <TableCell title='Nome' value={data.nome}></TableCell>
             <TableCell title='Preço' value={preco}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
-            <TableCell title='Validade' value={validade}></TableCell>
+            <TableCell title='Data de Fabricação' value={dataFabricacao}></TableCell>
             <TableCell title='Descrição' value={data.descricao}></TableCell>
-            <TableCell title='Formulação' value={data.formulacao}></TableCell>
+            <TableCell title='Formulação' value={data.nomeFormulacao}></TableCell>
         </>
     )
 }
+
 
 const TableSaida = (props) => {
     const data = props.data;

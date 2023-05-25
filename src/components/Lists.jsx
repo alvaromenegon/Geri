@@ -6,17 +6,13 @@ import BottomBar from "./BottomBar";
 import { getDatabase, ref, get } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
+import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 
 export default function Lists(props) {
-    if (props.format !== 'mp' &&
-        props.format !== 'form' &&
-        props.format !== 'prod' &&
-        props.format !== 'saida') {
-        return <Text>Houve um erro, por favor contate o suporte</Text>
-    }
-
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState([]);
+    const [data, setData] = useState({});
+    const [dataLength, setDataLength] = useState(0);
     const [active, setActive] = useState(1);
     const [numberPages, setNumberPages] = useState(1);
     const db = getDatabase(firebase);
@@ -45,38 +41,40 @@ export default function Lists(props) {
         }
     };
 
-    const getItens = async (page) => {
-        const p = page ?? 1;
+    const getItens = (page) => {
         setLoading(true);
-        get(ref(db, `data/${uid}/${props.url}/`)).then((snapshot) => {
+        //const p = page ?? 1;
+        const dbRef = ref(db, `data/${uid}/${props.url}`);
+        //Implementar o onValue
+        get(dbRef).then((snapshot) => {
             if (snapshot.exists()) {
-                setData(snapshot.val());
+                setData(snapshot.val())
+                setDataLength(snapshot.size)
+                setNumberPages(Math.ceil(data.length / 10));
             } else {
-                console.warn('No data available');
-                setData([null]);
+                console.warn('No data');
+                setData({});
             }
         })
         .catch((error) => {
             console.error(error);
-        }
-        )
-        .finally(() => {
+        }).finally(() => {
             setLoading(false);
-        }
-        );        
+        });
+        return true;
     };
 
     const renderList = () => {
         let arr = [];
         let i = 0;
-        if (data[0] == null){
-            return <Text style={{textAlign:'center'}}>Nenhum item cadastrado</Text>
+        if (dataLength == 0) {
+            return <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>
         }
-        for (i; i < data.length; i++) {
+        for (i; i < dataLength; i++) {
             arr.push(<ItemList
                 key={i}
                 format={props.format}
-                data={data[i]}
+                data={Object.values(data)[i]}
             />);
         }
         numberPages > 1 ?
@@ -92,6 +90,9 @@ export default function Lists(props) {
     }
 
     const pagination = (props) => {
+        //Corrigir
+        //botões nao aparecem
+        //todos os item aparecem na primeira pagina
         let arr = [];
         for (let i = 1; i <= props.n; i++) {
             arr.push(
@@ -102,21 +103,30 @@ export default function Lists(props) {
     }
 
     useEffect(() => {
+        setLoading(true);
         getItens();
     }, []);
-
 
     return (
         <View style={{ flex: 1 }}>
             <View style={style.container}>
-            
+
                 {loading ?
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :
                     <ScrollView showsVerticalScrollIndicator={false}>
+                        
                         {renderList()}
+                        <TouchableOpacity
+                            onPress={() =>getItens()}
+                            style={{ alignSelf: 'center',
+                            ...styles.actButton
+                         }}
+                        >
+                            <AntDesign name="reload1" size={18} color={style.colors.primaryDark} />
+                        </TouchableOpacity>
                     </ScrollView>
-
+                    
                 }
             </View>
             <BottomBar />

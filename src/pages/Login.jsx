@@ -15,18 +15,17 @@ function Login() {
     const navigation = useNavigation();
     const db = getDatabase(firebase);
 
-
     const logar = () => {
         const auth = getAuth();
         if (email !== '' && senha !== '') {
             signInWithEmailAndPassword(auth, email, senha)
                 .then((userCredential) => {
-                    if (userCredential.user.emailVerified !== true) {
+                    /*if (userCredential.user.emailVerified !== true) { 
                         Alert.alert('Erro', 'Email não verificado\n' +
                             'Verifique sua caixa de entrada e spam');
                         signOut(auth);
                         return false;
-                    }
+                    }*/
                     // Signed in
                     var user = userCredential.user;
                     if (user.displayName === null && user.uid !== null) {
@@ -83,20 +82,19 @@ function Login() {
     useEffect(() => {
         try {
             const currentUser = getAuth().currentUser;
-            console.log(currentUser);
-            if (currentUser !== null) {
-                AsyncStorage.getItem('user').then((value) => {
-                    console.log(value);
-                    if (value !== null) {
-                        const user = JSON.parse(value);
-                        if (user.uid === currentUser.uid && currentUser.uid !== null) {
-                            navigation.replace('Controle');
-                            return currentUser.uid;
-                        }
+           
+            AsyncStorage.getItem('user').then((value) => {
+                console.log(value);
+                if (value !== null) {
+                    const user = JSON.parse(value);
+                    if (currentUser !== null && currentUser.uid !== null && currentUser.uid === user.uid) {
+                        navigation.replace('Controle');
+                        return currentUser.uid;
                     }
-                });
-            }
-            //Alert.alert('Erro na autenticação', 'Faça login novamente')
+                    
+                }
+            });
+            
             AsyncStorage.getItem('prevUser').then((value) => {
                 if (value !== null) {
                     setEmail(value);

@@ -1,21 +1,32 @@
-import { api } from '../services/api';
 import { useEffect, useState } from 'react';
 import { VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
 import style from '../assets/style.json';
 import BottomBar from '../components/BottomBar';
 import Padding from '../components/Padding';
+import { get,getDatabase,ref } from 'firebase/database';
+import firebase from '../services/firebaseConfig';
+import { getAuth } from 'firebase/auth';
 
 const Faturamento = () => {
     const [data, setData] = useState([]);
     const [response, setResponse] = useState({})
     const [isLoading, setIsLoading] = useState(true);
+    const db = getDatabase(firebase);
     
     useEffect(() => {
         setIsLoading(true);
-        api('http://192.168.0.104:8080/newApi/faturamento').then(response => {
-            setResponse(response);
-            setData([
+        get(ref(db, `data/${getAuth().currentUser.uid}/vendas`))
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+                setResponse(snapshot.val())
+            }
+            else {
+                console.warn('No data');
+                setResponse({});
+                return false;
+            }
+            /*setData([
                 {
                     x: `Entradas: \nR$${response.atual}`,
                     y: response.atual || 1,
@@ -27,7 +38,9 @@ const Faturamento = () => {
                     y: response.gastos || 1,
                     symbol: { fill: "red", type: "square" },
                     name: "Saidas"
-                }])
+                }])*/
+                
+                //Analisar data das vendas e preencher o gráfico
         }).catch(error => {
             console.log(error);
         }).finally(() => {
@@ -35,7 +48,10 @@ const Faturamento = () => {
         });
     }, []);
 
-    return (<>
+    return (<Text>A implementar</Text>)
+}
+
+    /*return (<>
         <ScrollView contentContainerStyle={{ justifyContent: "center", alignItems: 'center' }} style={style.container}>
             <Text style={style.text}>Faturamento Mensal</Text>
             {isLoading ?
@@ -93,7 +109,7 @@ const Faturamento = () => {
         <BottomBar />
     </>
     )
-}
+}*/
 
 const styles = StyleSheet.create({
     legendEntrada: {

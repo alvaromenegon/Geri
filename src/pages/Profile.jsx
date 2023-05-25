@@ -257,7 +257,7 @@ const Profile = () => {
                         width: 100,
                     }}
                 >
-                    <Image source={image ? { uri: image } : require('../../assets/icon.png')}
+                    <Image source={/*image ? { uri: image } :*/ require('../../assets/icon.png')}
                         borderRadius={50}
                         style={
                             {
@@ -268,7 +268,8 @@ const Profile = () => {
                         }
                     ></Image>
                     <TouchableOpacity
-                        onPress={() => { pickImage() }}
+                        //Implementar o firebase storage para salvar a imagem
+                        onPress={() => {alert('Não implementado') }} 
                         style={{ ...style.button, maxWidth: 100, width: 100 }}
                     >
                         <Text style={{ color: '#fff' }}>Alterar</Text>
