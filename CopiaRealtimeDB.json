@@ -1,0 +1,723 @@
+{
+  "avisos": {
+    "noMp": false,
+    "noProd": false
+  },
+  "forms": {
+    "-NWEG1APVeZDemIf5BTT": {
+      "_id": "-NWEG1APVeZDemIf5BTT",
+      "custo": 8.79,
+      "materiasprimas": {
+        "63d52fc43ec35a7e02498b3f": {
+          "id": "63d52fc43ec35a7e02498b3f",
+          "nome": "Plantarem 2000",
+          "quantidade": "1",
+          "unMedida": "g"
+        },
+        "63d538c03ec35a7e02498b9b": {
+          "id": "63d538c03ec35a7e02498b9b",
+          "nome": "OE Canela",
+          "quantidade": "4",
+          "unMedida": "mL"
+        }
+      },
+      "nome": "Exemplo",
+      "tipo": "Cabelo"
+    },
+    "-NWJ6JNwO-YxfUbzultf": {
+      "_id": "-NWJ6JNwO-YxfUbzultf",
+      "custo": 8.484,
+      "materiasprimas": {
+        "63d5399b3ec35a7e02498ba1": {
+          "custo": 0.07,
+          "id": "63d5399b3ec35a7e02498ba1",
+          "nome": "Água",
+          "quantidade": "14",
+          "unMedida": "mL"
+        },
+        "63fb9dc28a52ed8e4a56e69a": {
+          "custo": 5.014,
+          "id": "63fb9dc28a52ed8e4a56e69a",
+          "nome": "Queratina",
+          "quantidade": "23",
+          "unMedida": "g"
+        },
+        "64615811354a7108d5d4a16d": {
+          "custo": 3.4000000000000004,
+          "id": "64615811354a7108d5d4a16d",
+          "nome": "Cetiol CC",
+          "quantidade": "10",
+          "unMedida": "mL"
+        }
+      },
+      "nome": "Teste",
+      "tipo": "Outros"
+    }
+  },
+  "mps": {
+    "0": {
+      "_id": "63d52fc43ec35a7e02498b3f",
+      "comprado": 250,
+      "dataCompra": "2022-08-15",
+      "nome": "Plantarem 2000",
+      "preco": 37,
+      "precoUn": 0.148,
+      "quantidade": 241.6,
+      "unMedida": "g",
+      "validade": "2023-07-20"
+    },
+    "1": {
+      "_id": "63d531873ec35a7e02498b46",
+      "comprado": 1000,
+      "dataCompra": "2021-11-23",
+      "nome": "Meg",
+      "preco": 12.3,
+      "precoUn": 0.0123,
+      "quantidade": 1000,
+      "unMedida": "g",
+      "validade": "2022-08-31"
+    },
+    "2": {
+      "_id": "63d533d33ec35a7e02498b4f",
+      "comprado": 100,
+      "dataCompra": "2022-07-18",
+      "nome": "Oleo Resina Alecrim",
+      "preco": 82,
+      "precoUn": 0.82,
+      "quantidade": 99.82,
+      "unMedida": "g",
+      "validade": "2023-01-31"
+    },
+    "3": {
+      "_id": "63d534833ec35a7e02498b52",
+      "comprado": 100,
+      "dataCompra": "2022-07-18",
+      "nome": "Nipaguard",
+      "preco": 53.6,
+      "precoUn": 0.536,
+      "quantidade": 99.4,
+      "unMedida": "g",
+      "validade": "2023-03-27"
+    },
+    "4": {
+      "_id": "63d535173ec35a7e02498b55",
+      "comprado": 1000,
+      "dataCompra": "2022-12-14",
+      "nome": "Farinha de Arroz",
+      "preco": 9.7,
+      "precoUn": 0.009699999999999999,
+      "quantidade": 992.38,
+      "unMedida": "g",
+      "validade": "2024-04-30"
+    },
+    "5": {
+      "_id": "63d537a83ec35a7e02498b95",
+      "comprado": 100,
+      "dataCompra": "30-06-2022",
+      "nome": "Proteína de arroz",
+      "preco": 13,
+      "precoUn": 0.13,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "31-01-2023"
+    },
+    "6": {
+      "_id": "63d5383c3ec35a7e02498b98",
+      "comprado": 100,
+      "dataCompra": "30-07-2022",
+      "nome": "O.E. laranja",
+      "preco": 35,
+      "precoUn": 0.35,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "31-10-2023"
+    },
+    "7": {
+      "_id": "63d538c03ec35a7e02498b9b",
+      "comprado": 25,
+      "dataCompra": "30-07-2022",
+      "nome": "OE Canela",
+      "preco": 40,
+      "precoUn": 1.6,
+      "quantidade": 25,
+      "unMedida": "mL",
+      "validade": "31-10-2023"
+    },
+    "8": {
+      "_id": "63d5395a3ec35a7e02498b9e",
+      "comprado": 50,
+      "dataCompra": "08-07-2022",
+      "nome": "Goma Xantana",
+      "preco": 7.5,
+      "precoUn": 0.15,
+      "quantidade": 50,
+      "unMedida": "g",
+      "validade": "04-03-2023"
+    },
+    "9": {
+      "_id": "63d5399b3ec35a7e02498ba1",
+      "comprado": 1000,
+      "dataCompra": "28-01-2023",
+      "nome": "Água",
+      "preco": 5,
+      "precoUn": 0.005,
+      "quantidade": 1000,
+      "unMedida": "mL",
+      "validade": "27-07-2023"
+    },
+    "10": {
+      "_id": "63dc02bb4c03e6dd9d5b9e1a",
+      "comprado": 100,
+      "dataCompra": "02-02-2023",
+      "nome": "Oleo de linhaça ",
+      "preco": 12.21,
+      "precoUn": 0.12210000000000001,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "31-10-2023"
+    },
+    "11": {
+      "_id": "63dc03864c03e6dd9d5b9e1d",
+      "comprado": 100,
+      "dataCompra": "02-02-2023",
+      "nome": "Óleo de ricino",
+      "preco": 7.9,
+      "precoUn": 0.079,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "02-02-2023"
+    },
+    "12": {
+      "_id": "63dc03d14c03e6dd9d5b9e20",
+      "comprado": 100,
+      "dataCompra": "02-02-2023",
+      "nome": "Carvão ativado",
+      "preco": 2.99,
+      "precoUn": 0.029900000000000003,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "02-02-2023"
+    },
+    "13": {
+      "_id": "63dc04fc4c03e6dd9d5b9e26",
+      "comprado": 10,
+      "dataCompra": "01-08-2022",
+      "nome": "Sangue de Dragão",
+      "preco": 15,
+      "precoUn": 1.5,
+      "quantidade": 10,
+      "unMedida": "g",
+      "validade": "28-02-2023"
+    },
+    "14": {
+      "_id": "63ddae408ea6a492236c7dd6",
+      "comprado": 30,
+      "dataCompra": "03-02-2023",
+      "nome": "OE Cedro virginia",
+      "preco": 26.3,
+      "precoUn": 0.8766666666666667,
+      "quantidade": 30,
+      "unMedida": "mL",
+      "validade": "29-02-2024"
+    },
+    "15": {
+      "_id": "63de794b8ea6a492236c7dde",
+      "comprado": 100,
+      "dataCompra": "09-06-2022",
+      "nome": "Ácido Lático ",
+      "preco": 15.58,
+      "precoUn": 0.1558,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "10-01-2027"
+    },
+    "16": {
+      "_id": "63de798d8ea6a492236c7de1",
+      "comprado": 50,
+      "dataCompra": "03-02-2023",
+      "nome": "Vitamina A (Retinol)",
+      "preco": 28.2,
+      "precoUn": 0.564,
+      "quantidade": 50,
+      "unMedida": "mL",
+      "validade": "30-06-2023"
+    },
+    "17": {
+      "_id": "63de79dd8ea6a492236c7de4",
+      "comprado": 50,
+      "dataCompra": "03-02-2023",
+      "nome": "Olivem 1000",
+      "preco": 34,
+      "precoUn": 0.68,
+      "quantidade": 50,
+      "unMedida": "g",
+      "validade": "28-02-2027"
+    },
+    "18": {
+      "_id": "63de7a728ea6a492236c7de7",
+      "comprado": 25,
+      "dataCompra": "03-02-2023",
+      "nome": "Niaciamida",
+      "preco": 18.4,
+      "precoUn": 0.736,
+      "quantidade": 25,
+      "unMedida": "g",
+      "validade": "25-11-2024"
+    },
+    "19": {
+      "_id": "63e44b948ea6a492236c7e2f",
+      "comprado": 30,
+      "dataCompra": "08-02-2023",
+      "nome": "OE Geranio Bourbon",
+      "preco": 91,
+      "precoUn": 3.033333333333333,
+      "quantidade": 30,
+      "unMedida": "mL",
+      "validade": "29-02-2024"
+    },
+    "20": {
+      "_id": "63e44c378ea6a492236c7e32",
+      "comprado": 500,
+      "dataCompra": "08-02-2023",
+      "nome": "Álcool Cetilico ",
+      "preco": 30.4,
+      "precoUn": 0.0608,
+      "quantidade": 500,
+      "unMedida": "g",
+      "validade": "08-02-2023"
+    },
+    "21": {
+      "_id": "63e44c8d8ea6a492236c7e35",
+      "comprado": 50,
+      "dataCompra": "08-02-2023",
+      "nome": "Extrato glicerinado Aloe Vera",
+      "preco": 0,
+      "precoUn": 0,
+      "quantidade": 50,
+      "unMedida": "mL",
+      "validade": "30-06-2024"
+    },
+    "22": {
+      "_id": "63e59abe8e1451a41cdcd003",
+      "comprado": 300,
+      "dataCompra": "09-02-2023",
+      "nome": "BTMS ",
+      "preco": 42.2,
+      "precoUn": 0.1406666666666667,
+      "quantidade": 300,
+      "unMedida": "g",
+      "validade": "30-11-2023"
+    },
+    "23": {
+      "_id": "63e59b198e1451a41cdcd00b",
+      "comprado": 100,
+      "dataCompra": "09-02-2023",
+      "nome": "Manteiga de cacau ",
+      "preco": 14,
+      "precoUn": 0.14,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "31-05-2024"
+    },
+    "24": {
+      "_id": "63e59b5b8e1451a41cdcd00f",
+      "comprado": 200,
+      "dataCompra": "09-02-2023",
+      "nome": "Manteiga de Manga",
+      "preco": 18,
+      "precoUn": 0.09,
+      "quantidade": 200,
+      "unMedida": "g",
+      "validade": "07-02-2024"
+    },
+    "25": {
+      "_id": "63e59b938e1451a41cdcd013",
+      "comprado": 100,
+      "dataCompra": "09-02-2023",
+      "nome": "Argila Roxa",
+      "preco": 3,
+      "precoUn": 0.03,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "31-01-2024"
+    },
+    "26": {
+      "_id": "63e59bd08e1451a41cdcd017",
+      "comprado": 100,
+      "dataCompra": "09-02-2023",
+      "nome": "Argila Amarela ",
+      "preco": 3,
+      "precoUn": 0.03,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "31-01-2024"
+    },
+    "27": {
+      "_id": "63e59c1b8e1451a41cdcd01b",
+      "comprado": 100,
+      "dataCompra": "09-02-2023",
+      "nome": "Farinha de uva",
+      "preco": 4,
+      "precoUn": 0.04,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "17-11-2023"
+    },
+    "28": {
+      "_id": "63ec2c7fb48b27c0b7e0e952",
+      "comprado": 1,
+      "dataCompra": "01-04-2022",
+      "nome": "Argila Branca",
+      "preco": 19,
+      "precoUn": 19,
+      "quantidade": 1,
+      "unMedida": "kg",
+      "validade": "31-03-2023"
+    },
+    "29": {
+      "_id": "63ec2fb8b48b27c0b7e0e990",
+      "comprado": 250,
+      "dataCompra": "15-06-2022",
+      "nome": "Óleo de abacate",
+      "preco": 27.7,
+      "precoUn": 0.111,
+      "quantidade": 250,
+      "unMedida": "mL",
+      "validade": "31-05-2023"
+    },
+    "30": {
+      "_id": "63ec3021b48b27c0b7e0e997",
+      "comprado": 10,
+      "dataCompra": "08-07-2022",
+      "nome": "OE Hortela pimenta",
+      "preco": 17.9,
+      "precoUn": 1.79,
+      "quantidade": 10,
+      "unMedida": "mL",
+      "validade": "31-08-2024"
+    },
+    "31": {
+      "_id": "63f130e09074aebae4f141d8",
+      "comprado": 100,
+      "dataCompra": "18-02-2023",
+      "nome": "Glicerina",
+      "preco": 11,
+      "precoUn": 0.11,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "18-06-2023"
+    },
+    "32": {
+      "_id": "63f133f49074aebae4f14200",
+      "comprado": 500,
+      "dataCompra": "05-03-2022",
+      "nome": "Acido Estearico",
+      "preco": 29,
+      "precoUn": 0.058,
+      "quantidade": 500,
+      "unMedida": "g",
+      "validade": "31-03-2023"
+    },
+    "33": {
+      "_id": "63fb9c988a52ed8e4a56e685",
+      "comprado": 1015,
+      "dataCompra": "23-02-2023",
+      "nome": "SCI",
+      "preco": 159.9,
+      "precoUn": 0.158,
+      "quantidade": 1015,
+      "unMedida": "g",
+      "validade": "04-05-2024"
+    },
+    "34": {
+      "_id": "63fb9cd68a52ed8e4a56e68a",
+      "comprado": 250,
+      "dataCompra": "23-02-2023",
+      "nome": "Manteiga de Karite",
+      "preco": 30.17,
+      "precoUn": 0.121,
+      "quantidade": 250,
+      "unMedida": "g",
+      "validade": "21-05-2024"
+    },
+    "35": {
+      "_id": "63fb9d208a52ed8e4a56e68e",
+      "comprado": 500,
+      "dataCompra": "23-02-2023",
+      "nome": "TAC",
+      "preco": 69.83,
+      "precoUn": 0.14,
+      "quantidade": 500,
+      "unMedida": "g",
+      "validade": "15-02-2024"
+    },
+    "36": {
+      "_id": "63fb9d5d8a52ed8e4a56e692",
+      "comprado": 250,
+      "dataCompra": "23-02-2023",
+      "nome": "Cocoamido Propil Betaina",
+      "preco": 18.12,
+      "precoUn": 0.072,
+      "quantidade": 250,
+      "unMedida": "g",
+      "validade": "30-01-2024"
+    },
+    "37": {
+      "_id": "63fb9d9f8a52ed8e4a56e696",
+      "comprado": 60,
+      "dataCompra": "23-02-2023",
+      "nome": "Pantenol 75%",
+      "preco": 16.67,
+      "precoUn": 0.278,
+      "quantidade": 60,
+      "unMedida": "g",
+      "validade": "01-08-2024"
+    },
+    "38": {
+      "_id": "63fb9dc28a52ed8e4a56e69a",
+      "comprado": 100,
+      "dataCompra": "23-02-2023",
+      "nome": "Queratina",
+      "preco": 21.8,
+      "precoUn": 0.218,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "01-01-2024"
+    },
+    "39": {
+      "_id": "640c83005fba3e444926b13f",
+      "comprado": 1000,
+      "dataCompra": "08-03-2023",
+      "nome": "Oleo de Ricino",
+      "preco": 35,
+      "precoUn": 0.035,
+      "quantidade": 1000,
+      "unMedida": "mL",
+      "validade": "17-01-2025"
+    },
+    "40": {
+      "_id": "640c83945fba3e444926b145",
+      "comprado": 100,
+      "dataCompra": "08-03-2023",
+      "nome": "OE Melaleuca",
+      "preco": 55,
+      "precoUn": 0.55,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "31-10-2024"
+    },
+    "41": {
+      "_id": "640c83da5fba3e444926b14a",
+      "comprado": 250,
+      "dataCompra": "08-03-2023",
+      "nome": "Oxido de Zinco",
+      "preco": 27,
+      "precoUn": 0.108,
+      "quantidade": 250,
+      "unMedida": "g",
+      "validade": "28-02-2025"
+    },
+    "42": {
+      "_id": "640c84765fba3e444926b14f",
+      "comprado": 10,
+      "dataCompra": "08-03-2023",
+      "nome": "Oleo Vegetal Castanha do Para",
+      "preco": 6,
+      "precoUn": 0.6,
+      "quantidade": 10,
+      "unMedida": "mL",
+      "validade": "31-08-2024"
+    },
+    "43": {
+      "_id": "640c84b75fba3e444926b153",
+      "comprado": 10,
+      "dataCompra": "08-03-2023",
+      "nome": "OE Cravo",
+      "preco": 19.9,
+      "precoUn": 1.99,
+      "quantidade": 10,
+      "unMedida": "mL",
+      "validade": "31-08-2024"
+    },
+    "44": {
+      "_id": "640c84fd5fba3e444926b157",
+      "comprado": 10,
+      "dataCompra": "08-03-2023",
+      "nome": "OE Patchouli",
+      "preco": 26.9,
+      "precoUn": 2.69,
+      "quantidade": 10,
+      "unMedida": "mL",
+      "validade": "31-08-2024"
+    },
+    "45": {
+      "_id": "64500abe1a2195ad63b2fdcd",
+      "comprado": 1800,
+      "dataCompra": "03-03-2023",
+      "nome": "Oleo de coco",
+      "preco": 90,
+      "precoUn": 0.05,
+      "quantidade": 1800,
+      "unMedida": "g",
+      "validade": "31-01-2025"
+    },
+    "46": {
+      "_id": "646157b3354a7108d5d4a164",
+      "comprado": 500,
+      "dataCompra": "03-05-2023",
+      "nome": "Hidrolato de Gerânio",
+      "preco": 29.5,
+      "precoUn": 0.059,
+      "quantidade": 500,
+      "unMedida": "mL",
+      "validade": "31-01-2025"
+    },
+    "47": {
+      "_id": "646157e2354a7108d5d4a169",
+      "comprado": 250,
+      "dataCompra": "03-05-2023",
+      "nome": "Álcool Cetilico",
+      "preco": 17.8,
+      "precoUn": 0.071,
+      "quantidade": 250,
+      "unMedida": "g",
+      "validade": "31-10-2023"
+    },
+    "48": {
+      "_id": "64615811354a7108d5d4a16d",
+      "comprado": 100,
+      "dataCompra": "03-05-2023",
+      "nome": "Cetiol CC",
+      "preco": 34,
+      "precoUn": 0.34,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "31-03-2025"
+    },
+    "49": {
+      "_id": "64615849354a7108d5d4a171",
+      "comprado": 100,
+      "dataCompra": "03-05-2023",
+      "nome": "Hidrolato de Pitanga",
+      "preco": 10.3,
+      "precoUn": 0.103,
+      "quantidade": 100,
+      "unMedida": "mL",
+      "validade": "28-02-2025"
+    },
+    "50": {
+      "_id": "64615876354a7108d5d4a175",
+      "comprado": 100,
+      "dataCompra": "03-05-2023",
+      "nome": "Cristais de Quartzo",
+      "preco": 7.1,
+      "precoUn": 0.071,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "14-05-2026"
+    },
+    "51": {
+      "_id": "646158b7354a7108d5d4a179",
+      "comprado": 100,
+      "dataCompra": "03-05-2023",
+      "nome": "Gluconato de Sodio",
+      "preco": 8.5,
+      "precoUn": 0.085,
+      "quantidade": 100,
+      "unMedida": "g",
+      "validade": "31-12-2025"
+    },
+    "-NWJ0aesxO9GVJo8DSvT": {
+      "_id": "-NWJ0aesxO9GVJo8DSvT",
+      "comprado": "12",
+      "dataCompra": 1685036842897,
+      "fornecedor": "Loja k",
+      "nome": "Ap",
+      "preco": "14",
+      "precoUn": "1.167",
+      "quantidade": "12",
+      "unMedida": "g",
+      "validade": 1716659246485
+    }
+  },
+  "produtos": {
+    "-NWJ80NWw3snXgJhduM_": {
+      "_id": "-NWJ80NWw3snXgJhduM_",
+      "custo": 8.484,
+      "data": 1685038796322,
+      "descricao": "Teste do Cadastro",
+      "formulacao": "-NWJ6JNwO-YxfUbzultf",
+      "nome": "Teste Prod",
+      "preco": 25,
+      "quantidade": "1"
+    },
+    "-NWJ9UH9wrEOFrKBwDeG": {
+      "_id": "-NWJ9UH9wrEOFrKBwDeG",
+      "custo": 8.79,
+      "data": 1685039181938,
+      "descricao": "exemplo",
+      "formulacao": "-NWEG1APVeZDemIf5BTT",
+      "nome": "Exemplo",
+      "preco": 30,
+      "quantidade": "2"
+    },
+    "-NWJCjHIs8qBccVO7RvG": {
+      "_id": "-NWJCjHIs8qBccVO7RvG",
+      "custo": 8.484,
+      "data": 1685040038869,
+      "descricao": "teste",
+      "formulacao": "-NWJ6JNwO-YxfUbzultf",
+      "nome": "Cont",
+      "nomeFormulacao": "Teste",
+      "preco": 10,
+      "quantidade": "1"
+    },
+    "-NWJDNngfrXBbUU_ghJg": {
+      "_id": "-NWJDNngfrXBbUU_ghJg",
+      "custo": 8.484,
+      "data": 1685040210750,
+      "descricao": "dsdsa",
+      "formulacao": "-NWJ6JNwO-YxfUbzultf",
+      "nome": "aaa",
+      "nomeFormulacao": "Teste",
+      "preco": 45,
+      "quantidade": "1"
+    }
+  },
+  "saidas": {
+    "-NWJN1bX0Fe2TF59Popw": {
+      "_id": "-NWJN1bX0Fe2TF59Popw",
+      "preco": 25,
+      "produto": "Teste Prod",
+      "quantidade": "1"
+    }
+  },
+  "temp": {
+    "form": {
+      "-NWJ3lOF59fSi-_TEMg-": {
+        "63d535173ec35a7e02498b55": {
+          "custo": 0.13579999999999998,
+          "id": "63d535173ec35a7e02498b55",
+          "nome": "Farinha de Arroz",
+          "quantidade": "14",
+          "unMedida": "g"
+        },
+        "63d5399b3ec35a7e02498ba1": {
+          "custo": 0.115,
+          "id": "63d5399b3ec35a7e02498ba1",
+          "nome": "Água",
+          "quantidade": "23",
+          "unMedida": "mL"
+        },
+        "63ec2fb8b48b27c0b7e0e990": {
+          "custo": 0.999,
+          "id": "63ec2fb8b48b27c0b7e0e990",
+          "nome": "Óleo de abacate",
+          "quantidade": "9",
+          "unMedida": "mL"
+        }
+      }
+    }
+  },
+  "vendas": ""
+}

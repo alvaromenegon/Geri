@@ -4,6 +4,7 @@ Explicação:
 Aplicativo para gerenciar o estoque de matéria-prima na produção de Cosméticos naturais, e também dos produtos já prontos para venda, gerar um balanço mensal do negócio, facilitando no controle dos custos de compra de matéria-prima, mão de obra, etc.
 
 25/05 - Persistência e leitura de dados funcional em quase todas as telas
+- Arquivo JSON com alguns dados já prontos: CopiaRealtimeDB.json
 Não foi possível colocar a opção de tema escuro para essa entrega
 Para a entrega final:
 - falta ajustar o cadastro de vendas que será similar ao cadastro de formulações(listando os produtos selecionados)
