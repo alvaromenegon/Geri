@@ -114,7 +114,6 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :
                     <ScrollView showsVerticalScrollIndicator={false}>
-                        
                         {renderList()}
                         <TouchableOpacity
                             onPress={() =>getItens()}
@@ -124,8 +123,7 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                         >
                             <AntDesign name="reload1" size={18} color={style.colors.primaryDark} />
                         </TouchableOpacity>
-                    </ScrollView>
-                    
+                    </ScrollView>       
                 }
             </View>
             <BottomBar />

@@ -39,9 +39,8 @@ const Produtos = () => {
 }
 
 const Saidas = () => {
-    console.warn('Falta corrigir')
     return (
-        <Lists format="saida" url={"saidas"} />
+        <Lists format="venda" url={"vendas"} />
     )
 }
 

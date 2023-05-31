@@ -84,7 +84,7 @@ const Select = (props) => {
 function InputWithLabel(props) {
     const type = props.type || "default";
     const editable = !props.disabled ?? true;
-    const value = props.value;    
+    const value = typeof props.value === 'string' ? props.value : props.value.toString() ;    
     const onChangeText = props.onChangeText || (() => { });
     const onBlur = props.onBlur || (() => { });
     const secure = props.secure || false;

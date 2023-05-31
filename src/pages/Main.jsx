@@ -75,7 +75,7 @@ function Main() {
     }
 
     const renderAvisos = () => { //renderizar os avisos
-        if (!avisos.mp && !avisos.prod) {
+        if (!avisos.noMp && !avisos.noProd) {
             return (
                 <Text>Está tudo em dia</Text>
             )

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { getDatabase, ref, remove } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
+import { StackActions, useNavigation } from "@react-navigation/native";
 //import { useNavigation } from "@react-navigation/native"; 
 
 export default function ItemList(props) {
@@ -15,7 +16,7 @@ export default function ItemList(props) {
     return (
         <View style={styles.itemList} >
             <View style={styles.itemListHeader}>
-                <Text style={{ fontSize: 28, marginBottom: 5 }}>{props.format === 'saida' ? props.data.tipo + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
+                <Text style={{ fontSize: 28, marginBottom: 5 }}>{props.format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
                 <TouchableOpacity
                     style={styles.btn}
                     onPress={() => {
@@ -37,7 +38,7 @@ export default function ItemList(props) {
                         props.format === 'prod' ?
                             <TableProd data={data}></TableProd>
                             :
-                            props.format === 'saida' ?
+                            props.format === 'venda' ?
                                 <TableSaida data={data}></TableSaida>
                                 :
                                 <Text>Erro</Text>
@@ -52,7 +53,7 @@ export default function ItemList(props) {
                         props.format === 'prod' ?
                             null
                             :
-                            props.format === 'saida' ?
+                            props.format === 'venda' ?
                                 <Text>Data: {
                                     new Date(data.data).toLocaleDateString('pt-BR')
                                 }</Text>
@@ -64,6 +65,7 @@ export default function ItemList(props) {
 
 const TableCell = (props) => {
     //const navigation = useNavigation();
+    const navigation = useNavigation()
     if (props.buttons) {
         return (
             <View style={stylesTable.table}>
@@ -104,7 +106,10 @@ const TableCell = (props) => {
                                     style: "cancel"
                                 },
                                 { text: "Sim", onPress: () => {
-                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/mps/${props.id}`)) }}
+                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/mps/${props.id}`));
+                                    navigation.dispatch(StackActions.popToTop());
+                                    navigation.navigate('Matérias-Primas');
+                                }}
                             ]
                         );}}>
                     <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
@@ -201,16 +206,20 @@ const TableProd = (props) => {
 const TableSaida = (props) => {
     const data = props.data;
     const date = new Date(data.data).toLocaleDateString('pt-BR', 'dd/MM/yyyy');
-    const preco = `R$ ${data.preco}`
+    const preco = `R$ ${data.preco}`;
+    let produtos=[];
+    Object.values(data.produtos).forEach(element => {
+        produtos.push(`${element.nome}\nQuantidade: ${element.quantidade} - Total: R$${element.preco}`)
+    });
 
     return (
         <>
             <TableCell title='Data' value={date}></TableCell>
-            <TableCell title='Produtos' value={data.nomeProdutos}></TableCell>
-            <TableCell title='Quantidade' value={data.quantidade}></TableCell>
+            <TableCell title='Cliente' value={data.cliente}></TableCell>
+            <TableCell title='Produtos' list={true} value={produtos}></TableCell>
             <TableCell title='Preço' value={preco}></TableCell>
-            <TableCell title='Tipo' value={data.tipo}></TableCell>
-
+            {data.naoVenda?
+            <TableCell title='Tipo de Saída' value="Outros"></TableCell>:null}
         </>
     )
 }

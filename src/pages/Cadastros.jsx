@@ -1,14 +1,13 @@
 import { DatePicker, Select } from '../components/InputWithLabel';
 import { InputWithLabel } from '../components/InputWithLabel';
-import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
 import CheckBox from 'expo-checkbox'
 import { useNavigation } from '@react-navigation/native';
-import BottomBar from '../components/BottomBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Padding from '../components/Padding';
-import { getDatabase, update, ref, set, push, get, query, limitToFirst, remove } from 'firebase/database';
+import { getDatabase, update, ref, set, push, get, query, limitToFirst, remove, onValue } from 'firebase/database';
 import firebase from '../services/firebaseConfig';
 import { getAuth, signOut } from 'firebase/auth';
 import { AntDesign } from '@expo/vector-icons';
@@ -51,52 +50,53 @@ function change(props) {
                     _id: nodeRef.key,
                 }
             set(nodeRef, data)
-                .then((ret) => {
+                .then(() => {
+                    if (props.url === 'mps') {
+                        //adicionar a saida no banco de dados
+                        //para ser utilizado no Faturamento
+                        const dataCompra = new Date(props.data.dataCompra);
+                        const ano = dataCompra.getFullYear();
+                        const mes = dataCompra.getMonth() + 1;
+                        const id = new Date().getTime();
+                        set(ref(db, `data/${uid}/faturamento/saidas/${id}`), {
+                            _id: id,
+                            data: {
+                                mes: mes,
+                                ano: ano,
+                            },
+                            idProduto: nodeRef.key,
+                            valor: parseFloat(props.data.preco),
+                        })
+                        //não testado
+                    } else if (props.url === 'vendas') {
+                        //implementar
+                        //adicionar a entrada no banco de dados
+                        //para ser utilizado no Faturamento
+                        const dataVenda = new Date();
+                        const ano = dataVenda.getFullYear();
+                        const mes = dataVenda.getMonth() + 1;
+                        const id = dataVenda.getTime();
+                        set(ref(db, `data/${uid}/faturamento/entradas/${id}`), {
+                            _id: id,
+                            idVenda: nodeRef.key,
+                            data: {
+                                mes: mes,
+                                ano: ano,
+                            },
+                            valor: parseFloat(props.data.preco),
+                        })
+                    }
                     if (props.url === 'produtos') {
                         //implementar
                         //reduzir o estoque de materias primas
                     }
                 })
                 .catch((err) => {
-                    console.log(err)
+                    console.err(err)
                     erro = true;
                 })
-            /*if (props.url === 'mps'){
-                //implementar
-                //adicionar a saida no banco de dados
-                //para ser utilizado no Faturamento
-                const ano = props.data.dataCompra.getFullYear();
-                const mes = props.data.dataCompra.getMonth() + 1;
-                const id = new Date().getTime();
-                set(ref(db, `data/${uid}/saidas/${ano}/${mes}/${id}`),{
-                    _id: id,
-                    valor: props.data.preco,
-                })
-                //não testado
-            } else if (props.url === 'vendas'){
-                //implementar
-                //adicionar a entrada no banco de dados
-                //para ser utilizado no Faturamento
-                const ano = props.data.data.getFullYear();
-                const mes = props.data.data.getMonth() + 1;
-                const id = new Date().getTime();
-                set(ref(db, `data/${uid}/entradas/${ano}/${mes}/${id}`),{
-                    _id: id,
-                    valor: props.data.preco,
-                })
-                //não testado
 
-            /*/
-        } else {
-            update(url, data).then((ret) => {
-                console.log(ret)
-            }
-            ).catch((err) => {
-                console.log(err);
-                erro = true;
-            })
         }
-
         if (erro) {
             Alert.alert('Erro', 'Erro ao salvar os dados');
             return false;
@@ -292,7 +292,7 @@ const CadFormulacoes = () => {
     const Verificar = () => {
         const [custo, setCusto] = useState(0);
         let preco = 0;
-        useEffect(() => {     
+        useEffect(() => {
             Object.values(materiasPrimas).forEach((item) => {
                 preco += item.custo;
             });
@@ -319,7 +319,7 @@ const CadFormulacoes = () => {
                         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-around' }}>
                             <TouchableOpacity style={style.button}
                                 onPress={() => {
-                                    change({ data: { nome: nome, tipo: tipo,custo:custo.toFixed(3), materiasprimas: { ...materiasPrimas }, }, url: 'forms', set: 'set' })
+                                    change({ data: { nome: nome, tipo: tipo, custo: custo.toFixed(3), materiasprimas: { ...materiasPrimas }, }, url: 'forms', set: 'set' })
                                     setModalVisible(!modalVisible);
                                     navigation.replace('Formulações');
                                 }}>
@@ -350,9 +350,9 @@ const CadFormulacoes = () => {
         get(ref(db, `data/${getAuth().currentUser.uid}/mps`)).then((snapshot) => {
             setNumberPages(Math.ceil(snapshot.size / 10));
         });
-        get(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`)).then((snapshot) => {
+        /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`)).then((snapshot) => {
             //setMateriasPrimas(snapshot.val());
-        });
+        });*/
         const dbRef = ref(db, `data/${getAuth().currentUser.uid}/mps`);
         const query_ = query(dbRef, limitToFirst(p * 10));
         get(query_).then((snapshot) => {
@@ -546,8 +546,7 @@ const CadFormulacoes = () => {
                                     remove(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/${key}`));
                                     get(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`)).then((snapshot) => {
                                         setMateriasPrimas(snapshot.val());
-                                    }
-                                    );
+                                    });
                                     //A fazer: usar o setMateriasPrimas em um onValue do banco de dados
                                 }}
                             >
@@ -653,7 +652,7 @@ const CadProdutos = () => {
                     <TouchableOpacity
                         style={style.button}
                         onPress={() => {
-                            if(nome === '' || descricao === '' || custo === '' || preco === '' || quantidade === '' || date === null || validade === null || formulacao === '') {
+                            if (nome === '' || descricao === '' || custo === '' || preco === '' || quantidade === '' || date === null || validade === null || formulacao === '') {
                                 Alert.alert('Preencha todos os campos');
                                 return;
                             }
@@ -687,38 +686,69 @@ const CadProdutos = () => {
 const CadSaidas = () => {
     const [numberPages, setNumberPages] = useState(1);
     const [actualPage, setActualPage] = useState(1);
+    const [produtos, setProdutos] = useState(null);
+    const [vendaId, setVendaId] = useState(null);
+    const [precoTotal, setPrecoTotal] = useState(0);
+    const navigation = useNavigation();
+    navigation.addListener('blur', () => {
+        remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`));
+    });
+
     const getItens = async (page) => {
         if (page === 0 || page > numberPages) return;
         const p = page ?? 1;
         setIsLoading(true);
         setActualPage(p);
-        get(ref(db, `data/${getAuth().currentUser.uid}/produtos`)).then((snapshot) => {
-            if (snapshot.exists()) {
+        /*onValue(ref(db, `data/${getAuth().currentUser.uid}/produtos`),(snapshot) => {
+            console.log(snapshot.val())
+        });*/
+        const dbRef = ref(db, `data/${getAuth().currentUser.uid}/produtos`);
+        const query_ = query(dbRef, limitToFirst(p * 10));
+        onValue(query_, (snapshot) => {
                 const data = snapshot.val();
                 const keys = Object.keys(data);
                 const array = keys.map((key) => {
                     return { ...data[key], id: key };
                 });
                 setData(array);
-            }
-        }
-        ).catch((error) => {
-            console.error(error);
-        }
-        ).finally(() => {
-            setIsLoading(false);
-        }
-        );
+                setIsLoading(false);
+        })
     };
 
     useEffect(() => {
+        push(ref(db, `data/${getAuth().currentUser.uid}/temp/venda`)).then((snapshot) => {
+            setVendaId(snapshot.key);
+            set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${snapshot.key}`), { empty: true });
+        });
         getItens()
     }, []);
+
 
     const SearchItem = (props) => {
         const item = props.item
         const [isOpen, setIsOpen] = useState(false);
-        const [qtd, setQtd] = useState(0);
+        const [qtd, setQtd] = useState('');
+        const cache = ({ item }) => {
+            if (qtd == 0 || qtd == '' || qtd == '0') {
+                set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`), null)
+                get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+                    setProdutos(snapshot.val());
+                });
+                return;
+            }
+            const preco = item.preco * parseInt(qtd);
+            set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/empty`), null)
+            update(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`), {
+                id: item.id,
+                quantidade: item.quantidade,
+                nome: item.nome,
+                preco: preco
+            })
+            get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+                setProdutos(snapshot.val())
+                setPrecoTotal(Object.values(snapshot.val()).reduce((a, b) => a + b.preco, 0));
+            });
+        }
 
         return (
             <View>
@@ -734,7 +764,12 @@ const CadSaidas = () => {
                     <CheckBox
                         disabled={false}
                         value={isOpen}
-                        onValueChange={(newValue) => setIsOpen(newValue)}
+                        onValueChange={(newValue) => {
+                            if (!newValue) {
+                                remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`));
+                            }
+                            setIsOpen(newValue)
+                        }}
                     />
                     <Text style={{ fontSize: 20, marginLeft: 5 }}>{item.nome} - R$ {item.preco}</Text>
                 </View>
@@ -743,44 +778,21 @@ const CadSaidas = () => {
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'flex-end',
+                        backgroundColor: semEstoque?'red':'transparent',
                     }}
                     >
-                        <InputWithLabel onChangeText={t => setQtd(t)} value={qtd} label={`Quantidade - ${item.quantidade}`} type="numeric" />
-                        <TouchableOpacity
-                            style={style.button}
+                        <InputWithLabel onChangeText={t => setQtd(t)} value={qtd.toString()} label={`Quantidade - ${item.quantidade}`} type="numeric" />
+                        <TouchableOpacity style={{
+                            ...style.button,
+                            backgroundColor: style.colors.primary
+                        }}
                             onPress={() => {
-                                if (qtd === 0) {
-                                    Alert.alert('Preencha a quantidade');
-                                    return;
-                                }
-                                if (qtd > item.quantidade) {
-                                    Alert.alert('Quantidade maior que o estoque');
-                                    return;
-                                }
-
-                                //Alert.alert('Não implementado')
-                                /*change({
-                                    data: {
-                                        quantidade: item.quantidade - qtd
-                                    },
-                                    url: `produtos/${item.id}`,
-                                    set: 'set'
-                                })*/
-                                change({
-                                    data: {
-                                        produto: item.nome,
-                                        preco: item.preco,
-                                        quantidade: qtd,
-                                        data: new Date(),
-                                        
-                                    },
-                                    url: 'saidas',
-                                    set: 'set'
-                                })
-                                getItens(actualPage)
-                            }}
-                        >
-                            <Text style={style.textButton}>Salvar</Text>
+                                const qtd_ = parseInt(qtd);
+                                qtd_ <= item.quantidade && qtd_ > 0 ?
+                                    cache({ item: { id: item._id, nome: item.nome, quantidade: qtd_, preco: item.preco } }) :
+                                    Alert.alert("Quantidade inválida");
+                            }}>
+                            <Text style={style.buttonText}>OK</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -805,15 +817,13 @@ const CadSaidas = () => {
                         flexDirection: 'row',
                         justifyContent: 'space-around',
                         alignItems: 'center',
-                    }}
-                >
+                    }}>
                     <TouchableOpacity
                         key="btv"
                         style={style.button}
                         onPress={() => {
                             getItens(actualPage - 1)
-                        }}
-                    >
+                        }}>
                         <Text style={style.text}>{actualPage === 1 ? '1' : '<'}</Text>
                     </TouchableOpacity>
                     <Text style={style.text}>{actualPage}/{numberPages}</Text>
@@ -831,36 +841,75 @@ const CadSaidas = () => {
         }
         return arr;
     }
-
     const [data, setData] = useState([]);
     const [date, setDate] = useState(new Date());
     const [isLoading, setIsLoading] = useState(true);
+    const [cliente, setCliente] = useState('');
+    const [naoVenda, setNaoVenda] = useState(false);
 
     return (
-        <>
-            <ScrollView style={style.container}>
-                <Text style={style.text}>Produtos:</Text>
-                {isLoading ? <ActivityIndicator size={24} color='black' /> :
-                    renderItens()
-                }
-                <DatePicker date={date} onChange={(e, d) => setDate(d)} label="Data" />
-            </ScrollView>
-            <BottomBar /></>
+        <ScrollView style={style.container}>
+            <InputWithLabel label="Cliente" onChangeText={t => setCliente(t)} value={cliente} />
+            <DatePicker date={date} onChange={(e, d) => setDate(d)} label="Data" />
+            <Text style={style.text}>Produtos:</Text>
+            {isLoading ? <ActivityIndicator size={24} color='black' /> :
+                renderItens()
+            }
+            <Text style={style.text}>Produtos selecionados</Text>
+            {produtos ? Object.keys(produtos).map((key, index) => {
+                return (
+                    <View key={index} style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        margin: 5,
+                        paddingTop: 10,
+                        borderTopColor: 'black',
+                        borderTopWidth: 1,
+                    }}>
+                        <Text >{produtos[key].nome} - {produtos[key].preco}</Text>
+                        <TouchableOpacity
+                            style={{
+                                ...style.button,
+                                backgroundColor: 'red'
+                            }}
+                            onPress={() => {
+                                remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${key}`));
+                                get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+                                    setProdutos(snapshot.val());
+                                })
+                            }}
+                        >
+                            <AntDesign name="delete" size={18} color="white" />
+                        </TouchableOpacity>
+                    </View>
+                )
+            }) : <Text>Nenhum produto selecionado</Text>
+            }
+            <Text style={style.text}>Tipo de saída:</Text>
+            <CheckBox
+                disabled={false}
+                value={naoVenda}
+                onValueChange={(newValue) => {
+                    setNaoVenda(newValue)
+                }}
+            />
+            <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+            <TouchableOpacity
+                style={style.button}
+                onPress={() => {
+                    if (cliente !== '' && date !== '' && produtos !== null) {
+                        change({ data: { cliente: cliente, data: date.getTime(), produtos: produtos, preco: precoTotal, naoVenda: naoVenda }, url: 'vendas', set: 'set' })
+                        navigation.navigate('Saídas')
+                    } else {
+                        Alert.alert('Preencha todos os campos')
+                    }
+                }}>
+                <Text style={style.textButton}>Salvar</Text>
+            </TouchableOpacity>
+            <Padding value={40} />
+        </ScrollView>
     )
 }
-
-const styles = StyleSheet.create({
-    searchButton: {
-        backgroundColor: '#000',
-    },
-    paginationButton: {
-        width: 30,
-        height: 30,
-        backgroundColor: '#000',
-        borderRadius: 25,
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
-});
 
 export { CadMateriasPrimas, CadFormulacoes, CadProdutos, CadSaidas };
