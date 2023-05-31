@@ -1,6 +1,6 @@
 import { DatePicker, Select } from '../components/InputWithLabel';
 import { InputWithLabel } from '../components/InputWithLabel';
-import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
 import CheckBox from 'expo-checkbox'
@@ -705,13 +705,13 @@ const CadSaidas = () => {
         const dbRef = ref(db, `data/${getAuth().currentUser.uid}/produtos`);
         const query_ = query(dbRef, limitToFirst(p * 10));
         onValue(query_, (snapshot) => {
-                const data = snapshot.val();
-                const keys = Object.keys(data);
-                const array = keys.map((key) => {
-                    return { ...data[key], id: key };
-                });
-                setData(array);
-                setIsLoading(false);
+            const data = snapshot.val();
+            const keys = Object.keys(data);
+            const array = keys.map((key) => {
+                return { ...data[key], id: key };
+            });
+            setData(array);
+            setIsLoading(false);
         })
     };
 
@@ -778,7 +778,7 @@ const CadSaidas = () => {
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'flex-end',
-                        backgroundColor: semEstoque?'red':'transparent',
+                        backgroundColor: semEstoque ? 'red' : 'transparent',
                     }}
                     >
                         <InputWithLabel onChangeText={t => setQtd(t)} value={qtd.toString()} label={`Quantidade - ${item.quantidade}`} type="numeric" />
@@ -886,15 +886,25 @@ const CadSaidas = () => {
                 )
             }) : <Text>Nenhum produto selecionado</Text>
             }
-            <Text style={style.text}>Tipo de saída:</Text>
-            <CheckBox
-                disabled={false}
-                value={naoVenda}
-                onValueChange={(newValue) => {
-                    setNaoVenda(newValue)
-                }}
-            />
-            <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+            <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                <Text style={style.text}>Tipo de saída: </Text>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: "transparent",
+                        borderColor: style.colors.secondary,
+                        borderWidth: 1,
+                        borderRadius: 25,
+                        padding: 5,
+                    }}
+                    onPress={() => {
+                        Alert.alert('Tipo de saída', 'Se o tipo de saída for "Outros", o valor não será contabilizado nas vendas, mas o estoque ainda será alterado.')
+                    }}
+                ><AntDesign name="info" size={18} color={style.colors.secondary} /></TouchableOpacity>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Switch value={naoVenda} onValueChange={setNaoVenda} />
+                <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+            </View>
             <TouchableOpacity
                 style={style.button}
                 onPress={() => {
