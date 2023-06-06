@@ -3,11 +3,11 @@ import style from "../assets/style";
 import { useEffect, useState } from "react";
 import ItemList from "./ItemList";
 import BottomBar from "./BottomBar";
-import { getDatabase, ref, get } from "firebase/database";
+import { getDatabase, ref, get, onValue } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { AntDesign } from '@expo/vector-icons';
-import { useNavigation } from "@react-navigation/native";
+//import { useNavigation } from "@react-navigation/native";
 
 export default function Lists(props) { //Componente que renderiza uma lista de itens, com base nos parâmetros passados por props
     const [loading, setLoading] = useState(true); // a fim de reutilizar o componente para diferentes listas
@@ -43,39 +43,44 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
 
     const getItens = (page) => { //função que busca os itens no BD com base na url passada como props
         setLoading(true);
-        //const p = page ?? 1;
+        const p = page ?? 1;
         const dbRef = ref(db, `data/${uid}/${props.url}`);
         //Implementar o onValue
-        get(dbRef).then((snapshot) => {
-            if (snapshot.exists()) {
-                setData(snapshot.val())
-                setDataLength(snapshot.size)
-                setNumberPages(Math.ceil(data.length / 10));
-            } else {
-                console.warn('No data');
-                setData({});
+        onValue(dbRef, (snapshot) => {
+            try {
+                if (snapshot.exists()) {
+                    setData(snapshot.val())
+                    setDataLength(snapshot.size)
+                    setNumberPages(Math.ceil(snapshot.size / 10));
+                } else {
+                    console.warn('No data');
+                    setData({});
+                }
             }
-        })
-        .catch((error) => {
-            console.error(error);
-        }).finally(() => {
-            setLoading(false);
+            catch (error) {
+                console.error(error);
+            } finally {
+                setLoading(false);
+            };
         });
-        return true;
-    };
+    }
 
     const renderList = () => { //renderiza os itens na tela
         let arr = [];
-        let i = 0;
+        let i = (active - 1) * 10;
+        let j = i + 10;
         if (dataLength == 0) {
             return <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>
         }
-        for (i; i < dataLength; i++) {
+        for (i; i < j; i++) {
             arr.push(<ItemList
-                key={i}
+                key={props._id}
                 format={props.format}
                 data={Object.values(data)[i]}
             />);
+            if (i == dataLength - 1) {
+                break;
+            }
         }
         numberPages > 1 ?
             arr.push(
@@ -90,9 +95,6 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
     }
 
     const pagination = (props) => {
-        //Corrigir
-        //botões nao aparecem
-        //todos os item aparecem na primeira pagina
         let arr = [];
         for (let i = 1; i <= props.n; i++) {
             arr.push(
@@ -116,14 +118,15 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     <ScrollView showsVerticalScrollIndicator={false}>
                         {renderList()}
                         <TouchableOpacity
-                            onPress={() =>getItens()}
-                            style={{ alignSelf: 'center',
-                            ...styles.actButton
-                         }}
+                            onPress={() => getItens()}
+                            style={{
+                                alignSelf: 'center',
+                                ...styles.actButton
+                            }}
                         >
                             <AntDesign name="reload1" size={18} color={style.colors.primaryDark} />
                         </TouchableOpacity>
-                    </ScrollView>       
+                    </ScrollView>
                 }
             </View>
             <BottomBar />

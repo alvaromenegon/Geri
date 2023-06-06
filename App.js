@@ -38,7 +38,7 @@ export default function App() {
         <Stack.Screen name='Login' component={Login}/>
         <Stack.Screen name="Cadastro" component={Cadastro}/>
 
-        <Stack.Screen name="Controle" component={Main} />
+        <Stack.Screen name="Geri" component={Main} />
         <Stack.Screen name="Perfil" component={Profile} />
         <Stack.Screen name="Matérias-Primas" component={MateriasPrimas} />
         <Stack.Screen name="Cadastrar Matéria-Prima" component={CadMateriasPrimas} />
@@ -55,4 +55,3 @@ export default function App() {
 
   );
 }
-//const {height, width} = useWindowDimensions();

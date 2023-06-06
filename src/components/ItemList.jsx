@@ -6,17 +6,19 @@ import { getDatabase, ref, remove } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { StackActions, useNavigation } from "@react-navigation/native";
+import * as Print from 'expo-print';
+import getHtml from "../services/getHtml";
 //import { useNavigation } from "@react-navigation/native"; 
 
 export default function ItemList(props) {
     const data = props.data;
-    //console.log(data)
+    const format = props.format;
     const [open, setOpen] = useState(false);
 
     return (
         <View style={styles.itemList} >
             <View style={styles.itemListHeader}>
-                <Text style={{ fontSize: 28, marginBottom: 5 }}>{props.format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
+                <Text style={{ fontSize: 28, marginBottom: 5 }}>{format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
                 <TouchableOpacity
                     style={styles.btn}
                     onPress={() => {
@@ -29,16 +31,16 @@ export default function ItemList(props) {
                 </TouchableOpacity>
             </View>
             {open ? //série de ifs encadeados para renderizar a tabela correta
-                props.format === 'mp' ?
+                format === 'mp' ?
                     <TableMP data={data}></TableMP>
                     :
-                    props.format === 'form' ?
+                    format === 'form' ?
                         <TableForm data={data}></TableForm>
                         :
-                        props.format === 'prod' ?
+                        format === 'prod' ?
                             <TableProd data={data}></TableProd>
                             :
-                            props.format === 'venda' ?
+                            format === 'venda' ?
                                 <TableSaida data={data}></TableSaida>
                                 :
                                 <Text>Erro</Text>
@@ -65,7 +67,9 @@ export default function ItemList(props) {
 
 const TableCell = (props) => {
     //const navigation = useNavigation();
-    const navigation = useNavigation()
+    const navigation = useNavigation();
+    const pageName = navigation.getState().routes[navigation.getState().routes.length - 1].name;
+    const url = props.url
     if (props.buttons) {
         return (
             <View style={stylesTable.table}>
@@ -102,13 +106,13 @@ const TableCell = (props) => {
                             [
                                 {
                                     text: "Não",
-                                    onPress: () => console.log("Cancel Pressed"),
                                     style: "cancel"
                                 },
                                 { text: "Sim", onPress: () => {
-                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/mps/${props.id}`));
-                                    navigation.dispatch(StackActions.popToTop());
-                                    navigation.navigate('Matérias-Primas');
+                                    navigation.dispatch(StackActions.popToTop())
+                                    navigation.replace(pageName)
+                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/${url}`));
+                                    
                                 }}
                             ]
                         );}}>
@@ -128,6 +132,40 @@ const TableCell = (props) => {
                     )
                 })
                 }
+            </View>
+        )
+    }
+    if (props.export){
+        const print =async () => {
+            const nome = props.data.nome;
+            const preco = props.data.preco;
+            const id = props.data.id;
+            const html = getHtml(nome,preco,id);
+            const options = {
+                html: html,
+                fileName: props.title,
+                directory: 'Documents',
+            };
+
+            await Print.printAsync(options);
+            
+        }
+
+        return(
+            <View style={stylesTable.table}>
+                <Text style={stylesTable.text}>{props.title}</Text>
+                <View>
+                <TouchableOpacity style={{
+                    ...stylesTable.btn,
+                    borderColor: colors.primaryDark, borderWidth: 1,
+                    padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
+                }}
+                    onPress={()=>print()}
+                >
+                    <Text style={stylesTable.text}>Salvar</Text>
+                </TouchableOpacity>
+                
+                </View>
             </View>
         )
     }
@@ -162,7 +200,7 @@ const TableMP = (props) => {
             <TableCell title='Quantidade Comprada' value={comprado}></TableCell>
             <TableCell title='Quantidade Restante' value={quantidade}></TableCell>
             <TableCell title='Fornecedor' value={data.fornecedor}></TableCell>
-            <TableCell title='Editar ou Excluir' id={data._id} buttons={true}></TableCell>
+            <TableCell title='Editar ou Excluir' url={`mps/${data._id}`} buttons={true}></TableCell>
 
         </>
     )
@@ -181,6 +219,7 @@ const TableForm = (props) => {
             <TableCell title='Tipo ' value={data.tipo}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
             <TableCell title='Matérias-Primas' list={true} value={mps}></TableCell>
+            <TableCell title='Editar ou Excluir' url={`forms/${data._id}`} buttons={true}></TableCell>
         </>
     )
 }
@@ -189,6 +228,7 @@ const TableProd = (props) => {
     const data = props.data;
     const preco = `R$ ${data.preco.toFixed(2)}`
     const custo = `R$ ${data.custo.toFixed(3)}`
+    
     //const validade = new Date(data.validade).toLocaleDateString('pt-BR');
     const dataFabricacao = new Date(data.data).toLocaleDateString('pt-BR');
     return (
@@ -197,8 +237,11 @@ const TableProd = (props) => {
             <TableCell title='Preço' value={preco}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
             <TableCell title='Data de Fabricação' value={dataFabricacao}></TableCell>
+            <TableCell title='Estoque' value={data.quantidade}></TableCell>
             <TableCell title='Descrição' value={data.descricao}></TableCell>
             <TableCell title='Formulação' value={data.nomeFormulacao}></TableCell>
+            <TableCell title='Exportar para PDF' data={{nome:data.nome,preco:preco,id:data._id}} export={true}></TableCell>
+            <TableCell title='Excluir' url={`produtos/${data._id}`} buttons={true}></TableCell>
         </>
     )
 }
@@ -220,6 +263,7 @@ const TableSaida = (props) => {
             <TableCell title='Preço' value={preco}></TableCell>
             {data.naoVenda?
             <TableCell title='Tipo de Saída' value="Outros"></TableCell>:null}
+            <TableCell title='Editar ou Excluir' url={`vendas/${data._id}`} buttons={true}></TableCell>
         </>
     )
 }
@@ -236,7 +280,6 @@ const stylesTable = StyleSheet.create({
     text: {
         fontSize: 20,
     }
-
 });
 
 const styles = StyleSheet.create({

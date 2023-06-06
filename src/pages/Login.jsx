@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
 import firebase from '../services/firebaseConfig';
-import { signInWithEmailAndPassword, getAuth, signOut, updateProfile } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { get, getDatabase, ref } from "firebase/database";
 
 function Login() {
@@ -59,7 +59,7 @@ function Login() {
                             nome: user.displayName,
                         }
                     )).then(() => {
-                        navigation.replace('Controle');
+                        navigation.replace('Geri');
                     });
                 })
                 .catch((error) => {
@@ -86,7 +86,7 @@ function Login() {
                 if (value !== null) {
                     const user = JSON.parse(value);
                     if (currentUser !== null && currentUser.uid !== null && currentUser.uid === user.uid) {
-                        navigation.replace('Controle');
+                        navigation.replace('Geri');
                         return currentUser.uid;
                     }   
                 }
@@ -111,7 +111,9 @@ function Login() {
                     <InputWithLabel label="Senha" value={senha} onChangeText={t => setSenha(t)} secure={true} />
                 </View>
                 <TouchableOpacity
-                    onPress={() => { alert('Não implementado') }}>
+                    onPress={() => { sendPasswordResetEmail(getAuth(),email);
+                                    Alert.alert('Verifique seu e-mail',
+                                    'Um link para redefinir sua senha foi enviada para o seu e-mail') }}>
                     <Text style={{ fontSize: 14, marginLeft: 5 }}>Esqueci minha senha</Text>
                 </TouchableOpacity>
                 <View

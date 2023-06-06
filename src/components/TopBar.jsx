@@ -1,9 +1,9 @@
 import { Modal, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import example from '../../assets/icon.png';
+import example from '../../assets/profile.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
@@ -37,7 +37,10 @@ const TopBar = () => {
         },
         pfp: {
             width: 50,
-            height: 50
+            height: 50,
+            borderColor: colors.primaryDark,
+            borderWidth: 1,
+            borderRadius: 50,
         },
         menuLateral: {
             backgroundColor: colors.primaryLight,
@@ -152,7 +155,8 @@ const TopBar = () => {
         return (
             <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
                 <Text style={style.mainText}>
-                    Controle
+                    <Text style={{color:colors.secondary}}>Ger</Text>
+                    <Text style={{ color: colors.primaryLight }}>i</Text>
                 </Text>
             </View>
         )
@@ -167,7 +171,7 @@ const TopBar = () => {
     return (<>
         <View style={styles.menusuperior}>
             {
-                screenName == 'Controle' ?
+                screenName == 'Geri' ?
                     <TouchableOpacity onPress={() => {
                         goTo('Perfil');
                     }}>
