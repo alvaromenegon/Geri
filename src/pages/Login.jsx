@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
 import firebase from '../services/firebaseConfig';
-import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail, signInWithCredential, signInWithCustomToken } from "firebase/auth";
 import { get, getDatabase, ref } from "firebase/database";
 
 function Login() {

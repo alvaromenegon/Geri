@@ -168,7 +168,6 @@ const CadMateriasPrimas = ({ route }) => {
     const Verificar = (props) => {
         const [isLoading, setIsLoading] = useState(false);
         const data = props.data;
-        console.log(Object.entries(data))
         const content = props.content || 'Verificar';
 
         return (
@@ -641,6 +640,10 @@ const CadProdutos = () => {
         get(ref(db, `data/${getAuth().currentUser.uid}/forms`)).then((snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
+                if (data === null) {
+                    setIsLoading(false);
+                    return;
+                }
                 const keys = Object.keys(data);
                 const array = keys.map((key) => {
                     return { ...data[key], id: key };
@@ -755,6 +758,7 @@ const CadSaidas = () => {
         const query_ = query(dbRef, limitToFirst(p * 10));
         onValue(query_, (snapshot) => {
             const data = snapshot.val();
+            if (data === null) {setIsLoading(false);return};
             const keys = Object.keys(data);
             const array = keys.map((key) => {
                 return { ...data[key], id: key };
@@ -765,12 +769,12 @@ const CadSaidas = () => {
     };
 
     useEffect(() => {
-        const getBarCodeScannerPermissions = async () => {
+        /*const getBarCodeScannerPermissions = async () => {
             const { status } = await BarCodeScanner.requestPermissionsAsync();
             setHasPermission(status === 'granted');
         };
 
-        getBarCodeScannerPermissions();
+        getBarCodeScannerPermissions();*/
         push(ref(db, `data/${getAuth().currentUser.uid}/temp/venda`)).then((snapshot) => {
             setVendaId(snapshot.key);
             set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${snapshot.key}`), { empty: true });
@@ -858,7 +862,6 @@ const CadSaidas = () => {
     }
 
     const renderItens = () => {
-
         let arr = [];
         /*arr.push(
             <View key={'-1'} style={{ alignItems: 'center' }}>

@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 're
 import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import { InputWithLabel } from '../components/InputWithLabel';
-import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, signOut, updateProfile } from 'firebase/auth';
 import { getDatabase, ref, set } from "firebase/database";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const db = getDatabase();
@@ -66,12 +66,14 @@ export const Cadastro = () => {
                                 forms: "",
                                 produtos: "",
                                 vendas: "",
-                                temp: ""
+                                temp: "",
+                                faturamento: {
+                                    entradas:"",
+                                    saidas:"",
+                                },
+                                recentes: "",
                             })
                         })
-                            .then(() => {
-                                console.log(ref(db, 'usuarios/' + user.uid));
-                            })
                             .catch((error) => {
                                 console.error(error);
                             });
@@ -79,11 +81,18 @@ export const Cadastro = () => {
                         AsyncStorage.removeItem('user') //remove os dados locais do outro usuário, caso houver
                     })
                     .then(() => {
-                        navigation.replace('Login');
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'Login' }],
+                        });
+
+                        //navigation.replace('Login');
                     })
+                    
                 // ...
             })
             .catch((error) => {
+                console.log(error)
                 const errorCode = error.code;
                 if (errorCode === 'auth/email-already-in-use') {
                     Alert.alert('Não foi possível cadastrar', 'Esse E-mail já foi cadastrado');

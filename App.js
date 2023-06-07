@@ -25,6 +25,7 @@ export default function App() {
   }
   useEffect(() => {
     getUser();
+    
   }, []);
 
   return (

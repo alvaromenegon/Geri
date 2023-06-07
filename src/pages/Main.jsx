@@ -98,20 +98,22 @@ function Main() {
             setRecentes(arr);
             return true;
         }
-        const values = Object.values(snapshot.val())
-        for (let i=0;i<4;i++){   
+        const values = Object.entries(snapshot.val())
+        
+        for (let i=0;i<values.length;i++){   
+            if (values[i][0] === 'last' ) break;
             arr.push(
                 <TouchableOpacity
                             key={'bt' + i}
                             style={{ ...style.button, maxWidth: '80%' }}
                             onPress={
                                 () => {
-                                    storeData(values[i]).then(() => {
-                                        navigation.navigate(values[i]);
+                                    storeData(values[1][i]).then(() => {
+                                        navigation.navigate(values[i][1]);
                                     });
                                 }
                             }>
-                            <Text style={style.textButton}>{values[i]}</Text>
+                            <Text style={style.textButton}>{values[i][1]}</Text>
                         </TouchableOpacity>
             )
         }
@@ -158,6 +160,10 @@ function Main() {
     const renderRecentes = () => {
         return recentes;
     }
+
+    navigation.addListener('focus', () => {
+        getRecentes();
+    });
 
     useEffect(() => {
         setLoading(true);

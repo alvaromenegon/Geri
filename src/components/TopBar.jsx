@@ -4,18 +4,20 @@ import example from '../../assets/profile.png';
 import logo from '../../assets/geri.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
-import {  useState } from 'react';
+import {  useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
+import { getAuth } from 'firebase/auth';
 //import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TopBar = () => {
+    
     const [modalVisible, setModalVisible] = useState(false);
     const navigator = useNavigation();
     const history = navigator.getState().routes.length;
     const screenName = navigator.getState().routes[navigator.getState().routes.length - 1].name;
-
+    
     const goTo = (page) => {
         setModalVisible(false);
         storeData(page).then(() => {
