@@ -1,6 +1,7 @@
 import { Modal, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import example from '../../assets/profile.png';
+import logo from '../../assets/geri.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
 import {  useState } from 'react';
@@ -36,11 +37,9 @@ const TopBar = () => {
             height: height * 0.15,
         },
         pfp: {
-            width: 50,
-            height: 50,
-            borderColor: colors.primaryDark,
+            width: 35,
+            height: 35,
             borderWidth: 1,
-            borderRadius: 50,
         },
         menuLateral: {
             backgroundColor: colors.primaryLight,
@@ -66,8 +65,7 @@ const TopBar = () => {
                 visible={modalVisible}
                 onRequestClose={() => {
                     setModalVisible(!modalVisible);
-                }}
-            >
+                }}>
                 <View style={{
                     backgroundColor: "#00000040",
                     flex: 1,
@@ -76,6 +74,13 @@ const TopBar = () => {
                     justifyContent: 'flex-start',
                     alignItems: 'flex-end'
                 }}>
+                    <TouchableOpacity onPress={() => {
+                        setModalVisible(!modalVisible);
+                    }}
+                        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+                    >
+                    </TouchableOpacity>
+
                     <View style={styles.menuLateral}>
                         <TouchableOpacity onPress={() => {
                             setModalVisible(!modalVisible);
@@ -154,19 +159,10 @@ const TopBar = () => {
     if (screenName == 'Login') {
         return (
             <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
-                <Text style={style.mainText}>
-                    <Text style={{color:colors.secondary}}>Ger</Text>
-                    <Text style={{ color: colors.primaryLight }}>i</Text>
-                </Text>
+                <Image source={logo} style={{width:'21%', height:'89%'}} />
             </View>
         )
     }
-    /*const [image, setImage] = useState(null); // causando RenderError
-    useEffect(() => {                           //Não utilizar useEffect/useState condiocionalmente
-        AsyncStorage.getItem('profile').then((value) => {
-            setImage(value);
-        })
-    }, [modalVisible])*/
 
     return (<>
         <View style={styles.menusuperior}>
@@ -175,19 +171,19 @@ const TopBar = () => {
                     <TouchableOpacity onPress={() => {
                         goTo('Perfil');
                     }}>
-                        <Image source={/* 
-                        //Fonte da foto será trocada para o Firebase Storage
-                        image ? {uri:image} :*/ example} borderRadius={50} style={styles.pfp}></Image>
+                        <Image source={example}  style={styles.pfp}></Image>
                     </TouchableOpacity> :
                     <TouchableOpacity onPress={() => {
                         navigator.goBack();
                     }}>
                         <Feather name="arrow-left" size={32} color="black" />
                     </TouchableOpacity>
-            }{screenName != 'Cadastro' ? <>
+            }
+            {screenName != 'Cadastro' ? <>
+            {screenName == 'Geri' ? <Image source={logo} style={{width:'21%', height:'89%'}} />:
             <Text style={style.mainText}>
                 {screenName}
-            </Text>
+            </Text>}
             
                 <TouchableOpacity onPress={() => {
                     setModalVisible(!modalVisible);

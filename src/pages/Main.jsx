@@ -12,7 +12,6 @@ import { getDatabase, ref, get } from 'firebase/database';
 import { Alert } from 'react-native';
 import firebase from '../services/firebaseConfig';
 
-
 function Main() {
     const navigation = useNavigation();
     const db = getDatabase(firebase);
@@ -86,10 +85,42 @@ function Main() {
         return arr;
     }
 
-    const getRecentes = async () => {//responsável por buscar os itens recentes localmente
-        let arr = [];               //Será alterado para buscar no firebase
-        var i = 1
-        for (i = 0; i < 5; i++) {
+    const getRecentes = async () => {//responsável por buscar os itens
+        let arr = [];               // no firebase
+        const snapshot = await get(ref(db, `data/${getAuth().currentUser.uid}/recentes`));
+        if (!snapshot.exists()) {
+            arr.push(
+                <View key={0} style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    <Text style={style.text} key={1}>Ainda não há itens recentes,
+                        utilize o menu lateral para navegar.</Text>
+                </View>
+            )
+            setRecentes(arr);
+            return true;
+        }
+        const values = Object.values(snapshot.val())
+        for (let i=0;i<4;i++){   
+            arr.push(
+                <TouchableOpacity
+                            key={'bt' + i}
+                            style={{ ...style.button, maxWidth: '80%' }}
+                            onPress={
+                                () => {
+                                    storeData(values[i]).then(() => {
+                                        navigation.navigate(values[i]);
+                                    });
+                                }
+                            }>
+                            <Text style={style.textButton}>{values[i]}</Text>
+                        </TouchableOpacity>
+            )
+        }
+        setRecentes(arr);
+        return true;
+    }
+
+
+        /*for (i = 0; i < 5; i++) {
             try {
                 const recent = await AsyncStorage.getItem('recent' + i);
                 if (recent !== null) {
@@ -122,7 +153,7 @@ function Main() {
             )
         setRecentes(arr);
         return true;
-    }
+    }*/
 
     const renderRecentes = () => {
         return recentes;
@@ -130,11 +161,9 @@ function Main() {
 
     useEffect(() => {
         setLoading(true);
-        navigation.addListener('focus', () => {
-            getRecentes();
-        });
         getUser().then(() => {
-            getAvisos()
+            getAvisos();
+            getRecentes()
         }).finally(() => {
             setLoading(false);
         });

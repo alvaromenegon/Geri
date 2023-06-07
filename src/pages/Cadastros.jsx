@@ -23,6 +23,7 @@ function change(props) {
             break;
         case 'produtos':
             props.data.data = props.data.data.getTime();
+            props.data.validade = props.data.validade.getTime();
             break;
         default:
             break;
@@ -68,6 +69,8 @@ function change(props) {
                             idProduto: nodeRef.key,
                             valor: parseFloat(props.data.preco),
                         })
+
+
                     } else if (props.url === 'vendas') {
                         //adicionar a entrada no banco de dados
                         //para ser utilizado no Faturamento
@@ -90,7 +93,6 @@ function change(props) {
                         //atualizar estoque de produtos
                         Object.entries(produtos).forEach((item) => {
                             const id = item[0];
-                            console.log(item)
                             const quantidade = item[1].quantidade
                             get(ref(db, `data/${uid}/produtos/${id}`))
                                 .then((snapshot) => {
@@ -110,15 +112,35 @@ function change(props) {
                     }
                     if (props.url === 'produtos') {
                         //reduzir o estoque de materias primas
+                        const formulacao = props.data.formulacao;
+                        get(ref(db, `data/${uid}/forms/${formulacao}`)).then((snapshot) => {
+                            const data = snapshot.val();
+                            const materiasPrimas = data.materiasprimas;
+                            Object.entries(materiasPrimas).forEach((item) => {
+                                const id = item[0];
+                                const quantidade = typeof item[1].quantidade === 'number' ? item[1].quantidade : parseFloat(item[1].quantidade);
 
-
+                                get(ref(db, `data/${uid}/mps/${id}`)).then((snapshot) => {
+                                    const data = snapshot.val();
+                                    const estoque = data.quantidade;
+                                    const novoEstoque = (estoque - quantidade);
+                                    update(ref(db, `data/${uid}/mps/${id}`), {
+                                        quantidade: novoEstoque
+                                    })
+                                    if (novoEstoque < 1) {
+                                        update(ref(db, `data/${uid}/avisos`), {
+                                            noMps: true
+                                        })
+                                    }
+                                })
+                            })
+                        })
                     }
                 })
                 .catch((err) => {
                     console.err(err)
                     erro = true;
                 })
-
         }
         if (erro) {
             Alert.alert('Erro', 'Erro ao salvar os dados');
@@ -145,7 +167,8 @@ function getIndexString(index) {
 const CadMateriasPrimas = ({ route }) => {
     const Verificar = (props) => {
         const [isLoading, setIsLoading] = useState(false);
-        const data = props.data
+        const data = props.data;
+        console.log(Object.entries(data))
         const content = props.content || 'Verificar';
 
         return (
@@ -203,9 +226,9 @@ const CadMateriasPrimas = ({ route }) => {
     const [nome, setNome] = useState('');
     const [dataCompra, setDataCompra] = useState(null)
     const [validade, setValidade] = useState(null)
-    const [qtd, setQtd] = useState(0);
+    const [qtd, setQtd] = useState('');
     const [unMedida, setUnMedida] = useState('');
-    const [preco, setPreco] = useState(0);
+    const [preco, setPreco] = useState('');
     const [precoUn, setPrecoUn] = useState(0);
     const [fornecedor, setFornecedor] = useState('');
 
@@ -241,11 +264,11 @@ const CadMateriasPrimas = ({ route }) => {
                         nome: nome,
                         dataCompra: dataCompra,
                         validade: validade,
-                        quantidade: qtd,
+                        quantidade: parseFloat(qtd),
                         unMedida: unMedida,
-                        preco: preco,
+                        preco: parseFloat(preco),
                         fornecedor: fornecedor,
-                        precoUn: precoUn.toFixed(3)
+                        precoUn: parseFloat(precoUn.toFixed(3))
                     }}
                     content={'Verificar Dados'}
                     parent={'Matérias-Primas'}
@@ -263,7 +286,7 @@ const CadMateriasPrimas = ({ route }) => {
                     setValidade(d);
                 }}
             />
-            <InputWithLabel value={qtd.toString()} onChangeText={text => setQtd(text)} label="Quantidade" type="numeric" />
+            <InputWithLabel keyboardType="numeric" value={qtd} onChangeText={text => setQtd(text)} label="Quantidade" type="numeric" />
             <Select
                 onValueChange={v => setUnMedida(v)}
                 value={unMedida}
@@ -278,7 +301,7 @@ const CadMateriasPrimas = ({ route }) => {
                 ]}
             />
             <InputWithLabel value={fornecedor} onChangeText={text => setFornecedor(text)} label="Fornecedor" />
-            <InputWithLabel value={preco.toString()} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
+            <InputWithLabel keyboardType="numeric" value={preco} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
             <Text style={{ fontSize: 20, margin: 5 }}>Preço Unitário: R${precoUn.toFixed(2)}/{unMedida}</Text>
             <TouchableOpacity
                 style={style.button}
@@ -683,7 +706,7 @@ const CadProdutos = () => {
                                 data: {
                                     nome: nome,
                                     descricao: descricao,
-                                    custo: custo,
+                                    custo: parseFloat(custo),
                                     preco: parseFloat(preco),
                                     quantidade: quantidade,
                                     data: date,
@@ -837,7 +860,7 @@ const CadSaidas = () => {
     const renderItens = () => {
 
         let arr = [];
-        arr.push(
+        /*arr.push(
             <View key={'-1'} style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={style.button}
@@ -855,7 +878,7 @@ const CadSaidas = () => {
                     <Text style={{ color: style.colors.primaryLight }}>Ler QR Code <AntDesign name="qrcode" size={24} color="black" /></Text>
                 </TouchableOpacity>
             </View>
-        )
+        )*/
         for (let i = 0; i < data.length; i++) {
             if (data[i].quantidade !== 0)
                 arr.push(<SearchItem key={i} item={data[i]} />)
@@ -925,13 +948,11 @@ const CadSaidas = () => {
         const [qtd, setQtd] = useState(0);
         return (<>
             <BarCodeScanner
-
                 onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                 style={StyleSheet.absoluteFillObject}
             />
             {
                 (scanned) && <>
-                
                     <InputWithLabel label={"Quantidade - " + scannedItem.quantidade + ' em estoque'} onChangeText={t => setQtd(t)} value={qtd.toString()} type="numeric" />
                     <TouchableOpacity style={{
                         ...style.button,

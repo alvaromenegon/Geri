@@ -72,11 +72,12 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
         if (dataLength == 0) {
             return <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>
         }
+        const values = Object.values(data);
         for (i; i < j; i++) {
             arr.push(<ItemList
-                key={props._id}
+                key={values[i]._id}
                 format={props.format}
-                data={Object.values(data)[i]}
+                data={values[i]}
             />);
             if (i == dataLength - 1) {
                 break;

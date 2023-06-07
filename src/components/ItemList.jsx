@@ -17,6 +17,10 @@ export default function ItemList(props) {
 
     return (
         <View style={styles.itemList} >
+            {(format !== 'venda' && format !=='form' && data.quantidade<1) &&
+            <View style={{position: 'absolute', top: 0, right: 0, backgroundColor: 'red', padding: 5, borderRadius: 5}}>
+            </View>
+            }
             <View style={styles.itemListHeader}>
                 <Text style={{ fontSize: 28, marginBottom: 5 }}>{format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
                 <TouchableOpacity
@@ -109,7 +113,6 @@ const TableCell = (props) => {
                                     style: "cancel"
                                 },
                                 { text: "Sim", onPress: () => {
-                                    navigation.dispatch(StackActions.popToTop())
                                     navigation.replace(pageName)
                                     remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/${url}`));
                                     
@@ -229,7 +232,7 @@ const TableProd = (props) => {
     const preco = `R$ ${data.preco.toFixed(2)}`
     const custo = `R$ ${data.custo.toFixed(3)}`
     
-    //const validade = new Date(data.validade).toLocaleDateString('pt-BR');
+    const validade = new Date(data.validade).toLocaleDateString('pt-BR');
     const dataFabricacao = new Date(data.data).toLocaleDateString('pt-BR');
     return (
         <>
@@ -237,6 +240,7 @@ const TableProd = (props) => {
             <TableCell title='Preço' value={preco}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
             <TableCell title='Data de Fabricação' value={dataFabricacao}></TableCell>
+            <TableCell title='Validade' value={validade}></TableCell>
             <TableCell title='Estoque' value={data.quantidade}></TableCell>
             <TableCell title='Descrição' value={data.descricao}></TableCell>
             <TableCell title='Formulação' value={data.nomeFormulacao}></TableCell>

@@ -1,12 +1,11 @@
-import { Image, View, Text, TouchableOpacity, Modal, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Modal, ActivityIndicator, Alert } from "react-native";
 import style from '../assets/style.json';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import { StackActions, useNavigation } from "@react-navigation/native";
 import { InputWithLabel } from "../components/InputWithLabel";
-import * as ImagePicker from 'expo-image-picker';
 import { getAuth, signOut } from 'firebase/auth';
-import { getDatabase, ref, get } from 'firebase/database';
+//import { getDatabase, ref, get } from 'firebase/database';
 import { updateEmail, signInWithEmailAndPassword } from "firebase/auth";
 
 
@@ -202,31 +201,6 @@ const Profile = () => {
             </Modal>)
     }
 
-    useEffect(() => {
-        AsyncStorage.getItem('profile').then((value) => {
-            setImage(value);
-        }).then(() => {
-            getUser();
-        })
-    }, [])
-
-    /*const pickImage = async () => {
-        // No permissions request is necessary for launching the image library
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [1, 1]
-        });
-        if (!result.canceled) {
-            setImage(result.assets[0].uri);
-            AsyncStorage.setItem('profile', image).then(() => {
-                Alert.alert('Imagem Alterada', 'Imagem alterada com sucesso');
-            }).catch((error) => {
-                console.error(error);
-            })
-        }
-    };*/
-
     const sair = () => {
         const auth = getAuth();
         signOut(auth).then(() => { //Desloga o usuário, remove seus dados e salva o e-mail para facilitar a próxima entrada
@@ -242,40 +216,18 @@ const Profile = () => {
             })
     }
 
+    useEffect(() => {
+        getUser();
+    }, []);
     return (
         <View style={style.container}>
             <View style={{ ...style.rowSpaceBetween, alignItems: 'flex-start' }}>
-                <View
-                    style={{
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: 100,
-                    }}
-                >
-                    <Image source={require('../../assets/profile.png')}
-                        borderRadius={50}
-                        style={
-                            {
-                                width: 100,
-                                height: 100,
-                                marginBottom: 10,
-                            }
-                        }
-                    ></Image>
-                    <TouchableOpacity
-                        //Implementar o firebase storage para salvar a imagem
-                        onPress={() => {alert('Não implementado') }} 
-                        style={{ ...style.button, maxWidth: 100, width: 100 }}
-                    >
-                        <Text style={{ color: '#fff' }}>Alterar</Text>
-                    </TouchableOpacity>
-
-                </View>
                 <Text numberOfLines={3} style={{
                     ...style.text,
-                    width: '55%',
-                    textAlign: 'left',
+                    textAlign: 'center',
+                    marginBottom: 20,
+                    borderBottomColor: style.colors.secondary,
+                    borderBottomWidth: 2,
                 }}>
                     {username}
                 </Text>

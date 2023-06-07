@@ -92,14 +92,13 @@ function InputWithLabel(props) {
     
     return (
         <View style={styles.iwl}>
-
             <Text style={styles.label}>{props.label}:</Text>
             <TextInput
                 editable={editable}
                 style={style.textInput}
                 onChangeText={onChangeText}
                 onBlur={onBlur}
-                keyboardType={type}
+                keyboardType={type} 
                 secureTextEntry={secure}
                 value={value}
                 placeholder={placeholder}

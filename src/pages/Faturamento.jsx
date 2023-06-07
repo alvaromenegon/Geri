@@ -4,7 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-nat
 import style from '../assets/style.json';
 import BottomBar from '../components/BottomBar';
 import Padding from '../components/Padding';
-import { get, getDatabase, ref, set } from 'firebase/database';
+import { get, getDatabase, onValue, ref, set } from 'firebase/database';
 import firebase from '../services/firebaseConfig';
 import { getAuth } from 'firebase/auth';
 
@@ -37,36 +37,40 @@ const Faturamento = () => {
         ).catch(error => {
             console.warn(error);
         })
-        get(ref(db, `data/${getAuth().currentUser.uid}/faturamento/saidas`))
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    setResponseSaidas(snapshot.val())
-                    getSaidasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
+        onValue(ref(db, `data/${getAuth().currentUser.uid}/faturamento/saidas`),
+            (snapshot) => {
+                try {
+                    if (snapshot.exists()) {
+                        setResponseSaidas(snapshot.val())
+                        getSaidasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
+                    }
+                    else {
+                        setResponseSaidas({});
+                        return false;
+                    }
+                    setData([
+                        {
+                            x: `Entradas: \nR$${entradas}`,
+                            y: houveMovimento() ? entradas : 1,
+                            symbol: { fill: "green", type: "square" },
+                            name: "Entradas"
+                        },
+                        {
+                            x: `Saidas: \nR$${saidas}`,
+                            y: houveMovimento() ? saidas : 1,
+                            symbol: { fill: "red", type: "square" },
+                            name: "Saidas"
+                        }]);
+                } catch (error) {
+                    console.warn(error);
+                } finally {
+                    setIsLoading(false);
                 }
-                else {
-                    setResponseSaidas({});
-                    return false;
-                }
-                console.log(entradas + ' ' + saidas)
-                setData([
-                    {
-                        x: `Entradas: \nR$${entradas}`,
-                        y: houveMovimento() ? entradas : 1,
-                        symbol: { fill: "green", type: "square" },
-                        name: "Entradas"
-                    },
-                    {
-                        x: `Saidas: \nR$${saidas}`,
-                        y: houveMovimento() ? saidas : 1,
-                        symbol: { fill: "red", type: "square" },
-                        name: "Saidas"
-                    }])
-            }).catch(error => {
-                console.warn(error);
-            }).finally(() => {
-                setIsLoading(false);
-            });
-    }, []);
+
+            }
+        )
+    }
+        ,[]);
 
     useEffect(() => {
         getMedia();
