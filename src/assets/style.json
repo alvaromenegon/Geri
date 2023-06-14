@@ -11,8 +11,8 @@
     "container": {
         "backgroundColor": "#fdf9f8",
         "padding":15,
+        "paddingBottom": 0,
         "paddingTop":30,
-        "paddingBottom":50,
         "flex": 1
     },
     "text":{

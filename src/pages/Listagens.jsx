@@ -29,6 +29,7 @@ const MateriasPrimas = () => {
 const Formulacoes = () => {
     return (
         <Lists format="form" url={"forms"} />
+        
     )
 }
 
