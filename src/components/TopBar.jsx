@@ -161,7 +161,7 @@ const TopBar = () => {
     if (screenName == 'Login') {
         return (
             <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
-                <Image source={logo} style={{width:'21%', height:'89%'}} />
+                <Image source={logo} resizeMode='contain' style={{width:'20%', height:'80%'}} />
             </View>
         )
     }
@@ -182,7 +182,7 @@ const TopBar = () => {
                     </TouchableOpacity>
             }
             {screenName != 'Cadastro' ? <>
-            {screenName == 'Geri' ? <Image source={logo} style={{width:'21%', height:'89%'}} />:
+            {screenName == 'Geri' ? <Image source={logo} resizeMode='contain' style={{width:'20%', height:'80%'}} />:
             <Text style={style.mainText}>
                 {screenName}
             </Text>}

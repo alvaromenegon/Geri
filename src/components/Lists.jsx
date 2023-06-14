@@ -110,7 +110,7 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
         getItens();
     }, []);
 
-    return (
+    return (<>
         <View style={{ flex: 1 }}>
             <View style={style.container}>
                 {loading ?
@@ -119,10 +119,11 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     <ScrollView showsVerticalScrollIndicator={false}>
                         {renderList()}
                         <TouchableOpacity
-                            onPress={() => getItens()}
+                            onPress={() => {getItens() }}
                             style={{
                                 alignSelf: 'center',
-                                ...styles.actButton
+                                ...styles.actButton,
+                                marginBottom:70
                             }}
                         >
                             <AntDesign name="reload1" size={18} color={style.colors.primaryDark} />
@@ -130,8 +131,9 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     </ScrollView>
                 }
             </View>
-            <BottomBar />
+            
         </View>
+        <BottomBar /></>
     )
 }
 
