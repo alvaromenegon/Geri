@@ -50,8 +50,7 @@ const TopBar = () => {
             padding: 10
         },
         navs: {
-            borderTopColor: 'black',
-            borderTopWidth: 1,
+            
             padding: 15
 
         }
