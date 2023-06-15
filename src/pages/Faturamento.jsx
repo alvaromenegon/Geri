@@ -24,19 +24,21 @@ const Faturamento = () => {
 
     useEffect(() => {
         setIsLoading(true);
-        get(ref(db, `data/${getAuth().currentUser.uid}/faturamento/entradas`)).then((snapshot) => {
-            if (snapshot.exists()) { //Pegar as entradas do BD
-                setResponseEntradas(snapshot.val())
-                getEntradasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
-            }
-            else {
-                setResponseEntradas({});
-                return false;
-            }
-        }
-        ).catch(error => {
+        try {
+            onValue(ref(db, `data/${getAuth().currentUser.uid}/faturamento/entradas`),
+                (snapshot) => {
+                    if (snapshot.exists()) { //Pegar as entradas do BD
+                        setResponseEntradas(snapshot.val())
+                        getEntradasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
+                    }
+                    else {
+                        setResponseEntradas({});
+                        return false;
+                    }
+                })
+        } catch (error) {
             console.warn(error);
-        })
+        }
         onValue(ref(db, `data/${getAuth().currentUser.uid}/faturamento/saidas`),
             (snapshot) => {
                 try {
@@ -70,7 +72,7 @@ const Faturamento = () => {
             }
         )
     }
-        ,[]);
+        , []);
 
     useEffect(() => {
         getMedia();
@@ -88,11 +90,14 @@ const Faturamento = () => {
 
     const getEntradasAtual = (year, month) => {
         let valorEntradas = 0;
-        Object.entries(responseEntradas).forEach(([key, value]) => {
+        const entries = Object.entries(responseEntradas);
+        console.log(entries)
+        entries.forEach(([key, value]) => {
             if (value.data.ano == year && value.data.mes == month) {
                 valorEntradas += value.valor;
             }
         })
+        console.log(valorEntradas)
         setEntradas(valorEntradas)
     }
 
@@ -170,7 +175,8 @@ const Faturamento = () => {
                             <Text style={{ ...style.text, alignSelf: 'center' }}>Média dos últimos 3 meses:</Text>
                             <VictoryChart
                                 width={350}
-                                domainPadding={25}>
+                                domainPadding={25}
+                                >
                                 <VictoryBar
                                     labels={({ datum }) => `R$ ${datum.y}`}
                                     data={dataMedia}

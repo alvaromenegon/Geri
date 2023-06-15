@@ -99,22 +99,20 @@ function Main() {
             return true;
         }
         const values = Object.entries(snapshot.val())
-        
-        for (let i=0;i<values.length;i++){   
-            if (values[i][0] === 'last' ) break;
+
+        for (let i = 0; i < values.length; i++) {
+            if (values[i][0] === 'last') break;
             arr.push(
                 <TouchableOpacity
-                            key={'bt' + i}
-                            style={{ ...style.button, maxWidth: '80%' }}
-                            onPress={
-                                () => {
-                                    storeData(values[1][i]).then(() => {
-                                        navigation.navigate(values[i][1]);
-                                    });
-                                }
-                            }>
-                            <Text style={style.textButton}>{values[i][1]}</Text>
-                        </TouchableOpacity>
+                    key={'bt' + i}
+                    style={{ ...style.button, maxWidth: '80%' }}
+                    onPress={
+                        () => {
+                            navigation.navigate(values[i][1]);
+                        }
+                    }>
+                    <Text style={style.textButton}>{values[i][1]}</Text>
+                </TouchableOpacity>
             )
         }
         setRecentes(arr);
@@ -122,40 +120,40 @@ function Main() {
     }
 
 
-        /*for (i = 0; i < 5; i++) {
-            try {
-                const recent = await AsyncStorage.getItem('recent' + i);
-                if (recent !== null) {
-                    arr.push(
-                        <TouchableOpacity
-                            key={'bt' + i}
-                            style={{ ...style.button, maxWidth: '80%' }}
-                            onPress={
-                                () => {
-                                    storeData(recent).then(() => {
-                                        navigation.navigate(recent);
-                                    });
-                                }
-                            }>
-                            <Text style={style.textButton}>{recent}</Text>
-                        </TouchableOpacity>
-                    )
-                }
-            }
-            catch (e) {
-                console.error(e);
+    /*for (i = 0; i < 5; i++) {
+        try {
+            const recent = await AsyncStorage.getItem('recent' + i);
+            if (recent !== null) {
+                arr.push(
+                    <TouchableOpacity
+                        key={'bt' + i}
+                        style={{ ...style.button, maxWidth: '80%' }}
+                        onPress={
+                            () => {
+                                storeData(recent).then(() => {
+                                    navigation.navigate(recent);
+                                });
+                            }
+                        }>
+                        <Text style={style.textButton}>{recent}</Text>
+                    </TouchableOpacity>
+                )
             }
         }
-        if (arr.length === 0)
-            arr.push(
-                <View key={0} style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <Text style={style.text} key={1}>Ainda não há itens recentes,
-                        utilize o menu lateral para navegar.</Text>
-                </View>
-            )
-        setRecentes(arr);
-        return true;
-    }*/
+        catch (e) {
+            console.error(e);
+        }
+    }
+    if (arr.length === 0)
+        arr.push(
+            <View key={0} style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                <Text style={style.text} key={1}>Ainda não há itens recentes,
+                    utilize o menu lateral para navegar.</Text>
+            </View>
+        )
+    setRecentes(arr);
+    return true;
+}*/
 
     const renderRecentes = () => {
         return recentes;

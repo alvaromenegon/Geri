@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
 import firebase from '../services/firebaseConfig';
-import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail, signInWithCredential, signInWithCustomToken } from "firebase/auth";
+import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { get, getDatabase, ref } from "firebase/database";
+
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -20,6 +21,8 @@ function Login() {
         if (email !== '' && senha !== '') {
             signInWithEmailAndPassword(auth, email, senha)
                 .then((userCredential) => {
+
+
                     /*if (userCredential.user.emailVerified !== true) { 
                         Alert.alert('Erro', 'Email não verificado\n' +
                             'Verifique sua caixa de entrada e spam');
@@ -28,7 +31,7 @@ function Login() {
                     }*/
                     // Signed in
                     var user = userCredential.user;
-                    if (user.displayName === null && user.uid !== null) {
+                    if (user.displayName === null) {
                         get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                             if (snapshot.exists()) {
                                 const data = snapshot.val();
@@ -51,10 +54,10 @@ function Login() {
                                 console.error(error);
                             })
                     }
-
                     AsyncStorage.setItem('user', JSON.stringify(
                         {
                             email: user.email,
+                            senha: senha,
                             uid: user.uid,
                             nome: user.displayName,
                         }
@@ -67,6 +70,7 @@ function Login() {
                     if (errorCode === 'auth/wrong-password')
                         Alert.alert('Erro ao fazer login', 'Usuário ou senha incorreta')
                     else {
+                        // console.log(error);
                         Alert.alert('Erro ao fazer login', 'O email não foi cadastrado');
                         setEmail('');
                         setSenha('');
@@ -81,17 +85,21 @@ function Login() {
 
     useEffect(() => {
         try {
-            const currentUser = getAuth().currentUser;    
+            //const currentUser = getAuth().currentUser;    
             AsyncStorage.getItem('user').then((value) => {
-                if (value !== null) {
-                    const user = JSON.parse(value);
-                    if (currentUser !== null && currentUser.uid !== null && currentUser.uid === user.uid) {
+                if (value === null) return;
+                signInWithEmailAndPassword(getAuth(), JSON.parse(value).email, JSON.parse(value).senha)
+                    .then((userCredential) => {
                         navigation.replace('Geri');
-                        return currentUser.uid;
-                    }   
-                }
+                        return;
+                    })
+                    .catch((error) => {
+                        var errorCode = error.code;
+                        if (errorCode === 'auth/wrong-password')
+                            Alert.alert('Erro ao fazer login', 'Faça o login novamente')
+                    });
             });
-            
+
             AsyncStorage.getItem('prevUser').then((value) => {
                 if (value !== null) {
                     setEmail(value);
@@ -111,9 +119,11 @@ function Login() {
                     <InputWithLabel label="Senha" value={senha} onChangeText={t => setSenha(t)} secure={true} />
                 </View>
                 <TouchableOpacity
-                    onPress={() => { sendPasswordResetEmail(getAuth(),email);
-                                    Alert.alert('Verifique seu e-mail',
-                                    'Um link para redefinir sua senha foi enviada para o seu e-mail') }}>
+                    onPress={() => {
+                        sendPasswordResetEmail(getAuth(), email);
+                        Alert.alert('Verifique seu e-mail',
+                            'Um link para redefinir sua senha foi enviada para o seu e-mail')
+                    }}>
                     <Text style={{ fontSize: 14, marginLeft: 5 }}>Esqueci minha senha</Text>
                 </TouchableOpacity>
                 <View
@@ -142,11 +152,7 @@ function Login() {
                     </TouchableOpacity>
                 </View>
             </View>
-
-
-
         </View>
-
     )
 }
 

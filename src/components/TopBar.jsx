@@ -4,11 +4,10 @@ import example from '../../assets/profile.png';
 import logo from '../../assets/geri.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
-import {  useEffect, useState } from 'react';
+import {  useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
-import { getAuth } from 'firebase/auth';
 //import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TopBar = () => {
@@ -50,11 +49,15 @@ const TopBar = () => {
             padding: 10
         },
         navs: {
-            borderTopColor: 'black',
-            borderTopWidth: 1,
             padding: 15
-
+        },
+        title: {
+            fontSize: 24,
+            fontWeight: 'bold',
+            borderBottomColor: colors.primary,
+            borderBottomWidth: 2,
         }
+
     })
 
 
@@ -91,7 +94,7 @@ const TopBar = () => {
                         >
                             <Feather name="x" size={32} color="black" />
                         </TouchableOpacity>
-                        <Text style={style.text}>Matérias-Primas</Text>
+                        <Text style={styles.title}>Matérias-Primas</Text>
                         <View style={styles.navs}>
                             <TouchableOpacity onPress={() => {
                                 goTo('Matérias-Primas');
@@ -104,7 +107,7 @@ const TopBar = () => {
                                 <Text style={style.text}>Cadastro</Text>
                             </TouchableOpacity>
                         </View>
-                        <Text style={style.text}>Formulações</Text>
+                        <Text style={styles.title}>Formulações</Text>
                         <View style={styles.navs}>
                             <TouchableOpacity onPress={() => {
                                 goTo('Formulações');
@@ -117,7 +120,7 @@ const TopBar = () => {
                                 <Text style={style.text}>Cadastro</Text>
                             </TouchableOpacity>
                         </View>
-                        <Text style={style.text}>Produtos</Text>
+                        <Text style={styles.title}>Produtos</Text>
                         <View style={styles.navs}>
                             <TouchableOpacity onPress={() => {
                                 goTo('Produtos');
@@ -130,7 +133,7 @@ const TopBar = () => {
                                 <Text style={style.text}>Cadastro</Text>
                             </TouchableOpacity>
                         </View>
-                        <Text style={style.text}>Saídas</Text>
+                        <Text style={styles.title}>Saídas</Text>
                         <View style={styles.navs}>
                             <TouchableOpacity onPress={() => {
                                 goTo('Saídas');
@@ -146,9 +149,9 @@ const TopBar = () => {
                         <TouchableOpacity onPress={() => {
                             goTo('Faturamento');
                         }}
-                            style={styles.navs}
+                            
                         >
-                            <Text style={style.text}>Faturamento</Text>
+                            <Text style={styles.title}>Faturamento</Text>
                         </TouchableOpacity>
 
                     </View>

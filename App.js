@@ -7,8 +7,6 @@ import { MateriasPrimas, Formulacoes, Produtos, Saidas } from './src/pages/Lista
 import Profile from './src/pages/Profile';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
 import TopBar from './src/components/TopBar';
 import { CadFormulacoes, CadMateriasPrimas, CadProdutos, CadSaidas } from './src/pages/Cadastros';
 import Faturamento from './src/pages/Faturamento';
@@ -17,17 +15,6 @@ import { Cadastro } from './src/pages/Cadastro';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const [isLogged, setIsLogged] = useState(true);
-
-  const getUser = async () => {
-    const user = await AsyncStorage.getItem('user');
-    user === null ? setIsLogged(false) : setIsLogged(true);
-  }
-  useEffect(() => {
-    getUser();
-    
-  }, []);
-
   return (
     <NavigationContainer>
       <StatusBar style='auto' backgroundColor='#edc4b5' translucent={false} />
