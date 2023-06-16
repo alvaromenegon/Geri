@@ -5,9 +5,10 @@ import { useState } from "react";
 import { getDatabase, ref, remove } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
-import { StackActions, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import * as Print from 'expo-print';
 import getHtml from "../services/getHtml";
+import { Feather } from '@expo/vector-icons';
 //import { useNavigation } from "@react-navigation/native"; 
 
 export default function ItemList(props) {
@@ -17,9 +18,9 @@ export default function ItemList(props) {
 
     return (
         <View style={styles.itemList} >
-            {(format !== 'venda' && format !=='form' && data.quantidade<1) &&
-            <View style={{position: 'absolute', top: 0, right: 0, backgroundColor: 'red', padding: 5, borderRadius: 5}}>
-            </View>
+            {(format !== 'venda' && format !== 'form' && data.quantidade < 1) &&
+                <View style={{ position: 'absolute', top: 0, right: 0, backgroundColor: 'red', padding: 5, borderRadius: 5 }}>
+                </View>
             }
             <View style={styles.itemListHeader}>
                 <Text style={{ fontSize: 28, marginBottom: 5 }}>{format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
@@ -79,48 +80,49 @@ const TableCell = (props) => {
             <View style={stylesTable.table}>
                 <Text style={stylesTable.text}>{props.title}</Text>
                 <View>
-                <TouchableOpacity style={{
-                    ...stylesTable.btn,
-                    borderColor: colors.primaryDark, borderWidth: 1,
-                    padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                }}
-                    onPress={() => {
-                        alert('Não implementado')
-                        /*try {
-                            navigation.navigate('Gerenciar Matéria-Prima', { id: props.id })
-                        }
-                        catch (error) {
-                            console.error(error);
-                            alert('Houve um erro ao tentar acessar a tela de gerenciamento')
-                        }*/
-                    }
-                    }
-                >
-                    <Text style={stylesTable.text}>Editar  <AntDesign name="edit" size={20} color={colors.primaryDark} /></Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={{
-                    ...stylesTable.btn,
-                    borderColor: 'red', borderWidth: 1, margin:5,
-                    padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                }}
-                    onPress={() => {
-                        Alert.alert(
-                            "Excluir",
-                            "Deseja realmente excluir?",
-                            [
-                                {
-                                    text: "Não",
-                                    style: "cancel"
-                                },
-                                { text: "Sim", onPress: () => {
-                                    navigation.replace(pageName)
-                                    remove(ref(getDatabase(firebase),`data/${getAuth().currentUser.uid}/${url}`));
-                                    
-                                }}
-                            ]
-                        );}}>
-                    <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
-                </TouchableOpacity>
+                    <TouchableOpacity style={{
+                        ...stylesTable.btn,
+                        borderColor: colors.primaryDark, borderWidth: 1,
+                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
+                    }}
+                        onPress={() => {
+                            Alert.alert('Em breve...')
+                            /*try {
+                                navigation.navigate('Gerenciar Matéria-Prima', { id: props.id })
+                            }
+                            catch (error) {
+                                console.error(error);
+                                alert('Houve um erro ao tentar acessar a tela de gerenciamento')
+                            }*/
+                        }}>
+                        <Text style={stylesTable.text}>Editar   <AntDesign name="edit" size={20} color={colors.primaryDark} /></Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{
+                        ...stylesTable.btn,
+                        borderColor: 'red', borderWidth: 1, margin: 5,
+                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
+                    }}
+                        onPress={() => {
+                            Alert.alert(
+                                "Excluir",
+                                "Deseja realmente excluir?",
+                                [
+                                    {
+                                        text: "Não",
+                                        style: "cancel"
+                                    },
+                                    {
+                                        text: "Sim", onPress: () => {
+                                            navigation.replace(pageName)
+                                            remove(ref(getDatabase(firebase), `data/${getAuth().currentUser.uid}/${url}`));
+
+                                        }
+                                    }
+                                ]
+                            );
+                        }}>
+                        <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         )
@@ -138,36 +140,39 @@ const TableCell = (props) => {
             </View>
         )
     }
-    if (props.export){
-        const print =async () => {
+    if (props.export) {
+        const print = async () => {
             const nome = props.data.nome;
             const preco = props.data.preco;
             const id = props.data.id;
-            const html = getHtml(nome,preco,id);
+            const descricao = props.data.descricao;
+            const validade = props.data.validade;
+            console.log(props.data)
+            const html = getHtml(nome, preco, descricao, validade, id);
             const options = {
                 html: html,
                 fileName: props.title,
                 directory: 'Documents',
             };
-
             await Print.printAsync(options);
-            
         }
 
-        return(
+        return (
             <View style={stylesTable.table}>
                 <Text style={stylesTable.text}>{props.title}</Text>
                 <View>
-                <TouchableOpacity style={{
-                    ...stylesTable.btn,
-                    borderColor: colors.primaryDark, borderWidth: 1,
-                    padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                }}
-                    onPress={()=>print()}
-                >
-                    <Text style={stylesTable.text}>Salvar</Text>
-                </TouchableOpacity>
-                
+                    <TouchableOpacity style={{
+                        ...stylesTable.btn,
+                        borderColor: colors.primaryDark, borderWidth: 1,
+                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
+                    }}
+                        onPress={() => print()}
+                    >
+                        <Text style={stylesTable.text}>
+                            Salvar  <Feather name="printer" size={20} color={colors.primaryDark} />
+                        </Text>
+                    </TouchableOpacity>
+
                 </View>
             </View>
         )
@@ -212,7 +217,7 @@ const TableMP = (props) => {
 const TableForm = (props) => {
     const data = props.data;
     const custo = `R$ ${data.custo}`
-    let mps=[];
+    let mps = [];
     Object.values(data.materiasprimas).forEach(element => {
         mps.push(`${element.nome} - ${element.quantidade} ${element.unMedida}`)
     });
@@ -231,7 +236,7 @@ const TableProd = (props) => {
     const data = props.data;
     const preco = `R$ ${data.preco.toFixed(2)}`
     const custo = `R$ ${data.custo.toFixed(3)}`
-    
+
     const validade = new Date(data.validade).toLocaleDateString('pt-BR');
     const dataFabricacao = new Date(data.data).toLocaleDateString('pt-BR');
     return (
@@ -244,7 +249,7 @@ const TableProd = (props) => {
             <TableCell title='Estoque' value={data.quantidade}></TableCell>
             <TableCell title='Descrição' value={data.descricao}></TableCell>
             <TableCell title='Formulação' value={data.nomeFormulacao}></TableCell>
-            <TableCell title='Exportar para PDF' data={{nome:data.nome,preco:preco,id:data._id}} export={true}></TableCell>
+            <TableCell title='Exportar para PDF' data={{ nome: data.nome, preco: preco, descricao: data.descricao, validade: validade, id: data._id }} export={true}></TableCell>
             <TableCell title='Excluir' url={`produtos/${data._id}`} buttons={true}></TableCell>
         </>
     )
@@ -254,7 +259,7 @@ const TableSaida = (props) => {
     const data = props.data;
     const date = new Date(data.data).toLocaleDateString('pt-BR', 'dd/MM/yyyy');
     const preco = `R$ ${data.preco}`;
-    let produtos=[];
+    let produtos = [];
     Object.values(data.produtos).forEach(element => {
         produtos.push(`${element.nome}\nQuantidade: ${element.quantidade} - Total: R$${element.preco}`)
     });
@@ -265,8 +270,8 @@ const TableSaida = (props) => {
             <TableCell title='Cliente' value={data.cliente}></TableCell>
             <TableCell title='Produtos' list={true} value={produtos}></TableCell>
             <TableCell title='Preço' value={preco}></TableCell>
-            {data.naoVenda?
-            <TableCell title='Tipo de Saída' value="Outros"></TableCell>:null}
+            {data.naoVenda ?
+                <TableCell title='Tipo de Saída' value="Outros"></TableCell> : null}
             <TableCell title='Editar ou Excluir' url={`vendas/${data._id}`} buttons={true}></TableCell>
         </>
     )
