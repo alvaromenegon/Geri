@@ -1,140 +1,57 @@
 import { useEffect, useState } from 'react';
 import { VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import style from '../assets/style.json';
 import BottomBar from '../components/BottomBar';
 import Padding from '../components/Padding';
-import { get, getDatabase, onValue, ref, set } from 'firebase/database';
-import firebase from '../services/firebaseConfig';
+import { Feather } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 const Faturamento = () => {
     const [data, setData] = useState([]);
     const [dataMedia, setDataMedia] = useState([]);
-    const [responseEntradas, setResponseEntradas] = useState({})
-    const [responseSaidas, setResponseSaidas] = useState({})
     const [entradas, setEntradas] = useState(0);
     const [saidas, setSaidas] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
-    const db = getDatabase(firebase);
+    const navigator = useNavigation();
 
-    const houveMovimento = () => {
+    const houveMovimento = (entradas,saidas) => {
         return entradas != 0 || saidas != 0;
     }
 
     useEffect(() => {
         setIsLoading(true);
-        get(ref(db, `data/${getAuth().currentUser.uid}/faturamento/entradas`)).then((snapshot) => {
-            if (snapshot.exists()) { //Pegar as entradas do BD
-                setResponseEntradas(snapshot.val())
-                getEntradasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
-            }
-            else {
-                setResponseEntradas({});
-                return false;
+        async function getData(){
+            const response = await fetch('https://controle-produtos.onrender.com/firebaseApi/faturamento?uid=' + getAuth().currentUser.uid);
+            const data = await response.text()
+            if (response.status !== 200){
+                console.warn(data);
+                Alert.alert('Erro', 'Erro ' + response.status+' - ' + data);
+                navigator.goBack();
+            }else{
+                const json = JSON.parse(data);
+                setEntradas(json.entradas);
+                setSaidas(json.saidas);
+                setDataMedia(json.media);
+                setData([
+                    {
+                        x: `Entradas: \nR$${json.entradas.toFixed(2)}`,
+                        y: houveMovimento(json.entradas,json.saidas) ? json.entradas : 1,
+                        symbol: { fill: "green", type: "square" },
+                        name: "Entradas"
+                    },
+                    {
+                        x: `Saidas: \nR$${json.saidas.toFixed(2)}`,
+                        y: houveMovimento() ? json.saidas : 1,
+                        symbol: { fill: "red", type: "square" },
+                        name: "Saidas"
+                    }
+                ])
             }
         }
-        ).catch(error => {
-            console.warn(error);
-        })
-        onValue(ref(db, `data/${getAuth().currentUser.uid}/faturamento/saidas`),
-            (snapshot) => {
-                try {
-                    if (snapshot.exists()) {
-                        setResponseSaidas(snapshot.val())
-                        getSaidasAtual(new Date().getFullYear(), new Date().getMonth() + 1)
-                    }
-                    else {
-                        setResponseSaidas({});
-                        return false;
-                    }
-                    setData([
-                        {
-                            x: `Entradas: \nR$${entradas}`,
-                            y: houveMovimento() ? entradas : 1,
-                            symbol: { fill: "green", type: "square" },
-                            name: "Entradas"
-                        },
-                        {
-                            x: `Saidas: \nR$${saidas}`,
-                            y: houveMovimento() ? saidas : 1,
-                            symbol: { fill: "red", type: "square" },
-                            name: "Saidas"
-                        }]);
-                } catch (error) {
-                    console.warn(error);
-                } finally {
-                    setIsLoading(false);
-                }
-
-            }
-        )
-    }
-        ,[]);
-
-    useEffect(() => {
-        getMedia();
-    }, [entradas, saidas, responseEntradas, responseSaidas])
-
-    const getSaidasAtual = (year, month) => {
-        let valorSaidas = 0;
-        Object.entries(responseSaidas).forEach(([key, value]) => {
-            if (value.data.ano == year && value.data.mes == month) {
-                valorSaidas += value.valor;
-            }
-        })
-        setSaidas(valorSaidas)
-    }
-
-    const getEntradasAtual = (year, month) => {
-        let valorEntradas = 0;
-        Object.entries(responseEntradas).forEach(([key, value]) => {
-            if (value.data.ano == year && value.data.mes == month) {
-                valorEntradas += value.valor;
-            }
-        })
-        setEntradas(valorEntradas)
-    }
-
-    const getMes = (mes) => {
-        Enumerator = {
-            1: 'Jan', 2: 'Fev', 3: 'Mar', 4: 'Abr',
-            5: 'Mai', 6: 'Jun', 7: 'Jul', 8: 'Ago',
-            9: 'Set', 10: 'Out', 11: 'Nov', 12: 'Dez'
-        }
-        return Enumerator[mes];
-    }
-
-    const getMedia = () => {
-        let valorEntradasMesPassado = 0;
-        let valorEntradasMesAntepenultimo = 0;
-        let valorSaidasMesPassado = 0;
-        let valorSaidasMesAntepenultimo = 0;
-        const mesAtual = new Date().getMonth() + 1;
-        const mesPenultimo = mesAtual == 1 ? 12 : mesAtual - 1;
-        const mesAntepenultimo = mesAtual == 1 ? 11 : mesAtual - 2;
-        Object.entries(responseEntradas).forEach(([key, value]) => {
-            if (value.data.mes == mesPenultimo) {
-                valorEntradasMesPassado += value.valor;
-            } else if (value.data.mes == mesAntepenultimo) {
-                valorEntradasMesAntepenultimo += value.valor;
-            }
-        })
-        Object.entries(responseSaidas).forEach(([key, value]) => {
-            if (value.data.mes == mesPenultimo) {
-                valorSaidasMesPassado += value.valor;
-            } else if (value.data.mes == mesAntepenultimo) {
-                valorSaidasMesAntepenultimo += value.valor;
-            }
-        })
-        setDataMedia(
-            [
-                { x: getMes(mesAntepenultimo), y: valorEntradasMesAntepenultimo - valorSaidasMesAntepenultimo },
-                { x: getMes(mesPenultimo), y: valorEntradasMesPassado - valorSaidasMesPassado },
-                { x: getMes(mesAtual), y: entradas - saidas },
-            ]
-        );
-    }
+        getData().then(() => setIsLoading(false));
+    }, [])
 
     return (<>
         <ScrollView contentContainerStyle={{ justifyContent: "center", alignItems: 'center' }} style={style.container}>
@@ -164,16 +81,22 @@ const Faturamento = () => {
                             <Text style={style.text}>Saidas</Text>
                         </View>
                         <View style={styles.legend}>
-                            <Text style={style.text}>Lucro Mensal: R$ {entradas - saidas}</Text>
+                            <Text style={style.text}>Lucro Mensal: R$ {(entradas - saidas).toFixed(2)}</Text>
                         </View>
                         <View style={{ marginTop: 20 }}>
                             <Text style={{ ...style.text, alignSelf: 'center' }}>Média dos últimos 3 meses:</Text>
                             <VictoryChart
                                 width={350}
-                                domainPadding={25}>
+                                domainPadding={25}
+
+                            >
                                 <VictoryBar
                                     labels={({ datum }) => `R$ ${datum.y}`}
                                     data={dataMedia}
+                                    style={{
+                                        data: { fill: ({ datum }) => datum.y > 0 ? "green" : "red" },
+                                        labels: { padding: 25, fill: "black", fontSize: 18, fontFamily: "sans-serif" },
+                                    }}
                                 />
                             </VictoryChart>
                         </View>
@@ -205,6 +128,5 @@ const styles = StyleSheet.create({
         width: "80%",
     }
 });
-
 
 export default Faturamento;

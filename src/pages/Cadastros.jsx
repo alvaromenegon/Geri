@@ -202,7 +202,7 @@ const CadMateriasPrimas = ({ route }) => {
                                     setModalVisible(!modalVisible);
                                 }}
                             >
-                                <Text style={style.buttonText}>Salvar</Text>
+                                <Text style={style.textButton}>Salvar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={{
                                 ...style.button,
@@ -212,7 +212,7 @@ const CadMateriasPrimas = ({ route }) => {
                                     setModalVisible(!modalVisible);
                                 }}
                             >
-                                <Text style={style.buttonText}>Voltar</Text>
+                                <Text >Voltar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -368,7 +368,7 @@ const CadFormulacoes = () => {
                                     setModalVisible(!modalVisible);
                                     navigation.replace('Formulações');
                                 }}>
-                                <Text style={style.buttonText}>Salvar</Text>
+                                <Text style={style.textButton}>Salvar</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={{
                                 ...style.button,
@@ -378,7 +378,7 @@ const CadFormulacoes = () => {
                                     setModalVisible(false);
                                 }}
                             >
-                                <Text style={style.buttonText}>Voltar</Text>
+                                <Text >Voltar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -498,7 +498,7 @@ const CadFormulacoes = () => {
                                 cache({ item: { id: item._id, nome: item.nome, quantidade: quantidade, unMedida: item.unMedida, preco: item.precoUn } })
                             }}
                         >
-                            <Text style={style.buttonText}>OK</Text>
+                            <Text >OK</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -851,7 +851,7 @@ const CadSaidas = () => {
                                     cache({ item: { id: item._id, nome: item.nome, quantidade: qtd_, preco: item.preco } }) :
                                     Alert.alert("Quantidade inválida");
                             }}>
-                            <Text style={style.buttonText}>OK</Text>
+                            <Text >OK</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -970,7 +970,7 @@ const CadSaidas = () => {
                             } else
                                 Alert.alert("Quantidade inválida");
                         }}>
-                        <Text style={style.buttonText}>OK</Text>
+                        <Text >OK</Text>
                     </TouchableOpacity>
                 </>
             }

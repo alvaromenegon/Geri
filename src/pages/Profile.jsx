@@ -12,7 +12,6 @@ import { updateEmail, signInWithEmailAndPassword } from "firebase/auth";
 
 const Profile = () => {
     const navigation = useNavigation();
-    const [image, setImage] = useState(null);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
@@ -190,7 +189,6 @@ const Profile = () => {
                                         onPress={() => { setModalVisible(false) }}
                                         style={{ ...style.button, width: 100 }}
                                     >
-
                                         <Text>Cancelar</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -206,8 +204,10 @@ const Profile = () => {
         signOut(auth).then(() => { //Desloga o usuário, remove seus dados e salva o e-mail para facilitar a próxima entrada
             AsyncStorage.setItem('prevUser', email).then(() => {
                 AsyncStorage.removeItem('user').then(() => {
-                    navigation.dispatch(StackActions.popToTop())
-                    navigation.navigate('Login');
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Login' }],
+                    });
                 })
             })
         })
@@ -221,7 +221,6 @@ const Profile = () => {
     }, []);
     return (
         <View style={style.container}>
-            <View style={{ ...style.rowSpaceBetween, alignItems: 'flex-start' }}>
                 <Text numberOfLines={3} style={{
                     ...style.text,
                     textAlign: 'center',
@@ -231,7 +230,6 @@ const Profile = () => {
                 }}>
                     {username}
                 </Text>
-            </View>
 
             <View>
                 <Text style={style.text}>E-mail:</Text>
@@ -259,7 +257,7 @@ const Profile = () => {
                 marginTop: 20,
             }}
                 onPress={() => sair()}    >
-                <Text>Sair</Text>
+                <Text style={style.textButton}>Sair</Text>
             </TouchableOpacity>
             <Alterar />
         </View>

@@ -1,4 +1,4 @@
-const getHtml = (nome, preco, id) => {
+const getHtml = (nome, preco, descricao, validade, id) => {
     return (`
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -38,6 +38,14 @@ const getHtml = (nome, preco, id) => {
             <tr>
                 <th>Preço</th>
                 <td>${preco}</td>
+            </tr>
+            <tr>
+                <th>Descrição</th>
+                <td>${descricao}</td>
+            </tr>
+            <tr>
+                <th>Validade</th>
+                <td>${validade}</td>
             </tr>
         </table>
         <img src="https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=produto/${id}">
