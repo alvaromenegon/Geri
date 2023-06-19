@@ -16,20 +16,20 @@ const Faturamento = () => {
     const [isLoading, setIsLoading] = useState(true);
     const navigator = useNavigation();
 
-    const houveMovimento = (entradas,saidas) => {
+    const houveMovimento = (entradas, saidas) => {
         return entradas != 0 || saidas != 0;
     }
 
     useEffect(() => {
         setIsLoading(true);
-        async function getData(){
+        async function getData() {
             const response = await fetch('https://controle-produtos.onrender.com/firebaseApi/faturamento?uid=' + getAuth().currentUser.uid);
             const data = await response.text()
-            if (response.status !== 200){
+            if (response.status !== 200) {
                 console.warn(data);
-                Alert.alert('Erro', 'Erro ' + response.status+' - ' + data);
+                Alert.alert('Erro', 'Erro ' + response.status + ' - ' + data);
                 navigator.goBack();
-            }else{
+            } else {
                 const json = JSON.parse(data);
                 setEntradas(json.entradas);
                 setSaidas(json.saidas);
@@ -37,7 +37,7 @@ const Faturamento = () => {
                 setData([
                     {
                         x: `Entradas: \nR$${json.entradas.toFixed(2)}`,
-                        y: houveMovimento(json.entradas,json.saidas) ? json.entradas : 1,
+                        y: houveMovimento(json.entradas, json.saidas) ? json.entradas : 1,
                         symbol: { fill: "green", type: "square" },
                         name: "Entradas"
                     },
@@ -53,13 +53,18 @@ const Faturamento = () => {
         getData().then(() => setIsLoading(false));
     }, [])
 
-    return (<>
+    return (
+    <View style={{flex:1}}>
         <ScrollView contentContainerStyle={{ justifyContent: "center", alignItems: 'center' }} style={style.container}>
-            <Text style={style.text}>Faturamento Mensal</Text>
+
             {isLoading ?
-                <ActivityIndicator size={24} color={'black'} /> :
+                <>
+                    <Text style={{ alignSelf: 'center' }}>Carregando informações, pode levar alguns segundos</Text>
+                    <ActivityIndicator size={24} color={style.colors.primaryDark} />
+                </> :
                 (
                     <>
+                        <Text style={style.text}>Faturamento Mensal</Text>
                         <VictoryPie
                             style={{
                                 labels: { fill: "black", fontSize: 18, fontWeight: "bold", fontFamily: "sans-serif" },
@@ -81,14 +86,13 @@ const Faturamento = () => {
                             <Text style={style.text}>Saidas</Text>
                         </View>
                         <View style={styles.legend}>
-                            <Text style={style.text}>Lucro Mensal: R$ {(entradas - saidas).toFixed(2)}</Text>
+                            <Text style={style.text}>Saldo Mensal: R$ {(entradas - saidas).toFixed(2)}</Text>
                         </View>
-                        <View style={{ marginTop: 20 }}>
+                        <View style={{ marginTop: 20, paddingTop:5,borderTopColor:style.colors.secondaryDark,borderTopWidth:1 }}>
                             <Text style={{ ...style.text, alignSelf: 'center' }}>Média dos últimos 3 meses:</Text>
                             <VictoryChart
                                 width={350}
                                 domainPadding={25}
-
                             >
                                 <VictoryBar
                                     labels={({ datum }) => `R$ ${datum.y}`}
@@ -105,7 +109,7 @@ const Faturamento = () => {
             <Padding />
         </ScrollView>
         <BottomBar />
-    </>
+    </View>
     )
 }
 

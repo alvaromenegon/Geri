@@ -1,5 +1,4 @@
-import { DatePicker, Select } from '../components/InputWithLabel';
-import { InputWithLabel } from '../components/InputWithLabel';
+import { DatePicker, Select , InputWithLabel} from '../components/InputWithLabel';
 import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
@@ -12,7 +11,6 @@ import firebase from '../services/firebaseConfig';
 import { getAuth, signOut } from 'firebase/auth';
 import { AntDesign } from '@expo/vector-icons';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-//import MateriasPrimasSelecionadas from '../components/MateriasPrimasSelecionadas'; não está funcionando
 const db = getDatabase(firebase);
 
 function change(props) {
@@ -142,6 +140,7 @@ function change(props) {
                     erro = true;
                 })
         }
+        //else if (props.set === 'update') {} //Não foi possível implementar a atualização dos dados
         if (erro) {
             Alert.alert('Erro', 'Erro ao salvar os dados');
             return false;
@@ -164,7 +163,7 @@ function getIndexString(index) {
     return Enumerator[index];
 }
 
-const CadMateriasPrimas = ({ route }) => {
+const CadMateriasPrimas = () => {
     const Verificar = (props) => {
         const [isLoading, setIsLoading] = useState(false);
         const data = props.data;
@@ -212,7 +211,7 @@ const CadMateriasPrimas = ({ route }) => {
                                     setModalVisible(!modalVisible);
                                 }}
                             >
-                                <Text >Voltar</Text>
+                                <Text style={style.text_white} >Voltar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -302,18 +301,21 @@ const CadMateriasPrimas = ({ route }) => {
             <InputWithLabel value={fornecedor} onChangeText={text => setFornecedor(text)} label="Fornecedor" />
             <InputWithLabel keyboardType="numeric" value={preco} onChangeText={t => setPreco(t)} label="Preço" type="numeric" />
             <Text style={{ fontSize: 20, margin: 5 }}>Preço Unitário: R${precoUn.toFixed(2)}/{unMedida}</Text>
-            <TouchableOpacity
-                style={style.button}
-                onPress={() => {
-                    if (nome == '' || dataCompra == null || validade == null || qtd == 0 || unMedida == '' || preco == 0) {
-                        Alert.alert('Erro', 'Preencha todos os campos!');
-                        return;
-                    }
-                    setModalVisible(true);
-                }}
-            >
-                <Text style={style.textButton}>Verificar</Text>
-            </TouchableOpacity>
+            <View style={{ justifyContent: 'space-around', flexDirection: 'row' }}>
+                <TouchableOpacity
+                    style={style.button}
+                    onPress={() => {
+                        if (nome == '' || dataCompra == null || validade == null || qtd == 0 || unMedida == '' || preco == 0) {
+                            Alert.alert('Erro', 'Preencha todos os campos!');
+                            return;
+                        }
+                        setModalVisible(true);
+                    }}
+                >
+
+                    <Text style={style.textButton}>Verificar</Text>
+                </TouchableOpacity>
+            </View>
             <Padding />
         </ScrollView>
     )
@@ -350,14 +352,19 @@ const CadFormulacoes = () => {
                 transparent={true}
                 visible={modalVisible}>
                 <View style={style.modalShade}>
+
                     <View style={style.modal}>
+                        <View style={style.modalHeader}>
+                            <Text style={style.mainText}>Verificar Dados</Text>
+                        </View>
                         <Text style={style.text}>Nome:{nome} </Text>
                         <Text style={style.text}>Tipo: {tipo}</Text>
                         <Text style={style.text}>Custo: R${custo.toFixed(2)}</Text>
                         <Text style={style.text}>Matérias-primas: </Text>
                         <FlatList
+                            style={{ marginTop: 5, borderTopColor: style.table.borderColor, borderTopWidth: style.table.borderWidth }}
                             data={Object.values(materiasPrimas)}
-                            renderItem={({ item }) => <Text key={item._id}>{item.nome} -{item.quantidade}{item.unMedida}</Text>}
+                            renderItem={({ item }) => <Text style={{ fontSize: 18 }} key={item._id}>{item.nome}: {item.quantidade}{item.unMedida}</Text>}
                             keyExtractor={item => item.id}
                             ListFooterComponent={isLoading ? <ActivityIndicator /> : null}
                         />
@@ -378,7 +385,7 @@ const CadFormulacoes = () => {
                                     setModalVisible(false);
                                 }}
                             >
-                                <Text >Voltar</Text>
+                                <Text style={style.text_white}>Voltar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -460,10 +467,12 @@ const CadFormulacoes = () => {
                     flexDirection: 'row',
                     justifyContent: 'flex-start',
                     alignItems: 'center',
-                    margin: 5,
-                    paddingTop: 10,
-                    borderTopColor: 'black',
-                    borderTopWidth: 1,
+                    marginTop: 5,
+
+                    padding: style.table.padding,
+                    borderColor: style.table.borderColor,
+                    borderWidth: style.table.borderWidth,
+
                 }}>
                     <CheckBox
                         disabled={false}
@@ -482,6 +491,9 @@ const CadFormulacoes = () => {
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'flex-end',
+                        borderColor: style.table.borderColor,
+                        borderWidth: style.table.borderWidth,
+                        borderTopColor: 'transparent',
                     }}>
                         <InputWithLabel
                             value={quantidade}
@@ -567,21 +579,19 @@ const CadFormulacoes = () => {
             }
             <Text style={style.text}>Matérias-primas selecionadas:</Text>
             {materiasPrimas !== null ?
-                /*  A fazer:
-                *   Transformar em componente
-                *   Corrigir bug do checkbox desativar ao dar OK
-                */
                 Object.keys(materiasPrimas).map((key, index) => {
                     return (
-                        <View key={index} style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            margin: 5,
-                            paddingTop: 10,
-                            borderTopColor: 'black',
-                            borderTopWidth: 1,
-                        }}>
+                        <View key={index} style={
+                            {
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                margin: 5,
+                                paddingTop: 10,
+                                borderTopColor: 'black',
+                                borderTopWidth: 1,
+                            }
+                        }>
                             <Text style={{ fontSize: 20, marginLeft: 5 }}>{materiasPrimas[key].nome} - {materiasPrimas[key].quantidade}{materiasPrimas[key].unMedida}</Text>
                             <TouchableOpacity style={{
                                 ...style.button,
@@ -603,18 +613,18 @@ const CadFormulacoes = () => {
                 })
                 : <Text style={style.text}>Nenhuma matéria-prima selecionada</Text>
             }
-
-
-            <TouchableOpacity
-                style={style.button}
-                onPress={() => {
-                    nome !== '' && tipo !== '' && materiasPrimas !== null ?
-                        setModalVisible(true) :
-                        Alert.alert('Preencha todos os campos')
-                }}
-            >
-                <Text style={style.textButton}>Verificar</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                <TouchableOpacity
+                    style={style.button}
+                    onPress={() => {
+                        nome !== '' && tipo !== '' && materiasPrimas !== null ?
+                            setModalVisible(true) :
+                            Alert.alert('Preencha todos os campos')
+                    }}
+                >
+                    <Text style={style.textButton}>Verificar</Text>
+                </TouchableOpacity>
+            </View>
             {modalVisible ? <Verificar /> : null}
             <Padding value={40} />
         </ScrollView>
@@ -633,6 +643,8 @@ const CadProdutos = () => {
     const [custo, setCusto] = useState('');
     const [date, setDate] = useState(null);
     const [validade, setValidade] = useState(null);
+    const [maoDeObra,setMaoDeObra] = useState('');
+    const [sugMaoDeObra,setSugMaoDeObra] = useState(0);
     const navigation = useNavigation();
 
     const getFormulacoes = async () => {
@@ -697,7 +709,9 @@ const CadProdutos = () => {
                     />
                     <InputWithLabel value={custo.toString()} label="Custo" type="numeric" disabled={true} />
                     <InputWithLabel onChangeText={t => setPreco(t)} value={preco} label="Preço de Venda" type="numeric" />
+                    <InputWithLabel onChangeText={t => setMaoDeObra(t)} value={maoDeObra}  label="Mão de Obra" type="numeric" />
                     <InputWithLabel label="Quantidade" type="numeric" value={quantidade} onChangeText={t => setQuantidade(t)} />
+                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                     <TouchableOpacity
                         style={style.button}
                         onPress={() => {
@@ -713,8 +727,9 @@ const CadProdutos = () => {
                                     preco: parseFloat(preco),
                                     quantidade: quantidade,
                                     data: date,
-                                    validade: validade, //não está funcionando
+                                    validade: validade,
                                     formulacao: formulacao,
+                                    maoDeObra: parseFloat(maoDeObra),
                                     nomeFormulacao: nomeFormulacao
                                 },
                                 url: 'produtos',
@@ -725,10 +740,11 @@ const CadProdutos = () => {
                     >
                         <Text style={style.textButton}>Salvar</Text>
                     </TouchableOpacity>
-
+                    </View>
+                    <Padding />
                 </>)}
-            <Padding padding={60} />
         </ScrollView>
+
     )
 }
 
@@ -758,7 +774,7 @@ const CadSaidas = () => {
         const query_ = query(dbRef, limitToFirst(p * 10));
         onValue(query_, (snapshot) => {
             const data = snapshot.val();
-            if (data === null) {setIsLoading(false);return};
+            if (data === null) { setIsLoading(false); return };
             const keys = Object.keys(data);
             const array = keys.map((key) => {
                 return { ...data[key], id: key };
@@ -1019,7 +1035,7 @@ const CadSaidas = () => {
                                 borderTopColor: 'black',
                                 borderTopWidth: 1,
                             }}>
-                                <Text >{produtos[key].nome} - {produtos[key].preco}</Text>
+                                <Text >{key}: {produtos[key].nome} - Quantidade: {produtos.quantidade}  - R${produtos[key].preco}</Text>
                                 <TouchableOpacity
                                     style={{
                                         ...style.button,
@@ -1053,22 +1069,24 @@ const CadSaidas = () => {
                             }}
                         ><AntDesign name="info" size={18} color={style.colors.secondary} /></TouchableOpacity>
                     </View>
+                    <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Switch value={naoVenda} onValueChange={setNaoVenda} />
-                        <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+                        <Text style={style.text}>Toque para alterar</Text>
                     </View>
-                    <TouchableOpacity
-                        style={style.button}
-                        onPress={() => {
-                            if (cliente !== '' && date !== '' && produtos !== null) {
-                                change({ data: { cliente: cliente, data: date.getTime(), produtos: produtos, preco: precoTotal, naoVenda: naoVenda }, url: 'vendas', set: 'set' })
-                                navigation.navigate('Saídas')
-                            } else {
-                                Alert.alert('Preencha todos os campos')
-                            }
-                        }}>
-                        <Text style={style.textButton}>Salvar</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                        <TouchableOpacity
+                            style={style.button}
+                            onPress={() => {
+                                if (cliente !== '' && date !== '' && produtos !== null) {
+                                    change({ data: { cliente: cliente, data: date.getTime(), produtos: produtos, preco: precoTotal, naoVenda: naoVenda }, url: 'vendas', set: 'set' })
+                                    navigation.navigate('Saídas')
+                                } else {
+                                    Alert.alert('Preencha todos os campos')
+                                }
+                            }}>
+                            <Text style={style.textButton}>Salvar</Text>
+                        </TouchableOpacity></View>
                     <Padding value={40} />
                 </ScrollView>}</>
     )
