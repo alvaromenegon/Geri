@@ -1,4 +1,4 @@
-import { DatePicker, Select , InputWithLabel} from '../components/InputWithLabel';
+import { DatePicker, Select, InputWithLabel } from '../components/InputWithLabel';
 import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
@@ -10,7 +10,7 @@ import { getDatabase, update, ref, set, push, get, query, limitToFirst, remove, 
 import firebase from '../services/firebaseConfig';
 import { getAuth, signOut } from 'firebase/auth';
 import { AntDesign } from '@expo/vector-icons';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+//import { BarCodeScanner } from 'expo-barcode-scanner';
 const db = getDatabase(firebase);
 
 function change(props) {
@@ -643,8 +643,8 @@ const CadProdutos = () => {
     const [custo, setCusto] = useState('');
     const [date, setDate] = useState(null);
     const [validade, setValidade] = useState(null);
-    const [maoDeObra,setMaoDeObra] = useState('');
-    const [sugMaoDeObra,setSugMaoDeObra] = useState(0);
+    const [maoDeObra, setMaoDeObra] = useState('');
+    const [sugMaoDeObra, setSugMaoDeObra] = useState(0);
     const navigation = useNavigation();
 
     const getFormulacoes = async () => {
@@ -709,37 +709,37 @@ const CadProdutos = () => {
                     />
                     <InputWithLabel value={custo.toString()} label="Custo" type="numeric" disabled={true} />
                     <InputWithLabel onChangeText={t => setPreco(t)} value={preco} label="Preço de Venda" type="numeric" />
-                    <InputWithLabel onChangeText={t => setMaoDeObra(t)} value={maoDeObra}  label="Mão de Obra" type="numeric" />
+                    <InputWithLabel onChangeText={t => setMaoDeObra(t)} value={maoDeObra} label="Mão de Obra" type="numeric" />
                     <InputWithLabel label="Quantidade" type="numeric" value={quantidade} onChangeText={t => setQuantidade(t)} />
                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                    <TouchableOpacity
-                        style={style.button}
-                        onPress={() => {
-                            if (nome === '' || descricao === '' || custo === '' || preco === '' || quantidade === '' || date === null || validade === null || formulacao === '') {
-                                Alert.alert('Preencha todos os campos');
-                                return;
-                            }
-                            change({
-                                data: {
-                                    nome: nome,
-                                    descricao: descricao,
-                                    custo: parseFloat(custo),
-                                    preco: parseFloat(preco),
-                                    quantidade: quantidade,
-                                    data: date,
-                                    validade: validade,
-                                    formulacao: formulacao,
-                                    maoDeObra: parseFloat(maoDeObra),
-                                    nomeFormulacao: nomeFormulacao
-                                },
-                                url: 'produtos',
-                                set: 'set'
-                            })
-                            navigation.navigate('Produtos');
-                        }}
-                    >
-                        <Text style={style.textButton}>Salvar</Text>
-                    </TouchableOpacity>
+                        <TouchableOpacity
+                            style={style.button}
+                            onPress={() => {
+                                if (nome === '' || descricao === '' || custo === '' || preco === '' || quantidade === '' || date === null || validade === null || formulacao === '') {
+                                    Alert.alert('Preencha todos os campos');
+                                    return;
+                                }
+                                change({
+                                    data: {
+                                        nome: nome,
+                                        descricao: descricao,
+                                        custo: parseFloat(custo),
+                                        preco: parseFloat(preco),
+                                        quantidade: quantidade,
+                                        data: date,
+                                        validade: validade,
+                                        formulacao: formulacao,
+                                        maoDeObra: parseFloat(maoDeObra),
+                                        nomeFormulacao: nomeFormulacao
+                                    },
+                                    url: 'produtos',
+                                    set: 'set'
+                                })
+                                navigation.navigate('Produtos');
+                            }}
+                        >
+                            <Text style={style.textButton}>Salvar</Text>
+                        </TouchableOpacity>
                     </View>
                     <Padding />
                 </>)}
@@ -755,11 +755,11 @@ const CadSaidas = () => {
     const [vendaId, setVendaId] = useState(null);
     const [precoTotal, setPrecoTotal] = useState(0);
     const navigation = useNavigation();
-    const [scanned, setScanned] = useState(false);
-    const [hasPermission, setHasPermission] = useState(null);
-    const [click, setClick] = useState(false);
+
     navigation.addListener('blur', () => {
-        remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`));
+        const onScanner = navigation.getState().routes.length === 3;
+        if (!onScanner)
+            remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`));
     });
 
     const getItens = async (page) => {
@@ -767,9 +767,7 @@ const CadSaidas = () => {
         const p = page ?? 1;
         setIsLoading(true);
         setActualPage(p);
-        /*onValue(ref(db, `data/${getAuth().currentUser.uid}/produtos`),(snapshot) => {
-            console.log(snapshot.val())
-        });*/
+        
         const dbRef = ref(db, `data/${getAuth().currentUser.uid}/produtos`);
         const query_ = query(dbRef, limitToFirst(p * 10));
         onValue(query_, (snapshot) => {
@@ -781,8 +779,33 @@ const CadSaidas = () => {
             });
             setData(array);
             setIsLoading(false);
-        })
+        });
+
     };
+
+    function getProdutosSelecionados() {
+        onValue(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}`), (snapshot) => {        
+            if (snapshot.exists()) {
+                const val = snapshot.val();
+                if (val.empty || val === null) {
+                    setProdutos(null);
+                    setPrecoTotal(0);
+                    return;
+                }
+                setProdutos(snapshot.val());
+                setPrecoTotal(Object.values(snapshot.val()).reduce((a, b) => a + b.preco, 0));
+            }
+            else{
+                setProdutos(null);
+                setPrecoTotal(0);
+            }
+        })
+    }
+
+    navigation.addListener('focus', () => {
+        //setClick(false);
+        getProdutosSelecionados();
+    });
 
     useEffect(() => {
         /*const getBarCodeScannerPermissions = async () => {
@@ -791,11 +814,15 @@ const CadSaidas = () => {
         };
 
         getBarCodeScannerPermissions();*/
+        
+
         push(ref(db, `data/${getAuth().currentUser.uid}/temp/venda`)).then((snapshot) => {
             setVendaId(snapshot.key);
             set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${snapshot.key}`), { empty: true });
         });
-        getItens()
+        getItens();
+        getProdutosSelecionados();
+
     }, []);
 
 
@@ -806,10 +833,11 @@ const CadSaidas = () => {
         const [qtd, setQtd] = useState('');
         const cache = ({ item }) => {
             if (qtd == 0 || qtd == '' || qtd == '0') {
-                set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`), null)
-                get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+                set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`), null);
+                getProdutosSelecionados();
+                /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
                     setProdutos(snapshot.val());
-                });
+                });*/
                 return;
             }
             const preco = item.preco * parseInt(qtd);
@@ -820,10 +848,11 @@ const CadSaidas = () => {
                 nome: item.nome,
                 preco: preco
             })
-            get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+            getProdutosSelecionados();
+            /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
                 setProdutos(snapshot.val())
                 setPrecoTotal(Object.values(snapshot.val()).reduce((a, b) => a + b.preco, 0));
-            });
+            });*/
         }
 
         return (
@@ -870,7 +899,6 @@ const CadSaidas = () => {
                             <Text >OK</Text>
                         </TouchableOpacity>
                     </View>
-
                 </>
                     : null
                 }
@@ -879,25 +907,21 @@ const CadSaidas = () => {
 
     const renderItens = () => {
         let arr = [];
-        /*arr.push(
+        arr.push(
             <View key={'-1'} style={{ alignItems: 'center' }}>
                 <TouchableOpacity
                     style={style.button}
                     onPress={() => {
-                        if (hasPermission === null) {
-                            Alert.alert("Aguardando permissão para acessar a câmera");
-                            return false;
-                        }
-                        if (hasPermission === false) {
-                            Alert.alert("É necessário permissão para acessar a câmera");
-                            return false;
-                        }
-                        setClick(true)
+                        navigation.navigate('Ler QR Code', {
+                            vendaId: vendaId,
+                            uid: getAuth().currentUser.uid,
+                        });
+
                     }}>
                     <Text style={{ color: style.colors.primaryLight }}>Ler QR Code <AntDesign name="qrcode" size={24} color="black" /></Text>
                 </TouchableOpacity>
             </View>
-        )*/
+        )
         for (let i = 0; i < data.length; i++) {
             if (data[i].quantidade !== 0)
                 arr.push(<SearchItem key={i} item={data[i]} />)
@@ -941,154 +965,84 @@ const CadSaidas = () => {
     const [cliente, setCliente] = useState('');
     const [naoVenda, setNaoVenda] = useState(false);
 
-    const QRCodeScanner = () => {
-        const [scannedItem, setScannedItem] = useState(null);
-        const handleBarCodeScanned = ({ type, data }) => {
-
-            get(ref(db, `data/${getAuth().currentUser.uid}/produtos/${data}`)).then((snapshot) => {
-                if (snapshot.exists()) {
-                    setScannedItem(snapshot.val());
-                    if (scannedItem.quantidade < 0) {
-                        Alert.alert("Produto sem estoque");
-                        setScannedItem(null);
-                        setClick(false);
-                        setScanned(false);
-                    } else setScanned(true);
-                } else {
-                    setClick(false);
-                    setScanned(false);
-                    setScannedItem(null);
-                    Alert.alert("Produto não encontrado");
-                }
-            });
-
-            //alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-        };
-        const [qtd, setQtd] = useState(0);
-        return (<>
-            <BarCodeScanner
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-                style={StyleSheet.absoluteFillObject}
-            />
-            {
-                (scanned) && <>
-                    <InputWithLabel label={"Quantidade - " + scannedItem.quantidade + ' em estoque'} onChangeText={t => setQtd(t)} value={qtd.toString()} type="numeric" />
-                    <TouchableOpacity style={{
-                        ...style.button,
-                        backgroundColor: style.colors.primary
-                    }}
-                        onPress={() => {
-                            const qtd_ = parseInt(qtd);
-                            if (qtd_ <= scannedItem.quantidade && qtd_ > 0) {
-                                cache({ item: { id: scannedItem._id, nome: scannedItem.nome, quantidade: qtd_, preco: scannedItem.preco } })
-                                setClick(false)
-                                setScanned(false)
-                            } else
-                                Alert.alert("Quantidade inválida");
-                        }}>
-                        <Text >OK</Text>
-                    </TouchableOpacity>
-                </>
-            }
-            <TouchableOpacity
-                style={{
-                    borderRadius: 50,
-                    backgroundColor: 'red',
-                    position: 'absolute',
-                    bottom: 0,
-                    margin: 10,
-                    padding: 10,
-                    alignSelf: 'center'
-                }}
-                onPress={() => {
-                    setClick(false)
-                    setScanned(false)
-                }}>
-                <AntDesign name="close" size={24} color="white" />
-            </TouchableOpacity>
-        </>
-        )
-    }
-
-
     return (
         <>
-            {click ? <QRCodeScanner />
-                :
-                <ScrollView style={style.container}>
 
-                    <InputWithLabel label="Cliente" onChangeText={t => setCliente(t)} value={cliente} />
-                    <DatePicker date={date} onChange={(e, d) => setDate(d)} label="Data" />
-                    <Text style={style.text}>Produtos:</Text>
-                    {isLoading ? <ActivityIndicator size={24} color='black' /> :
-                        renderItens()
-                    }
-                    <Text style={style.text}>Produtos selecionados</Text>
-                    {produtos ? Object.keys(produtos).map((key, index) => {
-                        return (
-                            <View key={index} style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                margin: 5,
-                                paddingTop: 10,
-                                borderTopColor: 'black',
-                                borderTopWidth: 1,
-                            }}>
-                                <Text >{key}: {produtos[key].nome} - Quantidade: {produtos.quantidade}  - R${produtos[key].preco}</Text>
-                                <TouchableOpacity
-                                    style={{
-                                        ...style.button,
-                                        backgroundColor: 'red'
-                                    }}
-                                    onPress={() => {
-                                        remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${key}`));
-                                        get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
-                                            setProdutos(snapshot.val());
-                                        })
-                                    }}
-                                >
-                                    <AntDesign name="delete" size={18} color="white" />
-                                </TouchableOpacity>
-                            </View>
-                        )
-                    }) : <Text>Nenhum produto selecionado</Text>
-                    }
-                    <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                        <Text style={style.text}>Tipo de saída: </Text>
-                        <TouchableOpacity
-                            style={{
-                                backgroundColor: "transparent",
-                                borderColor: style.colors.secondary,
-                                borderWidth: 1,
-                                borderRadius: 25,
-                                padding: 5,
-                            }}
-                            onPress={() => {
-                                Alert.alert('Tipo de saída', 'Se o tipo de saída for "Outros", o valor não será contabilizado nas vendas, mas o estoque ainda será alterado.')
-                            }}
-                        ><AntDesign name="info" size={18} color={style.colors.secondary} /></TouchableOpacity>
-                    </View>
-                    <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Switch value={naoVenda} onValueChange={setNaoVenda} />
-                        <Text style={style.text}>Toque para alterar</Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                        <TouchableOpacity
-                            style={style.button}
-                            onPress={() => {
-                                if (cliente !== '' && date !== '' && produtos !== null) {
-                                    change({ data: { cliente: cliente, data: date.getTime(), produtos: produtos, preco: precoTotal, naoVenda: naoVenda }, url: 'vendas', set: 'set' })
-                                    navigation.navigate('Saídas')
-                                } else {
-                                    Alert.alert('Preencha todos os campos')
-                                }
-                            }}>
-                            <Text style={style.textButton}>Salvar</Text>
-                        </TouchableOpacity></View>
-                    <Padding value={40} />
-                </ScrollView>}</>
+            <ScrollView style={style.container}>
+
+                <InputWithLabel label="Cliente" onChangeText={t => setCliente(t)} value={cliente} />
+                <DatePicker date={date} onChange={(e, d) => setDate(d)} label="Data" />
+                <Text style={style.text}>Produtos:</Text>
+                {isLoading ? <ActivityIndicator size={24} color='black' /> :
+                    renderItens()
+                }
+                <Text style={style.text}>Produtos selecionados</Text>
+                {produtos ? Object.keys(produtos).map((key, index) => {
+                    return (
+                        <View key={index} style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            margin: 5,
+                            paddingTop: 10,
+                            borderTopColor: 'black',
+                            borderTopWidth: 1,
+                        }}>
+                            <Text >{index + 1}: {produtos[key].nome} - Quantidade: {produtos[key].quantidade}  - R${produtos[key].preco}</Text>
+                            <TouchableOpacity
+                                style={{
+                                    ...style.button,
+                                    backgroundColor: 'red'
+                                }}
+                                onPress={() => {
+                                    remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${key}`));
+                                    getProdutosSelecionados();
+                                    /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
+                                        setProdutos(snapshot.val());
+                                    })*/
+                                }}
+                            >
+                                <AntDesign name="delete" size={18} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    )
+                }) : <Text>Nenhum produto selecionado</Text>
+                }
+                <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                    <Text style={style.text}>Tipo de saída: </Text>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: "transparent",
+                            borderColor: style.colors.secondary,
+                            borderWidth: 1,
+                            borderRadius: 25,
+                            padding: 5,
+                        }}
+                        onPress={() => {
+                            Alert.alert('Tipo de saída', 'Se o tipo de saída for "Outros", o valor não será contabilizado nas vendas, mas o estoque ainda será alterado.')
+                        }}
+                    ><AntDesign name="info" size={18} color={style.colors.secondary} /></TouchableOpacity>
+                </View>
+                <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Switch value={naoVenda} onValueChange={setNaoVenda} />
+                    <Text style={style.text}>Toque para alterar</Text>
+                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                    <TouchableOpacity
+                        style={style.button}
+                        onPress={() => {
+                            if (cliente !== '' && date !== '' && produtos !== null) {
+                                change({ data: { cliente: cliente, data: date.getTime(), produtos: produtos, preco: precoTotal, naoVenda: naoVenda }, url: 'vendas', set: 'set' })
+                                navigation.navigate('Saídas')
+                            } else {
+                                Alert.alert('Preencha todos os campos')
+                            }
+                        }}>
+                        <Text style={style.textButton}>Salvar</Text>
+                    </TouchableOpacity></View>
+                <Padding value={40} />
+            </ScrollView></>
     )
 }
 
