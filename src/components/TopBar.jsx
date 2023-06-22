@@ -190,11 +190,12 @@ const TopBar = () => {
                 {screenName}
             </Text>}
             
-                <TouchableOpacity onPress={() => {
+                {screenName !== 'Ler QR Code'? <TouchableOpacity onPress={() => {
                     setModalVisible(!modalVisible);
                 }}>
                     <Feather name="menu" size={32} color="black" />
-                </TouchableOpacity>
+                </TouchableOpacity>:
+                <View style={{width:32}}></View>}
                 <MenuLateral /></> : null}
         </View>
     </>

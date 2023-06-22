@@ -6,13 +6,14 @@ import style from "../assets/style.json";
 import { InputWithLabel } from "../components/InputWithLabel";
 import firebase from '../services/firebaseConfig';
 import { signInWithEmailAndPassword, getAuth, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
-import { get, getDatabase, ref } from "firebase/database";
+import { get, getDatabase, ref, set } from "firebase/database";
 
 
 function Login() {
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [err, setErr] = useState(false);
+    const [isLogged, setIsLogged] = useState(false);
     const navigation = useNavigation();
     const db = getDatabase(firebase);
 
@@ -85,11 +86,11 @@ function Login() {
 
     useEffect(() => {
         try {
-            //const currentUser = getAuth().currentUser;    
             AsyncStorage.getItem('user').then((value) => {
                 if (value === null) return;
                 signInWithEmailAndPassword(getAuth(), JSON.parse(value).email, JSON.parse(value).senha)
-                    .then((userCredential) => {
+                    .then((u) => {
+                        setIsLogged(true);
                         navigation.replace('Geri');
                         return;
                     })
@@ -107,9 +108,10 @@ function Login() {
             });
         } catch (e) {
             console.error(e);
-        }
+        } 
     }, []);
 
+    if (isLogged) return (<></>);
 
     return (
         <View style={style.container}>

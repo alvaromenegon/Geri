@@ -147,7 +147,6 @@ const TableCell = (props) => {
             const id = props.data.id;
             const descricao = props.data.descricao;
             const validade = props.data.validade;
-            console.log(props.data)
             const html = getHtml(nome, preco, descricao, validade, id);
             const options = {
                 html: html,
