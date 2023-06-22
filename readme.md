@@ -9,8 +9,7 @@ Entrega final:
   - Todos os requisitos propostos na 1a entrega foram concluídos;
   - Todas as telas dos protótipos foram implementadas e funcionam 100%
   - Não incluí o tema escuro
-  - Dados de exemplo do BD: ExemploBD.json
-
+  - Dados de exemplo do BD: [ExemploBD.json](https://github.com/alvaromenegon/ControleMobile/blob/master/ExemploBD.json)
 
 Prototipos figma:
 https://www.figma.com/file/XFOymMkA3HMrvyLgRMJFzd/Controle
