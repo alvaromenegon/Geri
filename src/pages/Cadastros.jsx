@@ -1,5 +1,5 @@
 import { DatePicker, Select, InputWithLabel } from '../components/InputWithLabel';
-import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
 import CheckBox from 'expo-checkbox'
@@ -124,7 +124,7 @@ function change(props) {
                                     const novoEstoque = (estoque - quantidade);
                                     update(ref(db, `data/${uid}/mps/${id}`), {
                                         quantidade: novoEstoque
-                                    })
+                                    }) //atualizando estoque
                                     if (novoEstoque < 1) {
                                         update(ref(db, `data/${uid}/avisos`), {
                                             noMps: true
@@ -230,12 +230,6 @@ const CadMateriasPrimas = () => {
     const [precoUn, setPrecoUn] = useState(0);
     const [fornecedor, setFornecedor] = useState('');
 
-    /*let id = false;
-    if (route.params != undefined) {
-        id = route.params.id || false;
-    } else {
-        id = false;
-    }*/
     useEffect(() => {
         try {
             if (preco / qtd == Infinity || isNaN(preco / qtd)) {
@@ -248,11 +242,7 @@ const CadMateriasPrimas = () => {
             setPrecoUn(0);
         }
     }, [preco, qtd]);
-    /*if (id) {
 
-            getItens();
-        }, []);
-    }*/
 
     return (
         <ScrollView style={style.container}>
@@ -334,9 +324,10 @@ const CadFormulacoes = () => {
     const navigation = useNavigation();
     navigation.addListener('blur', () => {
         remove(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`));
+        //remover cache do bd
     });
 
-    const Verificar = () => {
+    const Verificar = () => { //Modal de verificação dos dados
         const [custo, setCusto] = useState(0);
         let preco = 0;
         useEffect(() => {
@@ -402,9 +393,7 @@ const CadFormulacoes = () => {
         get(ref(db, `data/${getAuth().currentUser.uid}/mps`)).then((snapshot) => {
             setNumberPages(Math.ceil(snapshot.size / 10));
         });
-        /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`)).then((snapshot) => {
-            //setMateriasPrimas(snapshot.val());
-        });*/
+
         const dbRef = ref(db, `data/${getAuth().currentUser.uid}/mps`);
         const query_ = query(dbRef, limitToFirst(p * 10));
         get(query_).then((snapshot) => {
@@ -428,13 +417,13 @@ const CadFormulacoes = () => {
 
     useEffect(() => {
         push(ref(db, `data/${getAuth().currentUser.uid}/temp/form`)).then((snapshot) => {
-            setFormId(snapshot.key);
+            setFormId(snapshot.key); //seta o id da formulação para utilizar no cache
             set(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${snapshot.key}`), { empty: true });
         });
         getItens();
     }, []);
 
-    const SearchItem = (props) => {
+    const SearchItem = (props) => { //Renderiza um item da lista
         const item = props.item
         const [isOpen, setIsOpen] = useState(false);
         const [quantidade, setQuantidade] = useState('');
@@ -513,7 +502,6 @@ const CadFormulacoes = () => {
                             <Text >OK</Text>
                         </TouchableOpacity>
                     </View>
-
                 </>
                     : null
                 }
@@ -553,7 +541,6 @@ const CadFormulacoes = () => {
                 >
                     <Text style={style.text}>{actualPage === numberPages ? actualPage : '>'}</Text>
                 </TouchableOpacity>
-
             </View>
         )
         return arr;
@@ -602,12 +589,10 @@ const CadFormulacoes = () => {
                                     get(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`)).then((snapshot) => {
                                         setMateriasPrimas(snapshot.val());
                                     });
-                                    //A fazer: usar o setMateriasPrimas em um onValue do banco de dados
                                 }}
                             >
                                 <AntDesign name="delete" size={18} color="white" />
                             </TouchableOpacity>
-
                         </View>
                     )
                 })
@@ -744,7 +729,6 @@ const CadProdutos = () => {
                     <Padding />
                 </>)}
         </ScrollView>
-
     )
 }
 
@@ -758,7 +742,7 @@ const CadSaidas = () => {
 
     navigation.addListener('blur', () => {
         const onScanner = navigation.getState().routes.length === 3;
-        if (!onScanner)
+        if (!onScanner) //se o usuário não estiver na tela de scanner, remove a venda do cache
             remove(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`));
     });
 
@@ -767,7 +751,7 @@ const CadSaidas = () => {
         const p = page ?? 1;
         setIsLoading(true);
         setActualPage(p);
-        
+
         const dbRef = ref(db, `data/${getAuth().currentUser.uid}/produtos`);
         const query_ = query(dbRef, limitToFirst(p * 10));
         onValue(query_, (snapshot) => {
@@ -784,7 +768,7 @@ const CadSaidas = () => {
     };
 
     function getProdutosSelecionados() {
-        onValue(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}`), (snapshot) => {        
+        onValue(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}`), (snapshot) => {
             if (snapshot.exists()) {
                 const val = snapshot.val();
                 if (val.empty || val === null) {
@@ -795,7 +779,7 @@ const CadSaidas = () => {
                 setProdutos(snapshot.val());
                 setPrecoTotal(Object.values(snapshot.val()).reduce((a, b) => a + b.preco, 0));
             }
-            else{
+            else {
                 setProdutos(null);
                 setPrecoTotal(0);
             }
@@ -803,19 +787,10 @@ const CadSaidas = () => {
     }
 
     navigation.addListener('focus', () => {
-        //setClick(false);
-        getProdutosSelecionados();
+        getProdutosSelecionados(); //atualiza os produtos selecionados ao retornar para a tela
     });
 
     useEffect(() => {
-        /*const getBarCodeScannerPermissions = async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
-            setHasPermission(status === 'granted');
-        };
-
-        getBarCodeScannerPermissions();*/
-        
-
         push(ref(db, `data/${getAuth().currentUser.uid}/temp/venda`)).then((snapshot) => {
             setVendaId(snapshot.key);
             set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${snapshot.key}`), { empty: true });
@@ -825,8 +800,6 @@ const CadSaidas = () => {
 
     }, []);
 
-
-
     const SearchItem = (props) => {
         const item = props.item
         const [isOpen, setIsOpen] = useState(false);
@@ -835,9 +808,6 @@ const CadSaidas = () => {
             if (qtd == 0 || qtd == '' || qtd == '0') {
                 set(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/${item.id}`), null);
                 getProdutosSelecionados();
-                /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
-                    setProdutos(snapshot.val());
-                });*/
                 return;
             }
             const preco = item.preco * parseInt(qtd);
@@ -849,10 +819,6 @@ const CadSaidas = () => {
                 preco: preco
             })
             getProdutosSelecionados();
-            /*get(ref(db, `data/${getAuth().currentUser.uid}/temp/venda/${vendaId}/`)).then((snapshot) => {
-                setProdutos(snapshot.val())
-                setPrecoTotal(Object.values(snapshot.val()).reduce((a, b) => a + b.preco, 0));
-            });*/
         }
 
         return (
@@ -908,17 +874,17 @@ const CadSaidas = () => {
     const renderItens = () => {
         let arr = [];
         arr.push(
-            <View key={'-1'} style={{ alignItems: 'center' }}>
+            <View key={'-1'} style={{ alignItems: 'center', borderBottomColor:'black',borderBottomWidth:1 }}>
                 <TouchableOpacity
-                    style={style.button}
+                    style={{...style.button, flexDirection: 'row', alignItems: 'center'}}
                     onPress={() => {
                         navigation.navigate('Ler QR Code', {
                             vendaId: vendaId,
                             uid: getAuth().currentUser.uid,
                         });
-
                     }}>
-                    <Text style={{ color: style.colors.primaryLight }}>Ler QR Code <AntDesign name="qrcode" size={24} color="black" /></Text>
+                    <Text style={{ color: style.colors.primary, marginRight:5 }}>Ler QR Code</Text>
+                    <AntDesign name="qrcode" size={24} color={style.colors.primary} />
                 </TouchableOpacity>
             </View>
         )
@@ -926,7 +892,7 @@ const CadSaidas = () => {
             if (data[i].quantidade !== 0)
                 arr.push(<SearchItem key={i} item={data[i]} />)
         }
-        if (arr.length === 0) arr.push(<Text key="noItens" style={style.text}>Nenhum produto em estoque.</Text>)
+        if (arr.length === 1) arr.push(<Text key="noItens" style={{color:'red',alignSelf:'center'}}>Nenhum produto em estoque.</Text>)
         if (numberPages > 1) {
             arr.push(
                 <View
@@ -1023,7 +989,7 @@ const CadSaidas = () => {
                         }}
                     ><AntDesign name="info" size={18} color={style.colors.secondary} /></TouchableOpacity>
                 </View>
-                <Text style={style.text}>{naoVenda ? 'Outros' : 'Venda comum'}</Text>
+                <Text >{naoVenda ? 'Outros' : 'Venda comum'}</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Switch value={naoVenda} onValueChange={setNaoVenda} />
                     <Text style={style.text}>Toque para alterar</Text>

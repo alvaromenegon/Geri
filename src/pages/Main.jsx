@@ -4,7 +4,6 @@ import colors from '../assets/colors.json';
 import style from '../assets/style.json';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { storeData } from './Listagens';
 import { ScrollView } from 'react-native';
 import Padding from '../components/Padding';
 import { getAuth, signOut } from 'firebase/auth';
@@ -88,7 +87,7 @@ function Main() {
     const getRecentes = async () => {//responsável por buscar os itens
         let arr = [];               // no firebase
         const snapshot = await get(ref(db, `data/${getAuth().currentUser.uid}/recentes`));
-        if (!snapshot.exists()) {
+        if (!snapshot.exists() || snapshot.val() == '') {
             arr.push(
                 <View key={0} style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <Text style={style.text} key={1}>Ainda não há itens recentes,

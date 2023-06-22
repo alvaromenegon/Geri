@@ -43,7 +43,7 @@ const Faturamento = () => {
                     },
                     {
                         x: `Saidas: \nR$${json.saidas.toFixed(2)}`,
-                        y: houveMovimento() ? json.saidas : 1,
+                        y: houveMovimento(json.entradas, json.saidas) ? json.saidas : 1,
                         symbol: { fill: "red", type: "square" },
                         name: "Saidas"
                     }

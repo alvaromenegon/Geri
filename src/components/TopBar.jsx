@@ -4,23 +4,21 @@ import example from '../../assets/profile.png';
 import logo from '../../assets/geri.png';
 import colors from '../assets/colors.json';
 import { useWindowDimensions } from 'react-native';
-import {  useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useState } from 'react';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import style from '../assets/style.json'
 import { storeData } from '../assets/utils';
-//import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const TopBar = () => {
-    
     const [modalVisible, setModalVisible] = useState(false);
     const navigator = useNavigation();
     const history = navigator.getState().routes.length;
     const screenName = navigator.getState().routes[navigator.getState().routes.length - 1].name;
-    
+
     const goTo = (page) => {
         setModalVisible(false);
         storeData(page).then(() => {
-            if (history< 2)
+            if (history < 2)
                 navigator.navigate(page);
             else {
                 navigator.replace(page);
@@ -81,19 +79,38 @@ const TopBar = () => {
                 }}>
                     <TouchableOpacity onPress={() => {
                         setModalVisible(!modalVisible);
-                    }}
+                    }} //Botão invisível para fechar o modal quando clicado fora do menu
                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    >
+                    > 
                     </TouchableOpacity>
 
                     <View style={styles.menuLateral}>
-                        <TouchableOpacity onPress={() => {
-                            setModalVisible(!modalVisible);
-                        }}
-                            style={{ alignSelf: 'flex-end', padding: 10 }}
-                        >
-                            <Feather name="x" size={32} color="black" />
-                        </TouchableOpacity>
+                        {screenName != 'Geri' ?
+                            <View style={{ flexDirection: 'row', justifyContent:'space-between'}}>
+                                <TouchableOpacity onPress={() => {
+                                    navigator.dispatch(StackActions.popToTop());
+                                    navigator.replace('Geri');
+                                    setModalVisible(!modalVisible);
+                                }}
+                                    style={{ padding: 10 }}
+                                >
+                                    <Feather name="home" size={32} color="black" />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    setModalVisible(!modalVisible);
+                                }}
+                                    style={{ padding: 10 }}
+                                >
+                                    <Feather name="x" size={32} color="black" />
+                                </TouchableOpacity>
+                            </View> :
+                            <TouchableOpacity onPress={() => {
+                                setModalVisible(!modalVisible);
+                            }}
+                                style={{alignSelf:'flex-end', padding: 10 }}
+                            >
+                                <Feather name="x" size={32} color="black" />
+                            </TouchableOpacity>}
                         <Text style={styles.title}>Matérias-Primas</Text>
                         <View style={styles.navs}>
                             <TouchableOpacity onPress={() => {
@@ -149,22 +166,19 @@ const TopBar = () => {
                         <TouchableOpacity onPress={() => {
                             goTo('Faturamento');
                         }}
-                            
                         >
                             <Text style={styles.title}>Faturamento</Text>
                         </TouchableOpacity>
-
                     </View>
                 </View>
             </Modal>
-
         );
     }
 
     if (screenName == 'Login') {
         return (
             <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
-                <Image source={logo} resizeMode='contain' style={{width:'20%', height:'80%'}} />
+                <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} />
             </View>
         )
     }
@@ -176,7 +190,7 @@ const TopBar = () => {
                     <TouchableOpacity onPress={() => {
                         goTo('Perfil');
                     }}>
-                        <Image source={example}  style={styles.pfp}></Image>
+                        <Image source={example} style={styles.pfp}></Image>
                     </TouchableOpacity> :
                     <TouchableOpacity onPress={() => {
                         navigator.goBack();
@@ -185,17 +199,17 @@ const TopBar = () => {
                     </TouchableOpacity>
             }
             {screenName != 'Cadastro' ? <>
-            {screenName == 'Geri' ? <Image source={logo} resizeMode='contain' style={{width:'20%', height:'80%'}} />:
-            <Text style={style.mainText}>
-                {screenName}
-            </Text>}
-            
-                {screenName !== 'Ler QR Code'? <TouchableOpacity onPress={() => {
+                {screenName == 'Geri' ? <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} /> :
+                    <Text style={style.mainText}>
+                        {screenName}
+                    </Text>}
+
+                {screenName !== 'Ler QR Code' ? <TouchableOpacity onPress={() => {
                     setModalVisible(!modalVisible);
                 }}>
                     <Feather name="menu" size={32} color="black" />
-                </TouchableOpacity>:
-                <View style={{width:32}}></View>}
+                </TouchableOpacity> :
+                    <View style={{ width: 32 }}></View>}
                 <MenuLateral /></> : null}
         </View>
     </>

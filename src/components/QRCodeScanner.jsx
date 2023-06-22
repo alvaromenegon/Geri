@@ -18,7 +18,7 @@ export default function QRCodeScanner({ route }) {
     const vendaId = route.params.vendaId;
     const db = getDatabase();
 
-    const handleBarCodeScanned = ({ type, data }) => {
+    const handleBarCodeScanned = ({ t, data }) => {
         get(ref(db, `data/${uid}/produtos/${data}`)).then((snapshot) => {
             if (snapshot.exists()) {
                 setProduto(snapshot.val());
@@ -108,8 +108,6 @@ export default function QRCodeScanner({ route }) {
                     }}>
                         <Text style={style.textButton}>Adicionar</Text>
                     </TouchableOpacity>
-                            
-
                 </View>}
         </View>
     )
