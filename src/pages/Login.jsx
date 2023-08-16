@@ -22,6 +22,7 @@ function Login() {
         if (email !== '' && senha !== '') {
             signInWithEmailAndPassword(auth, email, senha)
                 .then((userCredential) => {
+                    
 
 
                     /*if (userCredential.user.emailVerified !== true) { 
@@ -35,6 +36,7 @@ function Login() {
                     if (user.displayName === null) {
                         get(ref(db, `usuarios/${user.uid}`)).then((snapshot) => {
                             if (snapshot.exists()) {
+                                
                                 const data = snapshot.val();
                                 user.displayName = data.nome;
                                 updateProfile(user, {
@@ -111,10 +113,8 @@ function Login() {
         } 
     }, []);
 
-    if (isLogged) return (<></>);
-
     return (
-        <View style={style.container}>
+        <View style={style.container}>{!isLogged &&
             <View>
                 <View style={{ height: 180 }}>
                     <InputWithLabel label="E-mail" type="email-address" value={email} onChangeText={t => setEmail(t)} />
@@ -153,7 +153,7 @@ function Login() {
                         <Text style={style.text}>Cadastrar</Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </View>}
         </View>
     )
 }

@@ -9,7 +9,6 @@ import { useNavigation } from "@react-navigation/native";
 import * as Print from 'expo-print';
 import getHtml from "../services/getHtml";
 import { Feather } from '@expo/vector-icons';
-//import { useNavigation } from "@react-navigation/native"; 
 
 export default function ItemList(props) {
     const data = props.data;

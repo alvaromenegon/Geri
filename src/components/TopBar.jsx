@@ -1,4 +1,4 @@
-import { Modal, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Image, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import example from '../../assets/profile.png';
 import logo from '../../assets/geri.png';
@@ -75,18 +75,19 @@ const TopBar = () => {
                     margin: 0,
                     padding: 0,
                     justifyContent: 'flex-start',
-                    alignItems: 'flex-end'
+                    alignItems: 'flex-end',
+
                 }}>
                     <TouchableOpacity onPress={() => {
                         setModalVisible(!modalVisible);
                     }} //Botão invisível para fechar o modal quando clicado fora do menu
                         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-                    > 
+                    >
                     </TouchableOpacity>
 
                     <View style={styles.menuLateral}>
                         {screenName != 'Geri' ?
-                            <View style={{ flexDirection: 'row', justifyContent:'space-between'}}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: style.colors.primary, borderBottomWidth:2, marginBottom:10 }}>
                                 <TouchableOpacity onPress={() => {
                                     navigator.dispatch(StackActions.popToTop());
                                     navigator.replace('Geri');
@@ -107,113 +108,124 @@ const TopBar = () => {
                             <TouchableOpacity onPress={() => {
                                 setModalVisible(!modalVisible);
                             }}
-                                style={{alignSelf:'flex-end', padding: 10 }}
+                                style={{ alignSelf: 'flex-end', padding: 10 }}
                             >
                                 <Feather name="x" size={32} color="black" />
                             </TouchableOpacity>}
-                        <Text style={styles.title}>Matérias-Primas</Text>
-                        <View style={styles.navs}>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Matérias-Primas');
-                            }}>
-                                <Text style={style.text}>Listagem</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Cadastrar Matéria-Prima');
-                            }}>
-                                <Text style={style.text}>Cadastro</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={styles.title}>Formulações</Text>
-                        <View style={styles.navs}>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Formulações');
-                            }}>
-                                <Text style={style.text}>Listagem</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Cadastrar Formulação');
-                            }}>
-                                <Text style={style.text}>Cadastro</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={styles.title}>Produtos</Text>
-                        <View style={styles.navs}>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Produtos');
-                            }}>
-                                <Text style={style.text}>Listagem</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Cadastrar Produto');
-                            }}>
-                                <Text style={style.text}>Cadastro</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <Text style={styles.title}>Saídas</Text>
-                        <View style={styles.navs}>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Saídas');
-                            }}>
-                                <Text style={style.text}>Listagem</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => {
-                                goTo('Cadastrar Saída');
-                            }}>
-                                <Text style={style.text}>Cadastro</Text>
-                            </TouchableOpacity>
-                        </View>
-                        <TouchableOpacity onPress={() => {
-                            goTo('Faturamento');
-                        }}
-                        >
-                            <Text style={styles.title}>Faturamento</Text>
-                        </TouchableOpacity>
-                    </View>
+                        <ScrollView>
+                            <Text style={styles.title}>Matérias-Primas</Text>
+                            <View style={styles.navs}>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Matérias-Primas');
+                                }}>
+                                    <Text style={style.text}>Listagem</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Cadastrar Matéria-Prima');
+                                }}>
+                                    <Text style={style.text}>Cadastro</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={styles.title}>Formulações</Text>
+                            <View style={styles.navs}>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Formulações');
+                                }}>
+                                    <Text style={style.text}>Listagem</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Cadastrar Formulação');
+                                }}>
+                                    <Text style={style.text}>Cadastro</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={styles.title}>Produtos</Text>
+                            <View style={styles.navs}>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Produtos');
+                                }}>
+                                    <Text style={style.text}>Listagem</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Cadastrar Produto');
+                                }}>
+                                    <Text style={style.text}>Cadastro</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={styles.title}>Saídas</Text>
+                            <View style={styles.navs}>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Saídas');
+                                }}>
+                                    <Text style={style.text}>Listagem</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Cadastrar Saída');
+                                }}>
+                                    <Text style={style.text}>Cadastro</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <Text style={styles.title}>Outros</Text>
+                            <View style={styles.navs}>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Faturamento');
+                                }}
+                                >
+                                    <Text style={style.text}>Faturamento</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    goTo('Calculadora');
+                                }}
+                                >
+                                    <Text style={style.text}>Calculadora de Custo</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </ScrollView>
                 </View>
-            </Modal>
+            </View>
+            </Modal >
         );
     }
 
-    if (screenName == 'Login') {
-        return (
-            <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
-                <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} />
-            </View>
-        )
-    }
-
-    return (<>
-        <View style={styles.menusuperior}>
-            {
-                screenName == 'Geri' ?
-                    <TouchableOpacity onPress={() => {
-                        goTo('Perfil');
-                    }}>
-                        <Image source={example} style={styles.pfp}></Image>
-                    </TouchableOpacity> :
-                    <TouchableOpacity onPress={() => {
-                        navigator.goBack();
-                    }}>
-                        <Feather name="arrow-left" size={32} color="black" />
-                    </TouchableOpacity>
-            }
-            {screenName != 'Cadastro' ? <>
-                {screenName == 'Geri' ? <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} /> :
-                    <Text style={style.mainText}>
-                        {screenName}
-                    </Text>}
-
-                {screenName !== 'Ler QR Code' ? <TouchableOpacity onPress={() => {
-                    setModalVisible(!modalVisible);
-                }}>
-                    <Feather name="menu" size={32} color="black" />
-                </TouchableOpacity> :
-                    <View style={{ width: 32 }}></View>}
-                <MenuLateral /></> : null}
+if (screenName == 'Login') {
+    return (
+        <View style={{ ...styles.menusuperior, justifyContent: 'center' }}>
+            <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} />
         </View>
-    </>
     )
+}
+
+return (<>
+    <View style={styles.menusuperior}>
+        {
+            screenName == 'Geri' ?
+                <TouchableOpacity onPress={() => {
+                    goTo('Perfil');
+                }}>
+                    <Image source={example} style={styles.pfp}></Image>
+                </TouchableOpacity> :
+                <TouchableOpacity onPress={() => {
+                    navigator.goBack();
+                }}>
+                    <Feather name="arrow-left" size={32} color="black" />
+                </TouchableOpacity>
+        }
+        {screenName != 'Cadastro' ? <>
+            {screenName == 'Geri' ? <Image source={logo} resizeMode='contain' style={{ width: '20%', height: '80%' }} /> :
+                <Text style={style.mainText}>
+                    {screenName}
+                </Text>}
+
+            {screenName !== 'Ler QR Code' ? <TouchableOpacity onPress={() => {
+                setModalVisible(!modalVisible);
+            }}>
+                <Feather name="menu" size={32} color="black" />
+            </TouchableOpacity> :
+                <View style={{ width: 32 }}></View>}
+            <MenuLateral /></> : null}
+    </View>
+</>
+)
 }
 
 export default TopBar;

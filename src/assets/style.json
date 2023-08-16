@@ -95,5 +95,23 @@
     },
     "text_white":{
         "color": "white"
+    },
+    "tableRow":{
+        "flexDirection": "row",
+        "alignItems": "center",
+        "padding": 10,
+        "borderColor": "#be9d91",
+        "borderWidth": 1
+    },
+    "td":{
+        "padding":5, 
+        "textAlign":"center",
+        "fontSize": 14
+    },
+    "buttonOutline":{
+        "borderColor":"#2b725a",
+        "borderWidth": 1,
+        "backgroundColor": "transparent"
     }
+
 }
