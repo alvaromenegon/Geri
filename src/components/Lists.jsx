@@ -7,7 +7,7 @@ import { getDatabase, ref, get, onValue } from "firebase/database";
 import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { AntDesign } from '@expo/vector-icons';
-//import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Lists(props) { //Componente que renderiza uma lista de itens, com base nos parâmetros passados por props
     const [loading, setLoading] = useState(true); // a fim de reutilizar o componente para diferentes listas
@@ -17,6 +17,7 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
     const [numberPages, setNumberPages] = useState(1);
     const db = getDatabase(firebase);
     const uid = getAuth().currentUser.uid;
+    const navigation = useNavigation();
 
     const PaginationButton = (props) => {
         //Renderizar o botão de paginação
@@ -110,20 +111,36 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
         getItens();
     }, []);
 
+    const navegarPara = format =>{
+        return Enumerator = {
+            'mp': 'Cadastrar Matéria-Prima',
+            'form': 'Cadastrar Formulação',
+            'prod': 'Cadastrar Produto',
+            'venda': 'Cadastrar Saída'
+        }[format]
+    }
+
     return (<>
         <View style={{ flex: 1 }}>
             <View style={style.container}>
+
                 {loading ?
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :
                     <ScrollView showsVerticalScrollIndicator={false}>
+                        <TouchableOpacity
+                            onPress={() => { navigation.navigate(navegarPara(props.format)) }}
+                            style={{ alignSelf: 'flex-end', marginBottom: 10, borderColor: style.colors.primaryDark, borderWidth: 1, padding: 5, borderRadius: 5 }}
+                        >
+                            <Text style={{ fontSize: 18, color: 'black' }}>Cadastrar</Text>
+                        </TouchableOpacity>
                         {renderList()}
                         <TouchableOpacity
-                            onPress={() => {getItens() }}
+                            onPress={() => { getItens() }}
                             style={{
                                 alignSelf: 'center',
                                 ...styles.actButton,
-                                marginBottom:70
+                                marginBottom: 70
                             }}
                         >
                             <AntDesign name="reload1" size={18} color={style.colors.primaryDark} />
@@ -131,7 +148,7 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     </ScrollView>
                 }
             </View>
-            
+
         </View>
         <BottomBar /></>
     )

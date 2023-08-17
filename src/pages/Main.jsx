@@ -118,42 +118,6 @@ function Main() {
         return true;
     }
 
-
-    /*for (i = 0; i < 5; i++) {
-        try {
-            const recent = await AsyncStorage.getItem('recent' + i);
-            if (recent !== null) {
-                arr.push(
-                    <TouchableOpacity
-                        key={'bt' + i}
-                        style={{ ...style.button, maxWidth: '80%' }}
-                        onPress={
-                            () => {
-                                storeData(recent).then(() => {
-                                    navigation.navigate(recent);
-                                });
-                            }
-                        }>
-                        <Text style={style.textButton}>{recent}</Text>
-                    </TouchableOpacity>
-                )
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
-    }
-    if (arr.length === 0)
-        arr.push(
-            <View key={0} style={{ justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                <Text style={style.text} key={1}>Ainda não há itens recentes,
-                    utilize o menu lateral para navegar.</Text>
-            </View>
-        )
-    setRecentes(arr);
-    return true;
-}*/
-
     const renderRecentes = () => {
         return recentes;
     }
@@ -164,6 +128,7 @@ function Main() {
 
     useEffect(() => {
         setLoading(true);
+        
         fetch('https://controle-produtos.onrender.com/'); //para manter o servidor ativo
         getUser().then(() => {
             getAvisos();
