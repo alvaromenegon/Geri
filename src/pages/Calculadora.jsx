@@ -66,7 +66,6 @@ const Calculadora = () => {
 
                                 </View>
                             </View>
-
                         </View>
                         <TouchableOpacity
                             style={{ alignSelf: 'center', marginRight: 10, marginTop: 10 }}
@@ -457,16 +456,16 @@ const Calculadora = () => {
                 </TouchableOpacity>
             </View>
         </ScrollView>
-        { materiasPrimas.length > 0 &&
-        <View style={{position: 'absolute', bottom: 15, right: 13, zIndex: 1}}>
-            <Text style={{ color:'red', position: 'absolute', top:-5, right:-6, zIndex: 2, fontSize: 14, fontWeight:'bold' }}>{materiasPrimas.length}</Text>
-            <TouchableOpacity
-                onPress={() => {
-                    focusList();
-                }}
-            >
-                <MaterialCommunityIcons name="leaf-circle-outline" size={28} color={style.colors.secondary} />
-            </TouchableOpacity>
+        {materiasPrimas.length > 0 &&
+            <View style={{ position: 'absolute', bottom: 15, right: 13, zIndex: 1 }}>
+                <Text style={{ color: 'red', position: 'absolute', top: -5, right: -6, zIndex: 2, fontSize: 14, fontWeight: 'bold' }}>{materiasPrimas.length}</Text>
+                <TouchableOpacity
+                    onPress={() => {
+                        focusList();
+                    }}
+                >
+                    <MaterialCommunityIcons name="leaf-circle-outline" size={28} color={style.colors.secondary} />
+                </TouchableOpacity>
             </View>
         }
     </>
