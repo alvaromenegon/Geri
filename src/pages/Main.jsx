@@ -128,7 +128,7 @@ function Main() {
 
     useEffect(() => {
         setLoading(true);
-        
+
         fetch('https://controle-produtos.onrender.com/'); //para manter o servidor ativo
         getUser().then(() => {
             getAvisos();

@@ -6,6 +6,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { InputWithLabel, Select } from '../components/InputWithLabel';
 import style from '../assets/style.json';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import gerarPlanilha from '../services/gerarPlanilha';
 
 const Calculadora = () => {
     const [data, setData] = useState([]);
@@ -31,10 +32,10 @@ const Calculadora = () => {
                         </View>
                         <View style={{ flex: 1 }} >
                             <View style={{ flexDirection: 'row', borderColor: style.colors.primaryDark, borderWidth: 1 }}>
-                                <View style={{ width: '40%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }} >
+                                <View style={{ width: '35%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }} >
                                     <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Nome</Text>
                                 </View>
-                                <View style={{ width: '30%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }}>
+                                <View style={{ width: '35%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }}>
                                     <Text style={{ fontSize: 16, fontWeight: 'bold' }}>Quantidade</Text>
                                 </View>
                                 <View style={{ width: '30%' }}>
@@ -45,10 +46,10 @@ const Calculadora = () => {
                             {materiasPrimas.map((item, index) => {
                                 return (
                                     <View key={index} style={{ flexDirection: 'row', borderColor: style.colors.primaryDark, borderWidth: 1 }}>
-                                        <View style={{ width: '40%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }} >
+                                        <View style={{ width: '35%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }} >
                                             <Text style={style.td}>{item.nome}</Text>
                                         </View>
-                                        <View style={{ width: '30%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }}>
+                                        <View style={{ width: '35%', borderRightColor: style.colors.primaryDark, borderRightWidth: 1 }}>
                                             <Text style={style.td}>{item.qtd}{item.unMedida}</Text>
                                         </View>
                                         <View style={{ width: '30%' }}>
@@ -66,6 +67,16 @@ const Calculadora = () => {
 
                                 </View>
                             </View>
+                            <TouchableOpacity
+                                style={{ ...style.button, alignSelf: 'center', marginTop:15, flexDirection: 'row', justifyContent: 'space-between' }}
+                                onPress={() => {
+                                    gerarPlanilha(materiasPrimas);
+                                }}
+                            >
+                                <Text style={{ color: 'white', marginRight:5 }}>Salvar como planilha</Text>
+                                <MaterialCommunityIcons name="microsoft-excel" size={24} color="white" />
+                            </TouchableOpacity>
+
                         </View>
                         <TouchableOpacity
                             style={{ alignSelf: 'center', marginRight: 10, marginTop: 10 }}
