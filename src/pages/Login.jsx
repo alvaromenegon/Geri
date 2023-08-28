@@ -90,6 +90,7 @@ function Login() {
         try {
             AsyncStorage.getItem('user').then((value) => {
                 if (value === null) return;
+                console.log(value)
                 signInWithEmailAndPassword(getAuth(), JSON.parse(value).email, JSON.parse(value).senha)
                     .then((u) => {
                         setIsLogged(true);

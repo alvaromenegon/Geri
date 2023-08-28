@@ -1,6 +1,5 @@
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
-import { StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { storeData } from '../assets/utils';
 
@@ -21,30 +20,30 @@ const BottomBar = function () {
     }
     return (
         <View style={styles.bottomBar}>
-            <TouchableOpacity
-                onPress={() => { goTo('Matérias-Primas') }}
-                style={styles.iconButton}
-            >
-                <Entypo name="leaf" size={26} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => { goTo('Formulações') }}
-                style={styles.iconButton}
-            >
-                <Entypo name="clipboard" size={26} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => { goTo('Produtos') }}
-                style={styles.iconButton}
-            >
-                <Entypo name="shop" size={26} color="black" />
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => { goTo('Saídas') }}
-                style={styles.iconButton}
-            >
-                <Entypo name="credit" size={26} color="black" />
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { goTo('Matérias-Primas') }}
+                    style={styles.iconButton}
+                >
+                    <Entypo name="leaf" size={26} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { goTo('Formulações') }}
+                    style={styles.iconButton}
+                >
+                    <Entypo name="clipboard" size={26} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { goTo('Produtos') }}
+                    style={styles.iconButton}
+                >
+                    <Entypo name="shop" size={26} color="black" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => { goTo('Saídas') }}
+                    style={styles.iconButton}
+                >
+                    <Entypo name="credit" size={26} color="black" />
+                </TouchableOpacity>
 
         </View>
     )
@@ -59,7 +58,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         position: 'absolute',
         bottom: 0,
-        width: '100%',    
+        width: '100%',
     }
 });
 

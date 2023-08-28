@@ -112,6 +112,17 @@
         "borderColor":"#2b725a",
         "borderWidth": 1,
         "backgroundColor": "transparent"
+    },
+    "buttonTableCell":{
+        "backgroundColor": "#fbf4f1",
+        "borderRadius": 5,
+        "padding": 5,
+        "margin": 5,
+        "borderWidth":1,
+        "borderColor": "#be9d91",
+        "textAlign" : "center",
+        "alignItems":"center",
+        "width":"100%",
+        "alignSelf":"center"
     }
-
 }

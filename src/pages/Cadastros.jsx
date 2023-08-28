@@ -3,23 +3,41 @@ import { ActivityIndicator, Alert, FlatList, Modal, ScrollView, Switch, Text, To
 import style from '../assets/style.json';
 import { useState, useEffect } from 'react';
 import CheckBox from 'expo-checkbox'
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Padding from '../components/Padding';
-import { getDatabase, update, ref, set, push, get, query, limitToFirst, remove, onValue } from 'firebase/database';
+import { getDatabase, update, ref, set, push, get, query, limitToFirst, remove, onValue, orderByChild, startAt, endAt } from 'firebase/database';
 import firebase from '../services/firebaseConfig';
 import { getAuth, signOut } from 'firebase/auth';
 import { AntDesign } from '@expo/vector-icons';
-//import { BarCodeScanner } from 'expo-barcode-scanner';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 const db = getDatabase(firebase);
 
-function change(props) {
+async function change(props) {
     switch (props.url) {
         case 'mps':
             props.data.dataCompra = props.data.dataCompra.getTime();
             props.data.validade = props.data.validade.getTime();
             break;
         case 'produtos':
+            let snapshot = await get(ref(db, `data/${getAuth().currentUser.uid}/forms/${props.data.formulacao}`));
+            let data = snapshot.val();
+            let materiasPrimas = data.materiasprimas;
+
+            const response = await fetch('https://controle-produtos.onrender.com/firebaseApi/checkForm?uid=' + getAuth().currentUser.uid,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ materiasPrimas: Object.values(materiasPrimas) })
+                });
+            const json = await response.json();
+            if (json.error) {
+                Alert.alert('Erro ao salvar', json.msg);
+                return false;
+            }
+
             props.data.data = props.data.data.getTime();
             props.data.validade = props.data.validade.getTime();
             break;
@@ -27,126 +45,148 @@ function change(props) {
             break;
     }
 
-    var erro = false;
-
-    AsyncStorage.getItem('user').then((value) => {
-        const user = JSON.parse(value);
-        const uid = user.uid;
-        if (uid !== getAuth().currentUser.uid) {
-            Alert.alert('Erro', 'Houve um erro com sua autenticação\nPor favor, faça login novamente');
-            signOut(getAuth());
-            return false;
-        }
-        if (props.set === 'set') {
-            const url = ref(db, `data/${uid}/${props.url}`)
-            const nodeRef = push(url);
-            const data = props.url === 'mps' ? {
+    const value = await AsyncStorage.getItem('user')
+    const user = JSON.parse(value);
+    const uid = user.uid;
+    if (uid !== getAuth().currentUser.uid) {
+        Alert.alert('Erro', 'Houve um erro com sua autenticação\nPor favor, faça login novamente');
+        signOut(getAuth());
+        useNavigation().dispatch(StackActions.popToTop());
+        return false;
+    }
+    try {
+        const nodeRef = props.set == 'set' ?
+            push(ref(db, `data/${uid}/${props.url}`)) :
+            ref(db, `data/${uid}/${props.url}/${props.data._id}`);
+        //if (props.set === 'set') {
+        //const url = ref(db, `data/${uid}/${props.url}`)
+        //const nodeRef = push(url);
+        const data = props.url === 'mps' ?
+            {
                 ...props.data,
                 _id: nodeRef.key,
                 comprado: props.data.quantidade
             } :
-                {
-                    ...props.data,
-                    _id: nodeRef.key,
+            {
+                ...props.data,
+                _id: nodeRef.key,
+            }
+        if (props.url === 'produtos') {
+            let response = await fetch('https://controle-produtos.onrender.com/firebaseApi/checkForm?id=' + uid);
+            let json = await response.json();
+            if (response.status !== 200) {
+                Alert.alert('Erro', 'Erro ao conectar com o servidor');
+                console.error(json.msg);
+                return false;
+            }
+            if (json.error) {
+                Alert.alert('Erro', 'Erro ao salvar os dados');
+                console.error(json.msg);
+                return false;
+            }
+
+        }
+        await update(nodeRef, data)
+        if (props.url === 'mps') {
+            //adicionar a saida no banco de dados
+            //para ser utilizado no Faturamento
+            const dataCompra = new Date(props.data.dataCompra);
+            const ano = dataCompra.getFullYear();
+            const mes = dataCompra.getMonth() + 1;
+            const id = new Date().getTime();
+            await update(ref(db, `data/${uid}/faturamento/saidas/${id}`), {
+                _id: id,
+                data: {
+                    mes: mes,
+                    ano: ano,
+                },
+                idProduto: nodeRef.key,
+                valor: parseFloat(props.data.preco),
+            })
+        }
+        else if (props.url === 'vendas') {
+            //adicionar a entrada no banco de dados
+            //para ser utilizado no Faturamento
+            if (!props.data.naoVenda) {
+                const dataVenda = new Date();
+                const ano = dataVenda.getFullYear();
+                const mes = dataVenda.getMonth() + 1;
+                const id = dataVenda.getTime();
+                await update(ref(db, `data/${uid}/faturamento/entradas/${id}`), {
+                    _id: id,
+                    idVenda: nodeRef.key,
+                    data: {
+                        mes: mes,
+                        ano: ano,
+                    },
+                    valor: parseFloat(props.data.preco),
+                })
+            }
+            const produtos = props.data.produtos;
+            //atualizar estoque de produtos
+            for (let i = 0; i < produtos.length; i++) {
+                const item = produtos[i];
+                const id = item[0];
+                const quantidade = item[1].quantidade
+                const snapshot = await get(ref(db, `data/${uid}/produtos/${id}`))
+                const data = snapshot.val();
+                const estoque = data.quantidade;
+                const novoEstoque = (estoque - quantidade);
+                if (novoEstoque < 0) {
+                    Alert.alert('Erro', 'Quantidade de ' + data.nome + ' insuficiente no estoque');
+                    return false;
                 }
-            set(nodeRef, data)
-                .then(() => {
-                    if (props.url === 'mps') {
-                        //adicionar a saida no banco de dados
-                        //para ser utilizado no Faturamento
-                        const dataCompra = new Date(props.data.dataCompra);
-                        const ano = dataCompra.getFullYear();
-                        const mes = dataCompra.getMonth() + 1;
-                        const id = new Date().getTime();
-                        set(ref(db, `data/${uid}/faturamento/saidas/${id}`), {
-                            _id: id,
-                            data: {
-                                mes: mes,
-                                ano: ano,
-                            },
-                            idProduto: nodeRef.key,
-                            valor: parseFloat(props.data.preco),
-                        })
-
-
-                    } else if (props.url === 'vendas') {
-                        //adicionar a entrada no banco de dados
-                        //para ser utilizado no Faturamento
-                        if (!props.data.naoVenda) {
-                            const dataVenda = new Date();
-                            const ano = dataVenda.getFullYear();
-                            const mes = dataVenda.getMonth() + 1;
-                            const id = dataVenda.getTime();
-                            set(ref(db, `data/${uid}/faturamento/entradas/${id}`), {
-                                _id: id,
-                                idVenda: nodeRef.key,
-                                data: {
-                                    mes: mes,
-                                    ano: ano,
-                                },
-                                valor: parseFloat(props.data.preco),
-                            })
-                        }
-                        const produtos = props.data.produtos;
-                        //atualizar estoque de produtos
-                        Object.entries(produtos).forEach((item) => {
-                            const id = item[0];
-                            const quantidade = item[1].quantidade
-                            get(ref(db, `data/${uid}/produtos/${id}`))
-                                .then((snapshot) => {
-                                    const data = snapshot.val();
-                                    const estoque = data.quantidade;
-                                    const novoEstoque = (estoque - quantidade);
-                                    update(ref(db, `data/${uid}/produtos/${id}`), {
-                                        quantidade: novoEstoque
-                                    })
-                                    if (novoEstoque == 0) {
-                                        update(ref(db, `data/${uid}/avisos`), {
-                                            noProd: true
-                                        })
-                                    }
-                                })
-                        })
-                    }
-                    if (props.url === 'produtos') {
-                        //reduzir o estoque de materias primas
-                        const formulacao = props.data.formulacao;
-                        get(ref(db, `data/${uid}/forms/${formulacao}`)).then((snapshot) => {
-                            const data = snapshot.val();
-                            const materiasPrimas = data.materiasprimas;
-                            Object.entries(materiasPrimas).forEach((item) => {
-                                const id = item[0];
-                                const quantidade = typeof item[1].quantidade === 'number' ? item[1].quantidade : parseFloat(item[1].quantidade);
-
-                                get(ref(db, `data/${uid}/mps/${id}`)).then((snapshot) => {
-                                    const data = snapshot.val();
-                                    const estoque = data.quantidade;
-                                    const novoEstoque = (estoque - quantidade);
-                                    update(ref(db, `data/${uid}/mps/${id}`), {
-                                        quantidade: novoEstoque
-                                    }) //atualizando estoque
-                                    if (novoEstoque < 1) {
-                                        update(ref(db, `data/${uid}/avisos`), {
-                                            noMps: true
-                                        })
-                                    }
-                                })
-                            })
-                        })
-                    }
+                update(ref(db, `data/${uid}/produtos/${id}`), {
+                    quantidade: novoEstoque
                 })
-                .catch((err) => {
-                    console.err(err)
-                    erro = true;
-                })
+                if (novoEstoque == 0) {
+                    update(ref(db, `data/${uid}/avisos`), {
+                        noProd: true
+                    })
+                }
+            }
+        }
+        if (props.url === 'produtos') {
+            //reduzir o estoque de materias primas
+            const formulacao = props.data.formulacao;
+            const snapshot = await get(ref(db, `data/${uid}/forms/${formulacao}`))
+            const data = snapshot.val();
+            const materiasPrimas = data.materiasprimas;
+            console.log(materiasPrimas)
+            for (let i = 0; i < materiasPrimas.length; i++) {
+                const item = materiasPrimas[i];
+                const id = item[0];
+                const quantidade = typeof item[1].quantidade === 'number' ?
+                    item[1].quantidade :
+                    parseFloat(item[1].quantidade);
+
+                const snapshot = await get(ref(db, `data/${uid}/mps/${id}`))
+                const data = snapshot.val();
+                const estoque = data.quantidade;
+                const novoEstoque = (estoque - quantidade);
+                if (novoEstoque < 0) {
+                    Alert.alert('Erro', 'Quantidade de ' + data.nome + ' insuficiente no estoque');
+                    return false;
+                }
+                await update(ref(db, `data/${uid}/mps/${id}`), {
+                    quantidade: novoEstoque
+                }) //atualizando estoque
+                if (novoEstoque <= 0) {
+                    await update(ref(db, `data/${uid}/avisos`), {
+                        noMps: true
+                    })
+                }
+            }
+            //  }
         }
         //else if (props.set === 'update') {} //Não foi possível implementar a atualização dos dados
-        if (erro) {
-            Alert.alert('Erro', 'Erro ao salvar os dados');
-            return false;
-        }
-        return true;
-    })
+    }
+    catch (e) {
+        Alert.alert('Erro', 'Erro ao salvar os dados');
+        console.error(e);
+        return false;
+    }
+    return true;
 }
 
 function getIndexString(index) {
@@ -318,9 +358,11 @@ const CadFormulacoes = () => {
     const [numberPages, setNumberPages] = useState(1);
     const [actualPage, setActualPage] = useState(1);
     const [modalVisible, setModalVisible] = useState(false);
+    const [modalOptionsVisible, setModalOptionsVisible] = useState(false);
     const [formId, setFormId] = useState(null);
     const [nome, setNome] = useState('');
     const [tipo, setTipo] = useState('');
+    const [clicked, setClicked] = useState(false);
     const navigation = useNavigation();
     navigation.addListener('blur', () => {
         remove(ref(db, `data/${getAuth().currentUser.uid}/temp/form/${formId}/`));
@@ -361,12 +403,22 @@ const CadFormulacoes = () => {
                         />
                         <View style={{ flexDirection: 'row-reverse', justifyContent: 'space-around' }}>
                             <TouchableOpacity style={style.button}
-                                onPress={() => {
-                                    change({ data: { nome: nome, tipo: tipo, custo: custo.toFixed(3), materiasprimas: { ...materiasPrimas }, }, url: 'forms', set: 'set' })
+                                disabled={clicked}
+                                onPress={async () => {
+                                    setClicked(true);
+                                    let ok = await change({ data: { nome: nome, tipo: tipo, custo: custo.toFixed(3), materiasprimas: { ...materiasPrimas }, }, url: 'forms', set: 'set' })
+                                    if (!ok) {
+                                        Alert.alert('Erro', 'Erro ao salvar os dados');
+                                        return;
+                                    }
                                     setModalVisible(!modalVisible);
                                     navigation.replace('Formulações');
                                 }}>
-                                <Text style={style.textButton}>Salvar</Text>
+                                <Text style={style.textButton}>
+                                    {
+                                        clicked ? <ActivityIndicator size={18} color='black' /> : 'Salvar'
+                                    }
+                                </Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={{
                                 ...style.button,
@@ -510,9 +562,25 @@ const CadFormulacoes = () => {
 
     const renderItens = () => {
         let arr = [];
+        
         for (let i = 0; i < data.length; i++) {
             arr.push(<SearchItem key={i} item={data[i]} />)
         }
+
+
+        const ButtonOptions = () => {
+            return (
+                <TouchableOpacity
+                    key="btg"
+                    onPress={() => {
+                        setModalOptionsVisible(true);
+                    }}
+                >
+                    <AntDesign name="ellipsis1" size={26} color={style.colors.secondary} />
+                </TouchableOpacity>
+            )
+        }
+
         arr.push(
             <View
                 key="buttons"
@@ -520,31 +588,245 @@ const CadFormulacoes = () => {
                     flexDirection: 'row',
                     justifyContent: 'space-around',
                     alignItems: 'center',
+                    marginTop: 10,
+                    marginBottom: 10
                 }}
             >
-                <TouchableOpacity
-                    key="btv"
-                    style={style.button}
-                    onPress={() => {
-                        getItens(actualPage - 1)
-                    }}
-                >
-                    <Text style={style.text}>{actualPage === 1 ? '1' : '<'}</Text>
-                </TouchableOpacity>
-                <Text style={style.text}>{actualPage}/{numberPages}</Text>
-                <TouchableOpacity
-                    key="btg"
-                    style={style.button}
-                    onPress={() => {
-                        getItens(actualPage + 1)
-                    }}
-                >
-                    <Text style={style.text}>{actualPage === numberPages ? actualPage : '>'}</Text>
-                </TouchableOpacity>
+                {
+                    actualPage === 1 ?
+                        <AntDesign name="leftcircleo" size={26} color='transparent' /> :
+                        <TouchableOpacity
+                            key="btv"
+                            style={{ margin: 10 }}
+                            onPress={() => {
+                                getItens(actualPage - 1)
+                            }}
+                        >
+                            <AntDesign name="leftcircleo" size={26} color={style.colors.secondary} />
+                        </TouchableOpacity>
+                }
+
+                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    <ButtonOptions />
+                    <Text style={{ fontSize: 12 }}>{actualPage}/{numberPages}</Text>
+                </View>
+
+                {actualPage === numberPages ?
+                    <AntDesign name="rightcircleo" size={26} color='transparent' /> :
+                    <TouchableOpacity
+                        key="btg"
+                        onPress={() => {
+                            getItens(actualPage + 1)
+                        }}
+                    >
+                        <AntDesign name="rightcircleo" size={26} color={style.colors.secondary} />
+                    </TouchableOpacity>
+                }
             </View>
         )
+
+
         return arr;
     }
+
+    const ModalOptions = () => {
+        const [isOpen, setIsOpen] = useState(false);
+        const [nome, setNome] = useState('');
+        const [quantidade, setQuantidade] = useState('');
+        const [unMedida, setUnMedida] = useState('');
+        const [precoUn, setPrecoUn] = useState('');
+        const resetForm = () => {
+            setNome(''); setQuantidade(''); setUnMedida(''); setPrecoUn('');
+        }
+        const modalOptionStyle = {
+            ...style.modal,
+            height: 280
+        }
+
+        const ButtonAddMP = () => {
+            return (
+                <TouchableOpacity
+                    style={{ ...style.button, ...style.buttonOutline, width: '80%' }}
+                    onPress={
+                        () => {
+                            setIsOpen(true);
+                        }
+                    }
+                >
+                    <Text style={{ textAlign: 'center' }}>Adicionar matéria-prima não listada</Text>
+                </TouchableOpacity>
+            )
+        }
+
+        return (
+
+            <Modal animationType="fade" transparent={true} visible={modalOptionsVisible}>
+                <View style={style.modalShade}>
+                    <View style={isOpen ? style.modal : modalOptionStyle}>
+                        <View style={style.modalHeader}>
+                            <Text style={style.mainText}>{isOpen ? 'Adicionar Matéria-Prima' : 'Opções'}</Text>
+                        </View>
+
+                        {!isOpen ?
+                            <View style={{ flex: 1 }}>
+                                <View style={{ width: '100%', alignItems: 'center' }}>
+                                    <TouchableOpacity
+                                        style={{ ...style.button, ...style.buttonOutline, width: '80%' }}
+                                        onPress={
+                                            () => {
+                                                setModalOptionsVisible(false);
+                                                getItens();
+                                            }
+                                        }
+                                    >
+                                        <Text style={{ textAlign: 'center' }}>Voltar a página 1</Text>
+                                    </TouchableOpacity>
+
+                                </View>
+                                <TouchableOpacity
+                                    onPress={() => { setModalOptionsVisible(false) }}
+                                    style={{ position: 'absolute', bottom: 10, alignSelf: 'center' }}
+                                >
+                                    <MaterialCommunityIcons name="close-circle" size={26} color="red" />
+                                </TouchableOpacity>
+                            </View>
+                            :
+                            <ScrollView style={{ flex: 1 }}>
+                                <InputWithLabel
+                                    placeholder="Nome"
+                                    label="Nome"
+                                    value={nome}
+                                    onChangeText={t => { setNome(t) }}
+                                />
+                                <InputWithLabel
+                                    placeholder="Quantidade"
+                                    label="Quantidade"
+                                    type="numeric"
+                                    value={quantidade}
+                                    onChangeText={t => { setQuantidade(t) }}
+                                />
+                                <Select
+                                    label="Unidade de medida"
+                                    items={[
+                                        { label: 'Kilogramas - Kg', value: 'Kg' },
+                                        { label: 'Gramas - g', value: 'g' },
+                                        { label: 'Miligramas - mg', value: 'mg' },
+                                        { label: 'Litros - L', value: 'L' },
+                                        { label: 'Mililitros - ml', value: 'ml' },
+                                        { label: 'Unidade - un', value: 'un' },
+                                    ]}
+                                    value={unMedida}
+                                    onValueChange={v => setUnMedida(v)}
+                                />
+                                <InputWithLabel
+                                    placeholder="Preço unitário"
+                                    label="Preço unitário"
+                                    type="numeric"
+                                    value={precoUn}
+                                    onChangeText={t => { setPrecoUn(t) }}
+                                />
+                                <TouchableOpacity
+                                    style={{
+                                        ...style.button, alignSelf: 'center',
+                                        backgroundColor: nome === '' || quantidade === '' || unMedida === '' || precoUn === '' ? '#ccc' : style.colors.primary
+                                    }}
+                                    disabled={nome === '' || quantidade === '' || unMedida === '' || precoUn === ''}
+                                    onPress={
+                                        () => {
+                                            if (nome !== '' && quantidade !== '' && unMedida !== '' && precoUn !== '') {
+                                                cache(new Date(), nome, quantidade, unMedida, precoUn);
+                                                setIsOpen(false);
+                                                resetForm();
+                                            }
+                                        }
+                                    }
+                                >
+                                    <Text style={style.textButton}>Adicionar</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => { setIsOpen(false) }}
+                                    style={{ ...style.button, alignSelf: 'center', marginTop: 5, backgroundColor: 'gray' }}
+                                >
+                                    <Text style={{ color: 'white' }}>Cancelar</Text>
+                                </TouchableOpacity>
+
+
+                            </ScrollView>
+
+                        }
+
+                    </View>
+                </View>
+            </Modal>
+
+        )
+
+    }
+
+    const SearchBar = () => {
+        const [search, setSearch] = useState('');
+        const [searching, setSearching] = useState(false);
+        const [searchData, setSearchData] = useState([]);
+
+        useEffect(() => {
+            if (searchData.length > 0) {
+                setNotFound(false);
+                setData(searchData);
+            }
+        }, [searchData]);
+
+
+        return (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <InputWithLabel label="Pesquisar" value={search} onChangeText={t => setSearch(t)} />
+                {searching ? <ActivityIndicator size={24} color='black' /> : <>
+                    <TouchableOpacity
+                        disabled={search === '' || searching}
+                        style={{
+                            ...style.button, alignSelf: 'flex-end', backgroundColor:
+                                search === '' || searching ? '#ccc' :
+                                    style.colors.primary
+                        }}
+                        onPress={() => {
+                            setSearching(true);
+
+                            const dbRef = ref(db, `data/${getAuth().currentUser.uid}/mps`);
+                            const query_ = query(dbRef, orderByChild('nome'), startAt(search), endAt(search + '\uf8ff'));
+                            get(query_).then((snapshot) => {
+                                if (snapshot.exists()) {
+                                    const data = snapshot.val();
+                                    const keys = Object.keys(data);
+                                    const array = keys.map((key) => {
+                                        return { ...data[key], id: key };
+                                    });
+                                    setSearchData(array);
+                                }
+                            }).catch((error) => {
+                                console.error(error);
+                            }).finally(() => {
+                                setSearching(false);
+                            });
+                        }}
+                    >
+                        <AntDesign name="search1" size={24} color="white" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ ...style.button, alignSelf: 'flex-end', backgroundColor: style.colors.primary }}
+                        onPress={() => {
+                            setSearching(false);
+                            setSearch('');
+                            setNotFound(false);
+                            getItens();
+                        }}
+                    >
+                        <AntDesign name="closecircle" size={24} color="white" />
+                    </TouchableOpacity>
+                </>}
+            </View>
+        )
+    }
+
+    const [notFound, setNotFound] = useState(false);
 
     return (
         <ScrollView style={style.container}>
@@ -561,9 +843,11 @@ const CadFormulacoes = () => {
                 value={tipo}
             />
             <Text style={style.text}>Matérias-primas:</Text>
+            <SearchBar />
             {isLoading ? <ActivityIndicator size={24} color='black' /> :
                 renderItens()
             }
+
             <Text style={style.text}>Matérias-primas selecionadas:</Text>
             {materiasPrimas !== null ?
                 Object.keys(materiasPrimas).map((key, index) => {
@@ -611,6 +895,7 @@ const CadFormulacoes = () => {
                 </TouchableOpacity>
             </View>
             {modalVisible ? <Verificar /> : null}
+            {modalOptionsVisible ? <ModalOptions /> : null}
             <Padding value={40} />
         </ScrollView>
     )
@@ -629,7 +914,7 @@ const CadProdutos = () => {
     const [date, setDate] = useState(null);
     const [validade, setValidade] = useState(null);
     const [maoDeObra, setMaoDeObra] = useState('');
-    const [sugMaoDeObra, setSugMaoDeObra] = useState(0);
+    const [profit, setProfit] = useState(0);
     const navigation = useNavigation();
 
     const getFormulacoes = async () => {
@@ -667,6 +952,18 @@ const CadProdutos = () => {
         setNomeFormulacao(data.filter((item) => item._id === formulacao)[0].nome)
     }, [formulacao]);
 
+    useEffect(() => {
+        if (custo === '' || preco === '' || preco === 0 || maoDeObra === '' || quantidade === '' || quantidade === 0) return;
+        const c = parseFloat(custo);
+        const p = parseFloat(preco);
+        const m = parseFloat(maoDeObra);
+        const q = parseFloat(quantidade);
+        const profit = p - ((c + m) / q)
+        if (profit === Infinity || isNaN(profit)) return;
+        setProfit(profit.toFixed(2));
+    }, [custo, preco, maoDeObra, quantidade]);
+
+    const [clicked, setClicked] = useState(false);
     return (
         <ScrollView style={style.container} >
             {isLoading ?
@@ -692,38 +989,57 @@ const CadProdutos = () => {
                             setValidade(d);
                         }}
                     />
-                    <InputWithLabel value={custo.toString()} label="Custo" type="numeric" disabled={true} />
-                    <InputWithLabel onChangeText={t => setPreco(t)} value={preco} label="Preço de Venda" type="numeric" />
+                    <InputWithLabel value={custo.toString()} label="Custo (Total)" type="numeric" disabled={true} />
+                    <InputWithLabel onChangeText={t => setPreco(t)} value={preco} label="Preço de Venda (un.)" type="numeric" />
                     <InputWithLabel onChangeText={t => setMaoDeObra(t)} value={maoDeObra} label="Mão de Obra" type="numeric" />
                     <InputWithLabel label="Quantidade" type="numeric" value={quantidade} onChangeText={t => setQuantidade(t)} />
+                    <Text style={{ fontSize: 20, margin: 5 }}>Lucro aprox. por unidade: R${profit}</Text>
                     <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
                         <TouchableOpacity
                             style={style.button}
-                            onPress={() => {
+                            disabled={clicked}
+                            onPress={async () => {
                                 if (nome === '' || descricao === '' || custo === '' || preco === '' || quantidade === '' || date === null || validade === null || formulacao === '') {
                                     Alert.alert('Preencha todos os campos');
                                     return;
                                 }
-                                change({
-                                    data: {
-                                        nome: nome,
-                                        descricao: descricao,
-                                        custo: parseFloat(custo),
-                                        preco: parseFloat(preco),
-                                        quantidade: quantidade,
-                                        data: date,
-                                        validade: validade,
-                                        formulacao: formulacao,
-                                        maoDeObra: parseFloat(maoDeObra),
-                                        nomeFormulacao: nomeFormulacao
-                                    },
-                                    url: 'produtos',
-                                    set: 'set'
-                                })
-                                navigation.navigate('Produtos');
+                                var ok = false;
+                                setClicked(true)
+                                try {
+                                    ok = await change({
+                                        data: {
+                                            nome: nome,
+                                            descricao: descricao,
+                                            custo: parseFloat(custo),
+                                            preco: parseFloat(preco),
+                                            quantidade: quantidade,
+                                            data: date,
+                                            validade: validade,
+                                            formulacao: formulacao,
+                                            maoDeObra: parseFloat(maoDeObra),
+                                            lucro: profit,
+                                            nomeFormulacao: nomeFormulacao
+                                        },
+                                        url: 'produtos',
+                                        set: 'set'
+                                    })
+                                } catch (error) {
+                                    console.error(error);
+                                }
+                                finally {
+                                    setClicked(false);
+                                }
+                                if (!ok) {
+                                    return;
+                                }
+                                navigation.replace('Produtos');
                             }}
                         >
-                            <Text style={style.textButton}>Salvar</Text>
+                            <Text style={style.textButton}>
+                                {
+                                    clicked ? <ActivityIndicator size={18} color='black' /> : 'Salvar'
+                                }
+                            </Text>
                         </TouchableOpacity>
                     </View>
                     <Padding />
@@ -874,16 +1190,16 @@ const CadSaidas = () => {
     const renderItens = () => {
         let arr = [];
         arr.push(
-            <View key={'-1'} style={{ alignItems: 'center', borderBottomColor:'black',borderBottomWidth:1 }}>
+            <View key={'-1'} style={{ alignItems: 'center', borderBottomColor: 'black', borderBottomWidth: 1 }}>
                 <TouchableOpacity
-                    style={{...style.button, flexDirection: 'row', alignItems: 'center'}}
+                    style={{ ...style.button, flexDirection: 'row', alignItems: 'center' }}
                     onPress={() => {
                         navigation.navigate('Ler QR Code', {
                             vendaId: vendaId,
                             uid: getAuth().currentUser.uid,
                         });
                     }}>
-                    <Text style={{ color: style.colors.primary, marginRight:5 }}>Ler QR Code</Text>
+                    <Text style={{ color: style.colors.primary, marginRight: 5 }}>Ler QR Code</Text>
                     <AntDesign name="qrcode" size={24} color={style.colors.primary} />
                 </TouchableOpacity>
             </View>
@@ -892,7 +1208,7 @@ const CadSaidas = () => {
             if (data[i].quantidade !== 0)
                 arr.push(<SearchItem key={i} item={data[i]} />)
         }
-        if (arr.length === 1) arr.push(<Text key="noItens" style={{color:'red',alignSelf:'center'}}>Nenhum produto em estoque.</Text>)
+        if (arr.length === 1) arr.push(<Text key="noItens" style={{ color: 'red', alignSelf: 'center' }}>Nenhum produto em estoque.</Text>)
         if (numberPages > 1) {
             arr.push(
                 <View
@@ -1012,4 +1328,4 @@ const CadSaidas = () => {
     )
 }
 
-export { CadMateriasPrimas, CadFormulacoes, CadProdutos, CadSaidas };
+export { CadMateriasPrimas, CadFormulacoes, CadProdutos, CadSaidas, change };

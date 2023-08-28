@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollView } from 'react-native';
 import Padding from '../components/Padding';
 import { getAuth, signOut } from 'firebase/auth';
-import { getDatabase, ref, get } from 'firebase/database';
+import { getDatabase, ref, get, remove } from 'firebase/database';
 import { Alert } from 'react-native';
 import firebase from '../services/firebaseConfig';
 
@@ -73,14 +73,31 @@ function Main() {
     }
 
     const renderAvisos = () => { //renderizar os avisos
+        let arr = [];
         if (!avisos.noMp && !avisos.noProd) {
-            return (
-                <Text>Está tudo em dia</Text>
+            arr.push(
+                <Text key={0}>Está tudo em dia com seu estoque</Text>
             )
         }
-        let arr = [];
-        if (avisos.noMp) arr.push(<Text style={styles.text} key={0}>Há matérias-primas sem estoque.</Text>);
-        if (avisos.noProd) arr.push(<Text style={styles.text} key={1}>Há produtos sem estoque.</Text>);
+
+        if (avisos.noMp) arr.push(<Text style={styles.text} key={1}>Há matérias-primas sem estoque.</Text>);
+        if (avisos.noProd) arr.push(<Text style={styles.text} key={2}>Há produtos sem estoque.</Text>);
+
+        get(ref(db, 'avisos'))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const values = Object.entries(snapshot.val());
+                    for (let i = 0; i < values.length; i++) {
+                        arr.push(
+                            <Text style={styles.text} key={'av' + i}>{values[i]}</Text>
+                        )
+                    }
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+
         return arr;
     }
 
@@ -126,11 +143,23 @@ function Main() {
         getRecentes();
     });
 
+    const cleanCache = async () => {
+        try {
+            let snapshot = await get(ref(getDatabase(), 'data/' + getAuth().currentUser.uid + '/temp'))
+            if (snapshot.exists()) {
+                remove(ref(getDatabase(), 'data/' + getAuth().currentUser.uid + '/temp'))
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+
+
     useEffect(() => {
         setLoading(true);
-
-        fetch('https://controle-produtos.onrender.com/'); //para manter o servidor ativo
         getUser().then(() => {
+            cleanCache();
             getAvisos();
             getRecentes()
         }).finally(() => {

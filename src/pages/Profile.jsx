@@ -7,6 +7,7 @@ import { InputWithLabel } from "../components/InputWithLabel";
 import { getAuth, signOut } from 'firebase/auth';
 //import { getDatabase, ref, get } from 'firebase/database';
 import { updateEmail, signInWithEmailAndPassword } from "firebase/auth";
+import { get, getDatabase, ref } from "firebase/database";
 
 
 
@@ -221,15 +222,15 @@ const Profile = () => {
     }, []);
     return (
         <View style={style.container}>
-                <Text numberOfLines={3} style={{
-                    ...style.text,
-                    textAlign: 'center',
-                    marginBottom: 20,
-                    borderBottomColor: style.colors.secondary,
-                    borderBottomWidth: 2,
-                }}>
-                    {username}
-                </Text>
+            <Text numberOfLines={3} style={{
+                ...style.text,
+                textAlign: 'center',
+                marginBottom: 20,
+                borderBottomColor: style.colors.secondary,
+                borderBottomWidth: 2,
+            }}>
+                {username}
+            </Text>
 
             <View>
                 <Text style={style.text}>E-mail:</Text>

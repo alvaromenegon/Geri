@@ -9,6 +9,9 @@ import { useNavigation } from "@react-navigation/native";
 import * as Print from 'expo-print';
 import getHtml from "../services/getHtml";
 import { Feather } from '@expo/vector-icons';
+import gerarPlanilha from "../services/gerarPlanilha";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import style from '../assets/style.json'
 
 export default function ItemList(props) {
     const data = props.data;
@@ -78,14 +81,10 @@ const TableCell = (props) => {
         return (
             <View style={stylesTable.table}>
                 <Text style={stylesTable.text}>{props.title}</Text>
-                <View>
-                    <TouchableOpacity style={{
-                        ...stylesTable.btn,
-                        borderColor: colors.primaryDark, borderWidth: 1,
-                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                    }}
+                <View style={{width:'45%'}}>
+                    <TouchableOpacity style={style.buttonTableCell}                       
                         onPress={() => {
-                            Alert.alert('Em breve...')
+                            Alert.alert('Em breve.')
                             /*try {
                                 navigation.navigate('Gerenciar Matéria-Prima', { id: props.id })
                             }
@@ -94,13 +93,11 @@ const TableCell = (props) => {
                                 alert('Houve um erro ao tentar acessar a tela de gerenciamento')
                             }*/
                         }}>
-                        <Text style={stylesTable.text}>Editar   <AntDesign name="edit" size={20} color={colors.primaryDark} /></Text>
+                        <Text style={stylesTable.text}>Editar</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{
-                        ...stylesTable.btn,
-                        borderColor: 'red', borderWidth: 1, margin: 5,
-                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                    }}
+                    <TouchableOpacity style={{...style.buttonTableCell,
+                    backgroundColor:'#ffb3b3'    
+                }}
                         onPress={() => {
                             Alert.alert(
                                 "Excluir",
@@ -120,7 +117,7 @@ const TableCell = (props) => {
                                 ]
                             );
                         }}>
-                        <Text style={stylesTable.text}>Excluir   <AntDesign name="delete" size={20} color={'red'} /></Text>
+                        <Text style={{...stylesTable.text, color:'black'}}>Excluir</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -140,6 +137,7 @@ const TableCell = (props) => {
         )
     }
     if (props.export) {
+        const type = props.type || 'pdf'
         const print = async () => {
             const nome = props.data.nome;
             const preco = props.data.preco;
@@ -157,21 +155,31 @@ const TableCell = (props) => {
 
         return (
             <View style={stylesTable.table}>
-                <Text style={stylesTable.text}>{props.title}</Text>
-                <View>
-                    <TouchableOpacity style={{
-                        ...stylesTable.btn,
-                        borderColor: colors.primaryDark, borderWidth: 1,
-                        padding: 5, backgroundColor: colors.primaryLight, borderRadius: 5
-                    }}
-                        onPress={() => print()}
-                    >
-                        <Text style={stylesTable.text}>
-                            Salvar  <Feather name="printer" size={20} color={colors.primaryDark} />
-                        </Text>
-                    </TouchableOpacity>
+                <Text style={stylesTable.text}>{props.title}</Text>{
+                    type === 'pdf' ?
 
-                </View>
+                        <View style={{width:'45%'}}>
+                            <TouchableOpacity style={style.buttonTableCell}
+                                onPress={() => print()}
+                            >
+                                <Text style={stylesTable.text}>Salvar</Text>
+                            </TouchableOpacity>
+
+                        </View> :
+                        <View style={{width:'45%'}}>
+                            <TouchableOpacity style={style.buttonTableCell}
+                                onPress={() => gerarPlanilha(props.data, props.name, 'formulacao', 'save')}
+                            >
+                                <Text style={stylesTable.text}>Salvar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={style.buttonTableCell}
+                                onPress={() => gerarPlanilha(props.data, props.name, 'formulacao', 'share')}
+                            >
+                                <Text style={stylesTable.text}>Compartilhar</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                }
             </View>
         )
     }
@@ -225,6 +233,7 @@ const TableForm = (props) => {
             <TableCell title='Tipo ' value={data.tipo}></TableCell>
             <TableCell title='Custo' value={custo}></TableCell>
             <TableCell title='Matérias-Primas' list={true} value={mps}></TableCell>
+            <TableCell title='Gerar Planilha' export={true} type='xlsx' data={data.materiasprimas} />
             <TableCell title='Editar ou Excluir' url={`forms/${data._id}`} buttons={true}></TableCell>
         </>
     )

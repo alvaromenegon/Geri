@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Modal, Keyboard } from 'react-native';
-import { get, query, ref, limitToFirst, getDatabase, set } from 'firebase/database';
+import { ScrollView, View, Text, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
+import { get, query, ref, limitToFirst, getDatabase } from 'firebase/database';
 import { getAuth } from 'firebase/auth';
 import { AntDesign } from '@expo/vector-icons';
 import { InputWithLabel, Select } from '../components/InputWithLabel';
@@ -70,11 +70,19 @@ const Calculadora = () => {
                             <TouchableOpacity
                                 style={{ ...style.button, alignSelf: 'center', marginTop:15, flexDirection: 'row', justifyContent: 'space-between' }}
                                 onPress={() => {
-                                    gerarPlanilha(materiasPrimas);
+                                    gerarPlanilha(materiasPrimas, new Date().getTime().toString(), 'custo','save');
                                 }}
                             >
                                 <Text style={{ color: 'white', marginRight:5 }}>Salvar como planilha</Text>
                                 <MaterialCommunityIcons name="microsoft-excel" size={24} color="white" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ ...style.button, alignSelf: 'center', marginTop:15, flexDirection: 'row', justifyContent: 'space-between' }}
+                                onPress={() => {
+                                    gerarPlanilha(materiasPrimas, new Date().getTime().toString(), 'custo','share');
+                                }}
+                            >
+                                <Text style={{ color: 'white', marginRight:5 }}>Compartilhar</Text>
                             </TouchableOpacity>
 
                         </View>
@@ -402,6 +410,7 @@ const Calculadora = () => {
         )
         return arr;
     }
+
 
     const focusList = () => {
         ref_.current.scrollToEnd({ animated: true });
