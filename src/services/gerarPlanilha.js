@@ -33,12 +33,12 @@ const createJsonFromData = (data, parent) => {
                 'Nome': entries[i][1].nome,
                 'Quantidade': entries[i][1].quantidade,
                 'Custo': entries[i][1].custo,
-                '%': { t: 'n', v: i + 1, f: '(B' + (i + 2) + '/' + qtdTotal + ')' }
+                '%': { t: 'n', v: i + 1, f: `(B${i + 2}/B${len+1})` }
             })
         }
         json.push({
             'Nome': 'Total',
-            'Quantidade': { t: "n", v: len, f: `SUM(B2;B${len + 1})` }, 
+            'Quantidade': { t: "n", v: len, f: `SUM(B2:B${len + 1})` }, 
             'Custo': { t: "n", v: len, f: `SUM(C2:C${len + 1})` },
             '%': 1
         })
