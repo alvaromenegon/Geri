@@ -29,11 +29,13 @@ const createJsonFromData = (data, parent) => {
         let qtdTotal = 0;
         qtdTotal = entries.reduce((a, b) => a + b[1].quantidade, 0);
         for (let i = 0; i < len; i++) {
+            qtd = typeof entries[i][1].quantidade === 'number' ? entries[i][1].quantidade : parseFloat(entries[i][1].quantidade.replace(',', '.'));
+            //prevenir inconsistencia de dados
             json.push({
                 'Nome': entries[i][1].nome,
-                'Quantidade': entries[i][1].quantidade,
+                'Quantidade': qtd,
                 'Custo': entries[i][1].custo,
-                '%': { t: 'n', v: i + 1, f: `(B${i + 2}/B${len+1})` }
+                '%': { t: 'n', v: i + 1, f: `(B${i + 2}/B${len+2})` }
             })
         }
         json.push({
@@ -56,13 +58,11 @@ export default async function gerarPlanilha(data, nome, parent, action) {
         const ws = XLSX.utils.json_to_sheet(json)
         if (parent === 'custo') {
             for (let i = 0; i <= len; i++) {
-                console.log('C' + (i + 2))
                 ws[`C${i + 2}`].z = '"R$"#,##0.00_);\\("$"#,##0.00\\)';
             }
         }
         else if (parent === 'formulacao') {
             for (let i = 0; i <= len; i++) {
-                console.log('B' + (i + 2) + 'C' + (i + 2) + 'D' + (i + 2))
                 ws[`B${i + 2}`].z = '#,##0.00';
                 ws[`C${i + 2}`].z = '"R$"#,##0.00_);\\("$"#,##0.00\\)';
                 ws[`D${i + 2}`].z = "0.00%";
