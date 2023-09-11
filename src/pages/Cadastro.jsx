@@ -45,13 +45,13 @@ export const Cadastro = () => {
                 const user = userCredential.user;
                 updateProfile(auth.currentUser, {
                     displayName: nome,
-                })/*.then(() => {
+                }).then(() => {
                     sendEmailVerification(auth.currentUser)
                     .then(() => {
                         // Email verification sent!
                         Alert.alert('Verifique seu e-mail', 'Um e-mail de verificação foi enviado para ' + email);
                     })
-                })*/
+                })
                     .then(() => { //cria uma entrada no BD apenas com o nome e o e-mail do usuário
                         set(ref(db, 'usuarios/' + user.uid), {
                             nome: nome,

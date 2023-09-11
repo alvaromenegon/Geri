@@ -2,7 +2,7 @@
   "expo": {
     "name": "Geri - Gerenciamento Inteligente",
     "slug": "Geri",
-    "version": "0.9.9",
+    "version": "0.9.9b",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
