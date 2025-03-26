@@ -4,8 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 
 const Listagens = () => {
-    //Remover
-    //não é utilizado
     const [uid, setUid] = useState('');
     useEffect(() => {
         AsyncStorage.getItem('user').then((user) => {

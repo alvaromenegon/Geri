@@ -17,7 +17,6 @@ import { useEffect, Alert } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
-
 const Stack = createNativeStackNavigator();
 
 const DefaultScreen = () => {

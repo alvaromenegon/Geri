@@ -8,6 +8,8 @@ import firebase from "../services/firebaseConfig";
 import { getAuth } from "firebase/auth";
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { collection, getFirestore, onSnapshot, query, orderBy, limit, startAfter, getCountFromServer } from "firebase/firestore";
+import { Select } from "./InputWithLabel";
 
 export default function Lists(props) { //Componente que renderiza uma lista de itens, com base nos parâmetros passados por props
     const [loading, setLoading] = useState(true); // a fim de reutilizar o componente para diferentes listas
@@ -15,7 +17,11 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
     const [dataLength, setDataLength] = useState(0);
     const [active, setActive] = useState(1);
     const [numberPages, setNumberPages] = useState(1);
-    const db = getDatabase(firebase);
+    const [last, setLast] = useState(null);
+    const [order, setOrder] = useState(['dataCompra', 'desc']);
+    
+    //const db = getDatabase(firebase);
+    const database = getFirestore(firebase);
     const uid = getAuth().currentUser.uid;
     const navigation = useNavigation();
 
@@ -33,7 +39,11 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                 <TouchableOpacity key={props.i}
                     onPress={() => {
                         setActive(props.i)
-                        getItens(props.i)
+                        let page = props.i;
+                        if (page == 1) {
+                            page = 0;
+                        }
+                        getItens(page)
                     }}
                     style={styles.button}>
                     <Text style={{ fontSize: 20, marginBottom: 5 }}>{props.i}</Text>
@@ -42,12 +52,61 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
         }
     };
 
-    const getItens = (page) => { //função que busca os itens no BD com base na url passada como props
+    const getItens = async (page) => { //função que busca os itens no BD com base na url passada como props
         setLoading(true);
-        const p = page ?? 1;
-        const dbRef = ref(db, `data/${uid}/${props.url}`);
-        //Implementar o onValue
-        onValue(dbRef, (snapshot) => {
+        //console.log(page)
+        page = page ?? 0;
+        //const dbRef = ref(db, `data/${uid}/${props.url}`);
+        //Alterando para o Firestore
+
+        const q =
+            page == 0 ?
+                query(
+                    collection(database, `data/${props.url}/${uid}`),
+                    orderBy(order[0], order[1]),
+                    limit(10)
+                ) :
+                query(
+                    collection(database, `data/${props.url}/${uid}`),
+                    orderBy(order[0], order[1]),
+
+                    limit(10),
+                    startAfter(last)
+                );
+
+        //console.log(`data/${props.url}/${uid}`)
+        const unSub = onSnapshot(q, (snapshot) => {
+            const docs = snapshot.docs;
+            const data = [];
+            docs.forEach(doc => {
+                data.push(doc.data());
+            });
+            setData(data);
+            /*console.log('page: '+page)
+            console.log('docs: '+docs.length)
+            console.log(docs)
+            setLast(docs[docs.length - 1]);
+            console.log('last')
+            console.log(docs[docs.length - 1])*/
+            setLast(docs[docs.length - 1]);
+            //console.log(data)
+            //setNumberPages(Math.ceil(docs.length / 10));
+
+
+            /*setData(snapshot.docs);
+            setNumberPages(Math.ceil(docs.size / 10));
+            console.log(data)*/
+        });
+        const countSnapshot = await getCountFromServer(collection(database, `data/${props.url}/${uid}`));
+        const count = countSnapshot.data().count;
+        setDataLength(count);
+        setNumberPages(Math.ceil(count / 10));
+        setLoading(false);
+        return () => unSub();
+
+
+
+        /*onValue(dbRef, (snapshot) => {
             try {
                 if (snapshot.exists()) {
                     setData(snapshot.val())
@@ -63,36 +122,39 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
             } finally {
                 setLoading(false);
             };
-        });
+        });*/
     }
 
     const renderList = () => { //renderiza os itens na tela
         let arr = [];
-        let i = (active - 1) * 10;
-        let j = i + 10;
-        if (dataLength == 0) {
+        let i = 0;
+        const listLength = data.length;
+        let j = listLength;
+        if (listLength == 0) {
             return <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>
         }
-        const values = Object.values(data);
         for (i; i < j; i++) {
             arr.push(<ItemList
-                key={values[i]._id}
+                key={data[i].firebaseID}
                 format={props.format}
-                data={values[i]}
+                data={data[i]}
             />);
-            if (i == dataLength - 1) {
+            if (i == listLength - 1) {
                 break;
             }
         }
-        numberPages > 1 ?
+        if (numberPages > 1) {
             arr.push(
                 <View
                     key={i}
                     style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: 5 }}
                 >
                     {pagination({ n: numberPages })}
-                </View>)
-            : null
+                </View>);
+                arr.push(
+                    <Text key='pgt' style={{ fontSize: 12, marginBottom: 10}}>{getPaginationText()}</Text>
+                )
+        }
         return arr;
     }
 
@@ -106,14 +168,33 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
         return arr;
     }
 
+    const getPaginationText = () => {
+        let max = '';
+        if (active * 10 > dataLength) {
+            max = dataLength;
+        }
+        else {
+            max = active * 10;
+        }
+        const text = `Exibindo ${active * 10 - 9} - ${max} de ${dataLength} itens`
+        return text;
+    }
+
     useEffect(() => {
         setLoading(true);
         getItens();
+
     }, []);
 
-    const navegarPara = format =>{
+    const changeOrder = (value) => {
+        setOrder(value);
+        getItens();
+    }
+
+
+    const navegarPara = format => {
         return Enumerator = {
-            'mp': 'Cadastrar Matéria-Prima',
+            'mps': 'Cadastrar Matéria-Prima',
             'form': 'Cadastrar Formulação',
             'prod': 'Cadastrar Produto',
             'venda': 'Cadastrar Saída'
@@ -128,6 +209,17 @@ export default function Lists(props) { //Componente que renderiza uma lista de i
                     <ActivityIndicator size="large" color={style.colors.primaryDark} />
                     :
                     <ScrollView showsVerticalScrollIndicator={false}>
+                        <Select 
+                        label="Ordenar por"  
+                        value={order}
+                        items={[
+                            { label: 'Data de compra', value: ['dataCompra','desc'] },
+                            { label: 'Nome (A-Z)', value: ['nome','asc'] },
+                            { label: 'Nome (Z-A)', value: ['nome','desc'] },
+                            { label: 'Data de validade (mais proxima)', value: ['dataValidade','asc'] },
+                            { label: 'Data de validade (mais distante)', value: ['dataValidade','desc'] },
+                        ]} onValueChange={(value) => { changeOrder(value) }} />
+
                         <TouchableOpacity
                             onPress={() => { navigation.navigate(navegarPara(props.format)) }}
                             style={{ alignSelf: 'flex-end', marginBottom: 10, borderColor: style.colors.primaryDark, borderWidth: 1, padding: 5, borderRadius: 5 }}

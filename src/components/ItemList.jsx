@@ -17,6 +17,10 @@ export default function ItemList(props) {
     const data = props.data;
     const format = props.format;
     const [open, setOpen] = useState(false);
+    /*if (data.validade){
+        console.log(typeof data.validade)
+    }*/
+    
 
     return (
         <View style={styles.itemList} >
@@ -25,7 +29,7 @@ export default function ItemList(props) {
                 </View>
             }
             <View style={styles.itemListHeader}>
-                <Text style={{ fontSize: 28, marginBottom: 5 }}>{format === 'venda' ? props.data.cliente + ' ' + new Date(props.data.data).toLocaleDateString('pt-BR') : props.data.nome}</Text>
+                <Text style={{ fontSize: 28, marginBottom: 5 }}>{format === 'venda' ? data.cliente + ' ' + new Date(data.data).toLocaleDateString('pt-BR') : data.nome}</Text>
                 <TouchableOpacity
                     style={styles.btn}
                     onPress={() => {
@@ -54,7 +58,7 @@ export default function ItemList(props) {
 
                 :
                 props.format === 'mp' ?
-                    <Text>Validade: {new Date(data.validade).toLocaleDateString('pt-BR')}</Text>
+                    <Text>Validade: {data.validade.toDate().toLocaleDateString('pt-BR')}</Text>
                     :
                     props.format === 'form' ?
                         <Text>{data.tipo} - R$ {data.custo}</Text>
@@ -200,8 +204,8 @@ const TableMP = (props) => {
     const precoUn = `R$ ${data.precoUn}/${data.unMedida}`
     const comprado = `${data.comprado} ${data.unMedida}`
     const quantidade = `${data.quantidade} ${data.unMedida}`
-    const dataCompra = new Date(data.dataCompra).toLocaleDateString('pt-BR');
-    const validade = new Date(data.validade).toLocaleDateString('pt-BR');
+    const dataCompra = data.dataCompra.toDate().toLocaleDateString('pt-BR');
+    const validade = data.validade.toDate().toLocaleDateString('pt-BR');
     return (
         <>
             <TableCell title='Nome' value={data.nome}></TableCell>

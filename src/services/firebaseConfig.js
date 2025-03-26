@@ -4,14 +4,15 @@ import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
+console.log(process.env.EXPO_PUBLIC_FIREBASE_APP_ID);
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAdTUr6hPX0ZFk-k8xREmiWjpohDexLkJE",
-  authDomain: "controlemob-13542.firebaseapp.com",
-  projectId: "controlemob-13542",
-  storageBucket: "controlemob-13542.appspot.com",
-  messagingSenderId: "1090573562896",
-  appId: "1:1090573562896:web:d982fa0829f15e8d588695"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID}.firebaseapp.com`,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: `${process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID}.appspot.com`,
+  messagingSenderId: process.env.EXPO_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase

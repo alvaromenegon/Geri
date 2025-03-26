@@ -1,5 +1,4 @@
-import { BarCodeScanner } from "expo-barcode-scanner"
-import { StyleSheet, View, TouchableOpacity ,Text, Alert} from "react-native"
+import { StyleSheet, View, TouchableOpacity, Text, Alert } from "react-native"
 import style from "../assets/style.json"
 import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/core";
@@ -7,6 +6,7 @@ import { get, getDatabase, ref } from "firebase/database";
 import { InputWithLabel } from "./InputWithLabel";
 import { AntDesign } from '@expo/vector-icons';
 import { update, set } from "firebase/database";
+import { Camera } from "expo-camera";
 
 export default function QRCodeScanner({ route }) {
     const navigation = useNavigation();
@@ -18,38 +18,41 @@ export default function QRCodeScanner({ route }) {
     const vendaId = route.params.vendaId;
     const db = getDatabase();
 
-    const handleBarCodeScanned = ({ t, data }) => {
-        get(ref(db, `data/${uid}/produtos/${data}`)).then((snapshot) => {
-            if (snapshot.exists()) {
-                setProduto(snapshot.val());
-            }
-            else {
-                Alert.alert("Produto não encontrado");
-            }
-        }).catch((error) => {
+    const handleBarCodeScanned = async (scanningResult) => {
+        const { t, data } = scanningResult;
+        const snapshot = await get(ref(db, `data/${uid}/produtos/${data}`)).catch((error) => {
             console.error(error);
-        }).finally(() => {
-            if (produto)
-                setScanned(true);
         });
+        if (snapshot.exists()) {
+            setProduto(snapshot.val());
+        }
+        else {
+            setScanned(false);
+            Alert.alert("Produto não encontrado");
+        }
+        if (produto) setScanned(true);
+
+        setTimeout(() => {
+            setScanned(false);
+        }, 3000);
     };
 
     useEffect(() => {
         const getBarCodeScannerPermissions = async () => {
-            const { status } = await BarCodeScanner.requestPermissionsAsync();
+            const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === 'granted');
         };
         getBarCodeScannerPermissions();
     }, []);
 
-    const cache = () => {
+    const cache = async () => {
         if (quantidade == 0 || quantidade == '' || quantidade == '0') {
-            set(ref(db, `data/${uid}/temp/venda/${vendaId}/${produto.id}`), null)
+            await set(ref(db, `data/${uid}/temp/venda/${vendaId}/${produto.id}`), null)
             return;
         }
         const preco = produto.preco * parseInt(quantidade);
-        set(ref(db, `data/${uid}/temp/venda/${vendaId}/empty`), null)
-        update(ref(db, `data/${uid}/temp/venda/${vendaId}/${produto._id}`), {
+        await set(ref(db, `data/${uid}/temp/venda/${vendaId}/empty`), null)
+        await update(ref(db, `data/${uid}/temp/venda/${vendaId}/${produto._id}`), {
             id: produto._id,
             quantidade: parseFloat(quantidade),
             nome: produto.nome,
@@ -67,32 +70,39 @@ export default function QRCodeScanner({ route }) {
     return (
         <View style={{ flex: 1 }}>
             {!scanned ? <>
-                <BarCodeScanner
+                <Camera
+                    type={Camera.Constants.Type.back}
+                    barcodeScanningEnabled={true}
                     onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
                     style={StyleSheet.absoluteFillObject}
+                    barcodeTypes={[
+                        Camera.Constants.BarcodeScannerType.qr,
+                        Camera.Constants.BarcodeScannerType.ean13,
+                        Camera.Constants.BarcodeScannerType.code128
+                    ]}
                 />
                 <TouchableOpacity
-                 style={{
-                     borderRadius: 50,
-                     backgroundColor: 'red',
-                     position: 'absolute',
-                     bottom: 0,
-                     margin: 20,
-                     padding: 10,
-                     alignSelf: 'center'
-                 }}
-                 onPress={() => {
-                     setScanned(false)
-                     navigation.goBack();
-                 }}>
-                 <AntDesign name="close" size={24} color="white" />
-             </TouchableOpacity>
-                </> :
+                    style={{
+                        borderRadius: 50,
+                        backgroundColor: 'red',
+                        position: 'absolute',
+                        bottom: 0,
+                        margin: 20,
+                        padding: 10,
+                        alignSelf: 'center'
+                    }}
+                    onPress={() => {
+                        setScanned(false)
+                        navigation.goBack();
+                    }}>
+                    <AntDesign name="close" size={24} color="white" />
+                </TouchableOpacity>
+            </> :
                 <View style={style.container}>
                     <Text style={style.text}>Produto: {produto.nome}</Text>
-                    <InputWithLabel onChangeText={t=>setQuantidade(t)}
-                    label={"Quantidade - "+produto.quantidade+" em estoque"} 
-                    value={quantidade} type="numeric" />
+                    <InputWithLabel onChangeText={t => setQuantidade(t)}
+                        label={"Quantidade - " + produto.quantidade + " em estoque"}
+                        value={quantidade} type="numeric" />
                     <TouchableOpacity style={style.button} onPress={() => {
                         if (parseFloat(quantidade) > parseFloat(produto.quantidade)) {
                             Alert.alert("Quantidade maior que a disponível");
